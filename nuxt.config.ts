@@ -6,7 +6,13 @@ export default defineNuxtConfig({
     ssr: true,
 
     // Global CSS
-    css: ["bootstrap/dist/css/bootstrap.min.css", "~/assets/css/main.css"],
+    css: [
+        "bootstrap/dist/css/bootstrap.min.css",
+        "swiper/css",
+        "swiper/css/navigation",
+        "swiper/css/pagination",
+        "~/assets/css/main.css",
+    ],
 
     // Runtime config
     runtimeConfig: {
@@ -76,5 +82,11 @@ export default defineNuxtConfig({
     // Nitro configuration
     nitro: {
         compressPublicAssets: true,
+    },
+    devProxy: {
+        "/wp-content": {
+            target: "https://cutoutpartner-api.com/wp-content",
+            changeOrigin: true,
+        },
     },
 });

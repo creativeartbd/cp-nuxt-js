@@ -12,10 +12,12 @@
         "start": "node .output/server/index.mjs"
     },
     "dependencies": {
+        "@img-comparison-slider/vue": "^8.0.0",
         "@pinia/nuxt": "^0.5.4",
         "@vueuse/nuxt": "^11.1.0",
         "bootstrap": "^5.3.3",
         "nuxt": "^3.17.7",
+        "swiper": "^11.2.10",
         "vue": "^3.4.0"
     },
     "devDependencies": {
