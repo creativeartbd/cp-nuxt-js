@@ -1,6 +1,9 @@
 // nuxt.config.ts - Updated with Bootstrap
 export default defineNuxtConfig({
     compatibilityDate: "2025-07-23",
+    devServer: {
+        port: 8080,
+    },
 
     // Enable SSR
     ssr: true,
@@ -8,6 +11,7 @@ export default defineNuxtConfig({
     // Global CSS
     css: [
         "bootstrap/dist/css/bootstrap.min.css",
+        "bootstrap-icons/font/bootstrap-icons.css",
         "swiper/css",
         "swiper/css/navigation",
         "swiper/css/pagination",

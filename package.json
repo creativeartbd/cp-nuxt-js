@@ -16,6 +16,7 @@
         "@pinia/nuxt": "^0.5.4",
         "@vueuse/nuxt": "^11.1.0",
         "bootstrap": "^5.3.3",
+        "bootstrap-icons": "^1.13.1",
         "nuxt": "^3.17.7",
         "swiper": "^11.2.10",
         "vue": "^3.4.0"

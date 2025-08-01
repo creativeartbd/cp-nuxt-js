@@ -1,4 +1,4 @@
-<!-- pages/index.vue - Fixed Dynamic Component Version -->
+<!-- pages/[slug].vue - Updated to match index.vue -->
 <template>
     <div class="home-page">
         <!-- Loading State -->
@@ -10,8 +10,8 @@
         <!-- Error State -->
         <div v-else-if="error" class="error-container">
             <div class="container">
-                <h1>Welcome to Cutout Partner</h1>
-                <p>Professional photo editing services with AI-powered background removal and retouching.</p>
+                <h1>Page Not Found</h1>
+                <p>The page "{{ $route.params.slug }}" doesn't exist.</p>
                 <p>
                     <small>{{ error }}</small>
                 </p>
@@ -20,6 +20,8 @@
 
         <!-- Content from WordPress -->
         <div v-else-if="data && data.sections && data.sections.length > 0" class="wp-content">
+            <TheHeaderBannerVue :data="data" />
+
             <!-- Loop through all sections -->
             <template v-for="(section, index) in data.sections" :key="index">
                 <div v-if="section.section_content && Array.isArray(section.section_content)" class="section-wrapper">
@@ -47,8 +49,8 @@
         <!-- Default Content if no sections -->
         <div v-else class="default-content">
             <div class="container">
-                <h1>Welcome to Cutout Partner</h1>
-                <p>Professional photo editing services with AI-powered background removal and retouching.</p>
+                <h1>{{ data?.page?.title || "Page" }}</h1>
+                <p>This page exists but has no content yet.</p>
             </div>
         </div>
     </div>
@@ -56,8 +58,10 @@
 
 <script setup>
 import { markRaw } from "vue";
+// page header
+import TheHeaderBannerVue from "../components/TheHeaderBanner.vue";
 
-// Import all section components
+// Import all section components (SAME AS INDEX.VUE)
 import HomeSlider from "~/components/sections/HomeSlider.vue";
 import WeArePassionate from "~/components/sections/WeArePassionate.vue";
 import OurEditingServices from "~/components/sections/OurEditingServices.vue";
@@ -67,14 +71,18 @@ import TryOurEditingServices from "~/components/sections/TryOurEditingServices.v
 import HowItWorks from "~/components/sections/HowItWorks.vue";
 import FAQ from "~/components/sections/Faq.vue";
 import CallToAction from "~/components/layout/CallToAction.vue";
+import WhoWeAre from "~/components/sections/WhoWeAre.vue";
+import QualityAssurance from "~/components/sections/QualityAssurance.vue";
+import WeHaveAccomplished from "~/components/sections/WeHaveAccomplished.vue";
 
 const { $api } = useNuxtApp();
+const route = useRoute();
 
 const loading = ref(true);
 const data = ref(null);
 const error = ref(null);
 
-// FIXED: Direct component mapping using markRaw (no string names)
+// SAME component mapping as index.vue
 const componentMap = markRaw({
     home_slider: HomeSlider,
     we_are_passionate: WeArePassionate,
@@ -85,51 +93,69 @@ const componentMap = markRaw({
     how_it_works: HowItWorks,
     faq: FAQ,
     call_to_action: CallToAction,
+    who_we_are: WhoWeAre,
+    quality_assurance: QualityAssurance,
+    we_ve_accomplished: WeHaveAccomplished,
 });
 
-// Fetch homepage data on client side
+// Get the slug from the route
+const slug = computed(() => route.params.slug);
+
+// Fetch page data on client side (SAME PATTERN AS INDEX.VUE)
 onMounted(async () => {
-    console.log("Homepage mounted");
+    console.log("Dynamic page mounted for slug:", slug.value);
 
     try {
-        console.log("Fetching homepage data...");
-        const result = await $api.getPage("home");
-        console.log("Homepage data received:", result);
+        console.log("Fetching page data...");
+        const result = await $api.getPage(slug.value);
+        console.log("Page data received:", result);
         data.value = result;
 
         // Set SEO meta tags
         if (result?.seo) {
             useHead({
-                title: result.seo.title || "Cutout Partner - Professional Photo Editing Services",
+                title: result.seo.title || result.page?.title || "Cutout Partner",
                 meta: [
                     {
                         name: "description",
-                        content:
-                            result.seo.description ||
-                            "Professional photo editing services with AI-powered background removal, retouching, and image enhancement.",
+                        content: result.seo.description || "Professional photo editing services",
                     },
+                    { property: "og:title", content: result.seo.og_title || result.seo.title || result.page?.title },
+                    { property: "og:description", content: result.seo.og_description || result.seo.description },
+                    { property: "og:image", content: result.seo.og_image },
+                    { name: "robots", content: result.seo?.noindex ? "noindex" : "index,follow" },
                 ],
+                link: [{ rel: "canonical", href: result.seo?.canonical_url }],
             });
         }
     } catch (err) {
-        console.error("Error fetching homepage:", err);
-        error.value = err.message || "Failed to load homepage content";
+        console.error("Error fetching page:", err);
+        error.value = err.message || "Page not found";
     } finally {
         loading.value = false;
     }
 });
 
-// Default SEO for homepage
-useHead({
-    title: "Cutout Partner - Professional Photo Editing Services",
-    meta: [
-        {
-            name: "description",
-            content:
-                "Professional photo editing services with AI-powered background removal, retouching, and image enhancement.",
-        },
-    ],
-});
+// Watch for route changes (DIFFERENT FROM INDEX.VUE)
+watch(
+    () => route.params.slug,
+    async (newSlug) => {
+        if (newSlug) {
+            loading.value = true;
+            error.value = null;
+            data.value = null;
+
+            try {
+                const result = await $api.getPage(newSlug);
+                data.value = result;
+            } catch (err) {
+                error.value = err.message || "Page not found";
+            } finally {
+                loading.value = false;
+            }
+        }
+    }
+);
 </script>
 
 <style scoped>

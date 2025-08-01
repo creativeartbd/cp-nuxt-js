@@ -1,13 +1,13 @@
-<!-- pages/[slug].vue - Client-Side Version -->
+<!-- pages/[slug].vue - Updated to match index.vue -->
 <template>
-    <div class="dynamic-page">
+    <div class="home-page">
         <!-- Loading State -->
         <div v-if="loading" class="loading-container">
             <div class="loading-spinner"></div>
-            <p>Loading page content...</p>
+            <p>Loading...</p>
         </div>
 
-        <!-- Error State / 404 -->
+        <!-- Error State -->
         <div v-else-if="error" class="error-container">
             <div class="container">
                 <h1>Page Not Found</h1>
@@ -15,264 +15,40 @@
                 <p>
                     <small>{{ error }}</small>
                 </p>
-                <NuxtLink to="/" class="back-home-btn">Go Back Home</NuxtLink>
             </div>
         </div>
 
-        <!-- Page Content -->
-        <div v-else-if="data && (data.sections || data.page)" class="page-content">
-            <!-- Show page title if it exists and no sections -->
-            <div v-if="data.page && data.page.title && !data.sections?.length" class="simple-page-header">
-                <div class="container">
-                    <h1>{{ data.page.title }}</h1>
-                </div>
-            </div>
+        <!-- Content from WordPress -->
+        <div v-else-if="data && data.sections && data.sections.length > 0" class="wp-content">
+            <TheHeaderBannerVue :data="data" />
 
-            <!-- Loop through sections if they exist -->
-            <template
-                v-if="data.sections && data.sections.length > 0"
-                v-for="(section, index) in data.sections"
-                :key="index"
-            >
+            <!-- Loop through all sections -->
+            <template v-for="(section, index) in data.sections" :key="index">
                 <div v-if="section.section_content && Array.isArray(section.section_content)" class="section-wrapper">
-                    <!-- Display each section based on its type -->
+                    <!-- Display each section using dynamic components -->
                     <div v-for="(content, contentIndex) in section.section_content" :key="contentIndex">
-                        <!-- Home Slider Section -->
-                        <section v-if="content.acf_fc_layout === 'home_slider'" class="hero-section">
-                            <div class="container">
-                                <div v-if="content.sliders && content.sliders.length > 0" class="slider-content">
-                                    <div
-                                        v-for="(slider, sliderIndex) in content.sliders"
-                                        :key="sliderIndex"
-                                        class="slide"
-                                        v-show="sliderIndex === 0"
-                                    >
-                                        <div class="slide-content">
-                                            <h1>{{ slider.slider_title }}</h1>
-                                            <p>{{ slider.slider_sub_title }}</p>
-                                            <NuxtLink
-                                                v-if="slider.button_label"
-                                                :to="slider.button_url"
-                                                class="btn btn-primary"
-                                            >
-                                                {{ slider.button_label }}
-                                            </NuxtLink>
-                                        </div>
-                                        <div class="slide-image">
-                                            <img
-                                                v-if="slider.slider_image"
-                                                :src="slider.slider_image"
-                                                :alt="slider.slider_title"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                        <!-- FIXED: Dynamic component rendering -->
 
-                        <!-- We Are Passionate Section -->
-                        <section v-else-if="content.acf_fc_layout === 'we_are_passionate'" class="passionate-section">
-                            <div class="container">
-                                <div class="section-header">
-                                    <h2>{{ content.title }}</h2>
-                                    <p>{{ content.sub_title }}</p>
-                                </div>
-                                <div v-if="content.sections" class="passionate-grid">
-                                    <div
-                                        v-for="(item, itemIndex) in content.sections"
-                                        :key="itemIndex"
-                                        class="passionate-item"
-                                    >
-                                        <img
-                                            v-if="item.section_image"
-                                            :src="item.section_image"
-                                            :alt="item.section_title || 'Service image'"
-                                        />
-                                        <h3 v-if="item.section_title">{{ item.section_title }}</h3>
-                                        <div
-                                            v-if="item.section_content"
-                                            v-html="item.section_content.replace(/\n/g, '<br>')"
-                                        ></div>
-                                        <NuxtLink
-                                            v-if="item.section_button"
-                                            :to="item.section_button_url || '#'"
-                                            class="btn btn-secondary"
-                                        >
-                                            {{ item.section_button }}
-                                        </NuxtLink>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Our Editing Services Section -->
-                        <section v-else-if="content.acf_fc_layout === 'our_editing_services'" class="services-section">
-                            <div class="container">
-                                <div class="section-header">
-                                    <h2>{{ content.title }}</h2>
-                                    <p>{{ content.sub_title }}</p>
-                                </div>
-                                <div v-if="content.tabs" class="services-tabs">
-                                    <div v-for="(tab, tabIndex) in content.tabs" :key="tabIndex" class="tab-content">
-                                        <h3>{{ tab.tab_name }}</h3>
-                                        <div v-if="tab.tab_images" class="tab-images">
-                                            <div
-                                                v-for="(image, imgIndex) in tab.tab_images"
-                                                :key="imgIndex"
-                                                class="image-item"
-                                            >
-                                                <h4>{{ image.title }}</h4>
-                                                <img
-                                                    v-if="image.after_image"
-                                                    :src="image.after_image"
-                                                    :alt="image.title"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Benefits Section -->
-                        <section
-                            v-else-if="content.acf_fc_layout === 'benefits_of_partnering'"
-                            class="benefits-section"
-                        >
-                            <div class="container">
-                                <div class="section-header">
-                                    <h2>{{ content.title }}</h2>
-                                    <p>{{ content.sub_title }}</p>
-                                </div>
-                                <div v-if="content.services" class="benefits-grid">
-                                    <div
-                                        v-for="(service, serviceIndex) in content.services"
-                                        :key="serviceIndex"
-                                        class="benefit-item"
-                                    >
-                                        <img v-if="service.image" :src="service.image" :alt="service.title" />
-                                        <h3>{{ service.title }}</h3>
-                                        <p>{{ service.content }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Client Testimonials -->
-                        <section
-                            v-else-if="content.acf_fc_layout === 'clients_testimonial'"
-                            class="testimonials-section"
-                        >
-                            <div class="container">
-                                <div class="section-header">
-                                    <h2>{{ content.title }}</h2>
-                                    <p>{{ content.sub_title }}</p>
-                                </div>
-                                <div v-if="content.reviews" class="testimonials-grid">
-                                    <div
-                                        v-for="(review, reviewIndex) in content.reviews"
-                                        :key="reviewIndex"
-                                        class="testimonial-item"
-                                    >
-                                        <p>"{{ review.review_content }}"</p>
-                                        <div class="reviewer">
-                                            <strong>{{ review.review_by }}</strong>
-                                            <span>{{ review.reviewer_country }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Try Our Services Section -->
-                        <section
-                            v-else-if="content.acf_fc_layout === 'try_our_editing_services'"
-                            class="try-services-section"
-                        >
-                            <div class="container">
-                                <div class="section-header">
-                                    <h2>{{ content.title }}</h2>
-                                    <p>{{ content.sub_title }}</p>
-                                    <div v-if="content.content" v-html="content.content.replace(/\n/g, '<br>')"></div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- How It Works Section -->
-                        <section v-else-if="content.acf_fc_layout === 'how_it_works'" class="how-it-works-section">
-                            <div class="container">
-                                <div class="section-header">
-                                    <h2>{{ content.title }}</h2>
-                                    <p>{{ content.sub_title }}</p>
-                                </div>
-                                <div class="how-it-works-content">
-                                    <div v-if="content.feature_image" class="feature-image">
-                                        <img :src="content.feature_image" alt="How it works" />
-                                    </div>
-                                    <div v-if="content.steps" class="steps-grid">
-                                        <div
-                                            v-for="(step, stepIndex) in content.steps"
-                                            :key="stepIndex"
-                                            class="step-item"
-                                        >
-                                            <div class="step-number">{{ stepIndex + 1 }}</div>
-                                            <h3>{{ step.title }}</h3>
-                                            <p>{{ step.content }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- FAQ Section -->
-                        <section v-else-if="content.acf_fc_layout === 'faq'" class="faq-section">
-                            <div class="container">
-                                <div class="section-header">
-                                    <h2>{{ content.title }}</h2>
-                                    <p>{{ content.sub_title }}</p>
-                                </div>
-                                <div v-if="content.questions" class="faq-list">
-                                    <div v-for="(faq, faqIndex) in content.questions" :key="faqIndex" class="faq-item">
-                                        <h3>{{ faq.question }}</h3>
-                                        <div v-html="faq.answer.replace(/\n/g, '<br>')"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Text Content Section -->
-                        <section v-else-if="content.acf_fc_layout === 'text_content'" class="text-content-section">
-                            <div class="container">
-                                <h2 v-if="content.title">{{ content.title }}</h2>
-                                <div v-if="content.content" v-html="content.content"></div>
-                            </div>
-                        </section>
+                        <component
+                            :is="componentMap[content.acf_fc_layout]"
+                            :data="content"
+                            v-if="componentMap[content.acf_fc_layout]"
+                        />
 
                         <!-- Fallback for unknown sections -->
-                        <section v-else class="generic-section">
+                        <div v-else class="unknown-section">
                             <div class="container">
-                                <h2>{{ content.acf_fc_layout || "Content" }}</h2>
-                                <div v-if="content.title">
-                                    <h3>{{ content.title }}</h3>
-                                </div>
-                                <div v-if="content.content" v-html="content.content"></div>
-                                <p v-else>This section type ({{ content.acf_fc_layout }}) needs to be styled.</p>
+                                <h2>Unknown Section: {{ content.acf_fc_layout }}</h2>
+                                <p>Component not found for this layout type.</p>
                             </div>
-                        </section>
+                        </div>
                     </div>
                 </div>
             </template>
-
-            <!-- Show regular page content if no sections -->
-            <div v-else-if="data.page && data.page.content" class="simple-page-content">
-                <div class="container">
-                    <div v-html="data.page.content"></div>
-                </div>
-            </div>
         </div>
 
-        <!-- Fallback -->
-        <div v-else class="no-content">
+        <!-- Default Content if no sections -->
+        <div v-else class="default-content">
             <div class="container">
                 <h1>{{ data?.page?.title || "Page" }}</h1>
                 <p>This page exists but has no content yet.</p>
@@ -282,6 +58,27 @@
 </template>
 
 <script setup>
+import { markRaw } from "vue";
+// page header
+import TheHeaderBannerVue from "../components/TheHeaderBanner.vue";
+
+// Import all section components (SAME AS INDEX.VUE)
+import HomeSlider from "~/components/sections/HomeSlider.vue";
+import WeArePassionate from "~/components/sections/WeArePassionate.vue";
+import OurEditingServices from "~/components/sections/OurEditingServices.vue";
+import BenefitsOfPartnering from "~/components/sections/BenefitsOfPartnering.vue";
+import ClientsTestimonial from "~/components/sections/ClientsTestimonial.vue";
+import TryOurEditingServices from "~/components/sections/TryOurEditingServices.vue";
+import HowItWorks from "~/components/sections/HowItWorks.vue";
+import FAQ from "~/components/sections/Faq.vue";
+import CallToAction from "~/components/layout/CallToAction.vue";
+import WhoWeAre from "~/components/sections/WhoWeAre.vue";
+import QualityAssurance from "~/components/sections/QualityAssurance.vue";
+import WeHaveAccomplished from "~/components/sections/WeHaveAccomplished.vue";
+import OurSample from "~/components/sections/OurSample.vue";
+import OurPricing from "~/components/sections/OurPricing.vue";
+import ContactPage from "~/components/sections/ContactPage.vue";
+
 const { $api } = useNuxtApp();
 const route = useRoute();
 
@@ -289,10 +86,29 @@ const loading = ref(true);
 const data = ref(null);
 const error = ref(null);
 
+// SAME component mapping as index.vue
+const componentMap = markRaw({
+    home_slider: HomeSlider,
+    we_are_passionate: WeArePassionate,
+    our_editing_services: OurEditingServices,
+    benefits_of_partnering: BenefitsOfPartnering,
+    clients_testimonial: ClientsTestimonial,
+    try_our_editing_services: TryOurEditingServices,
+    how_it_works: HowItWorks,
+    faq: FAQ,
+    call_to_action: CallToAction,
+    who_we_are: WhoWeAre,
+    quality_assurance: QualityAssurance,
+    we_ve_accomplished: WeHaveAccomplished,
+    our_sample: OurSample,
+    our_pricing: OurPricing,
+    contact_page: ContactPage,
+});
+
 // Get the slug from the route
 const slug = computed(() => route.params.slug);
 
-// Fetch page data on client side only
+// Fetch page data on client side (SAME PATTERN AS INDEX.VUE)
 onMounted(async () => {
     console.log("Dynamic page mounted for slug:", slug.value);
 
@@ -307,8 +123,16 @@ onMounted(async () => {
             useHead({
                 title: result.seo.title || result.page?.title || "Cutout Partner",
                 meta: [
-                    { name: "description", content: result.seo.description || "Professional photo editing services" },
+                    {
+                        name: "description",
+                        content: result.seo.description || "Professional photo editing services",
+                    },
+                    { property: "og:title", content: result.seo.og_title || result.seo.title || result.page?.title },
+                    { property: "og:description", content: result.seo.og_description || result.seo.description },
+                    { property: "og:image", content: result.seo.og_image },
+                    { name: "robots", content: result.seo?.noindex ? "noindex" : "index,follow" },
                 ],
+                link: [{ rel: "canonical", href: result.seo?.canonical_url }],
             });
         }
     } catch (err) {
@@ -319,7 +143,7 @@ onMounted(async () => {
     }
 });
 
-// Watch for route changes
+// Watch for route changes (DIFFERENT FROM INDEX.VUE)
 watch(
     () => route.params.slug,
     async (newSlug) => {
@@ -342,6 +166,10 @@ watch(
 </script>
 
 <style scoped>
+.home-page {
+    min-height: 100vh;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -353,7 +181,7 @@ watch(
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 50vh;
+    min-height: 80vh;
 }
 
 .loading-spinner {
@@ -376,58 +204,30 @@ watch(
 }
 
 .error-container,
-.no-content {
+.default-content {
     text-align: center;
     padding: 60px 0;
 }
 
-.back-home-btn {
-    display: inline-block;
-    background: #667eea;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 6px;
-    text-decoration: none;
-    margin-top: 20px;
-}
-
-.simple-page-header {
-    padding: 60px 0 40px;
-    background: #f8f9fa;
-    text-align: center;
-}
-
-.text-content-section,
-.simple-page-content {
-    padding: 60px 0;
-}
-
-.generic-section {
+.unknown-section {
     padding: 40px 0;
-    background: #f8f9fa;
-}
-
-.section-header {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    margin: 20px 0;
     text-align: center;
-    margin-bottom: 40px;
 }
 
-.btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
+.unknown-section details {
+    margin-top: 20px;
+    text-align: left;
 }
 
-.btn-primary {
-    background: #ff6b6b;
-    color: white;
-}
-
-.btn-secondary {
-    background: #667eea;
-    color: white;
+.unknown-section pre {
+    background: white;
+    padding: 15px;
+    border-radius: 4px;
+    overflow: auto;
+    max-height: 300px;
+    font-size: 12px;
 }
 </style>
