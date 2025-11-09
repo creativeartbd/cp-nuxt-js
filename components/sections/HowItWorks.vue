@@ -1,5 +1,5 @@
 <template>
-    <div class="how-it-works" :style="{ backgroundColor: bgColor }" v-if="data">
+    <div class="how-it-works" :style="{ backgroundColor: data.background_color }" v-if="data">
         <div class="container">
             <div class="row">
                 <div class="col-12 section-title text-center">

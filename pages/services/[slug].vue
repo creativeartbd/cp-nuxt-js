@@ -1,4 +1,4 @@
-<!-- pages/[slug].vue - Updated to match index.vue -->
+<!-- pages/services/[slug].vue - Exact match to pages/[slug].vue functionality -->
 <template>
     <div class="home-page">
         <!-- Loading State -->
@@ -20,7 +20,7 @@
 
         <!-- Content from WordPress -->
         <div v-else-if="data && data.sections && data.sections.length > 0" class="wp-content">
-            <TheHeaderBannerVue :data="data" />
+            <!-- <TheHeaderBannerVue :data="data" /> -->
 
             <!-- Loop through all sections -->
             <template v-for="(section, index) in data.sections" :key="index">
@@ -28,6 +28,7 @@
                     <!-- Display each section using dynamic components -->
                     <div v-for="(content, contentIndex) in section.section_content" :key="contentIndex">
                         <!-- FIXED: Dynamic component rendering -->
+
                         <component
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
@@ -59,7 +60,7 @@
 <script setup>
 import { markRaw } from "vue";
 // page header
-import TheHeaderBannerVue from "../components/TheHeaderBanner.vue";
+import TheHeaderBannerVue from "../../components/TheHeaderBanner.vue";
 
 // Import all section components (SAME AS INDEX.VUE)
 import HomeSlider from "~/components/sections/HomeSlider.vue";
@@ -74,6 +75,12 @@ import CallToAction from "~/components/layout/CallToAction.vue";
 import WhoWeAre from "~/components/sections/WhoWeAre.vue";
 import QualityAssurance from "~/components/sections/QualityAssurance.vue";
 import WeHaveAccomplished from "~/components/sections/WeHaveAccomplished.vue";
+import OurSample from "~/components/sections/OurSample.vue";
+import OurPricing from "~/components/sections/OurPricing.vue";
+import ContactPage from "~/components/sections/ContactPage.vue";
+import SingleServiceBanner from "~/components/sections/SingleServiceBanner.vue";
+import VisualExample from "~/components/sections/VisualExample.vue";
+import PortraitSkin from "~/components/sections/PortraitSkin.vue";
 
 const { $api } = useNuxtApp();
 const route = useRoute();
@@ -96,18 +103,24 @@ const componentMap = markRaw({
     who_we_are: WhoWeAre,
     quality_assurance: QualityAssurance,
     we_ve_accomplished: WeHaveAccomplished,
+    our_sample: OurSample,
+    our_pricing: OurPricing,
+    contact_page: ContactPage,
+    single_service_banner: SingleServiceBanner,
+    visual_example: VisualExample,
+    portrait_skin: PortraitSkin,
 });
 
 // Get the slug from the route
 const slug = computed(() => route.params.slug);
 
-// Fetch page data on client side (SAME PATTERN AS INDEX.VUE)
+// Fetch page data on client side (SAME PATTERN AS PAGES/[SLUG].VUE but using service API)
 onMounted(async () => {
     console.log("Dynamic page mounted for slug:", slug.value);
 
     try {
         console.log("Fetching page data...");
-        const result = await $api.getPage(slug.value);
+        const result = await $api.getService(slug.value); // ONLY DIFFERENCE: using getService instead of getPage
         console.log("Page data received:", result);
         data.value = result;
 
@@ -136,7 +149,7 @@ onMounted(async () => {
     }
 });
 
-// Watch for route changes (DIFFERENT FROM INDEX.VUE)
+// Watch for route changes (SAME AS PAGES/[SLUG].VUE)
 watch(
     () => route.params.slug,
     async (newSlug) => {
@@ -146,7 +159,7 @@ watch(
             data.value = null;
 
             try {
-                const result = await $api.getPage(newSlug);
+                const result = await $api.getService(newSlug); // ONLY DIFFERENCE: using getService
                 data.value = result;
             } catch (err) {
                 error.value = err.message || "Page not found";

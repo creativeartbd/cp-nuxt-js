@@ -1,4 +1,4 @@
-// nuxt.config.ts - Updated with Bootstrap
+// nuxt.config.ts - Fixed with minimal changes
 export default defineNuxtConfig({
     compatibilityDate: "2025-07-23",
     devServer: {
@@ -15,7 +15,6 @@ export default defineNuxtConfig({
         "swiper/css",
         "swiper/css/navigation",
         "swiper/css/pagination",
-        "~/assets/css/main.css",
     ],
 
     // Runtime config
@@ -29,6 +28,7 @@ export default defineNuxtConfig({
 
     // App head configuration
     app: {
+        baseURL: "/v2/",
         head: {
             title: "Cutout Partner - Professional Photo Editing Services",
             htmlAttrs: {
@@ -83,10 +83,35 @@ export default defineNuxtConfig({
         typeCheck: false,
     },
 
-    // Nitro configuration
+    // Nitro configuration - FIXED
     nitro: {
         compressPublicAssets: true,
+        preset: "static", // Added explicit preset for generate command
+        experimental: {
+            wasm: true,
+        },
     },
+
+    // Build configuration - ADDED to fix the build error
+    build: {
+        transpile: [],
+    },
+
+    // Vite configuration - ADDED to fix bundling issues
+    vite: {
+        build: {
+            rollupOptions: {
+                output: {
+                    manualChunks: undefined,
+                },
+            },
+        },
+        optimizeDeps: {
+            include: ["bootstrap", "swiper"],
+        },
+    },
+
+    // Development proxy - kept but commented out for production
     devProxy: {
         "/wp-content": {
             target: "https://cutoutpartner-api.com/wp-content",

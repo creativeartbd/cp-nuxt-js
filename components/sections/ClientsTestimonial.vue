@@ -1,5 +1,5 @@
 <template>
-    <div class="happy-clients" v-if="data">
+    <div class="happy-clients" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-md-12">

@@ -1,5 +1,5 @@
 <template>
-    <div class="common-questions" :style="{ backgroundColor: bgColor }" v-if="data">
+    <div class="common-questions" :style="{ backgroundColor: data.background_color }" v-if="data">
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-md-12 section-title">
@@ -80,7 +80,7 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* justify-content: center; */
 }
 
 .accordion-wrapper {

@@ -1,5 +1,5 @@
 <template>
-    <div class="editing-services" v-if="data">
+    <div class="editing-services" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="d-flex justify-content-center" v-if="isLoading">
                 <div class="spinner-grow" role="status">
@@ -99,8 +99,17 @@
                                     </div>
 
                                     <div class="before-after-bottom">
-                                        <a href="#">Discover this service</a>
-                                        <a href="#">Contact Us</a>
+                                        <template v-if="data.discover_button_text && data.discover_button_text_url">
+                                            <NuxtLink :to="data.discover_button_text_url">
+                                                {{ data.discover_button_text }}
+                                            </NuxtLink>
+                                        </template>
+
+                                        <template v-if="data.contact_button_level && data.contact_button_url">
+                                            <NuxtLink :to="data.contact_button_url">
+                                                {{ data.contact_button_level }}
+                                            </NuxtLink>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -305,8 +314,13 @@ export default {
 .coloured-slider {
     --divider-color: rgba(255, 255, 255, 1);
     --default-handle-color: rgba(255, 255, 255, 1);
-    --divider-width: 3px;
+    --divider-width: 30px !important;
     position: relative;
+    border-width: 20px;
+}
+
+.divider:after {
+    border-width: 20px;
 }
 
 .bf-circle {

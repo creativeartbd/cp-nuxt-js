@@ -1,5 +1,5 @@
 <template>
-    <div class="benefit-with-us" :style="{ backgroundColor: bgColor }">
+    <div class="benefit-with-us" :style="{ backgroundColor: data.background_color }">
         <div class="container" v-if="data">
             <div class="row">
                 <div class="col-12 text-center section-title">

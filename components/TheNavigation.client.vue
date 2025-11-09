@@ -61,22 +61,103 @@
                                     <!-- Menu item with dropdown children -->
                                     <li v-else class="nav-item dropdown">
                                         <a
-                                            href="#"
+                                            :href="getMenuItemUrl(item)"
                                             class="nav-link dropdown-toggle"
                                             :class="{ active: isActiveLink(item) }"
                                             data-bs-toggle="dropdown"
                                             aria-expanded="false"
-                                            @click.prevent
+                                            @click="handleParentClick($event, item)"
                                         >
-                                            <span @click="navigateTo(getMenuItemUrl(item))">{{ item.title }}</span>
+                                            {{ item.title }}
                                         </a>
 
-                                        <!-- Dropdown menu -->
+                                        <!-- Multi-column dropdown menu for services -->
+                                        <div
+                                            v-if="item.title.toLowerCase().includes('service')"
+                                            class="dropdown-menu mega-dropdown-menu"
+                                            @mouseleave="handleDropdownMouseLeave"
+                                            @mouseenter="handleDropdownMouseEnter"
+                                        >
+                                            <div class="mega-dropdown-container">
+                                                <div class="mega-dropdown-row">
+                                                    <!-- Column for each sub-heading -->
+                                                    <div
+                                                        v-for="child in item.children.filter(
+                                                            (c) => c.children && c.children.length > 0
+                                                        )"
+                                                        :key="child.id"
+                                                        class="mega-dropdown-column"
+                                                    >
+                                                        <!-- Sub-heading (clickable) -->
+                                                        <div class="mega-dropdown-header">
+                                                            <NuxtLink
+                                                                :to="getMenuItemUrl(child)"
+                                                                :target="child.target || '_self'"
+                                                                class="mega-dropdown-title"
+                                                                @click="closeNavbar"
+                                                            >
+                                                                {{ child.title }}
+                                                            </NuxtLink>
+                                                        </div>
+
+                                                        <!-- Sub-items under the heading -->
+                                                        <ul class="mega-dropdown-list">
+                                                            <li
+                                                                v-for="grandchild in child.children"
+                                                                :key="grandchild.id"
+                                                            >
+                                                                <NuxtLink
+                                                                    :to="getMenuItemUrl(grandchild)"
+                                                                    :target="grandchild.target || '_self'"
+                                                                    class="mega-dropdown-link"
+                                                                    @click="closeNavbar"
+                                                                >
+                                                                    {{ grandchild.title }}
+                                                                </NuxtLink>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <!-- Handle direct children (without sub-children) if any -->
+                                                    <div
+                                                        v-if="
+                                                            item.children.filter(
+                                                                (c) => !c.children || c.children.length === 0
+                                                            ).length > 0
+                                                        "
+                                                        class="mega-dropdown-column"
+                                                    >
+                                                        <div class="mega-dropdown-header">
+                                                            <span class="mega-dropdown-title">Other Services</span>
+                                                        </div>
+                                                        <ul class="mega-dropdown-list">
+                                                            <li
+                                                                v-for="child in item.children.filter(
+                                                                    (c) => !c.children || c.children.length === 0
+                                                                )"
+                                                                :key="child.id"
+                                                            >
+                                                                <NuxtLink
+                                                                    :to="getMenuItemUrl(child)"
+                                                                    :target="child.target || '_self'"
+                                                                    class="mega-dropdown-link"
+                                                                    @click="closeNavbar"
+                                                                >
+                                                                    {{ child.title }}
+                                                                </NuxtLink>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Regular dropdown menu for non-services -->
                                         <ul
+                                            v-else
                                             class="dropdown-menu"
-                                            :class="{
-                                                'service-dropdown': item.title.toLowerCase().includes('service'),
-                                            }"
+                                            @mouseleave="handleDropdownMouseLeave"
+                                            @mouseenter="handleDropdownMouseEnter"
                                         >
                                             <div class="dropdown-container">
                                                 <div class="dropdown-items">
@@ -87,15 +168,13 @@
                                                             class="dropdown-item dropdown"
                                                         >
                                                             <a
-                                                                href="#"
+                                                                :href="getMenuItemUrl(child)"
                                                                 class="dropdown-item dropdown-toggle"
                                                                 data-bs-toggle="dropdown"
                                                                 aria-expanded="false"
-                                                                @click.prevent
+                                                                @click="handleParentClick($event, child)"
                                                             >
-                                                                <span @click="navigateTo(getMenuItemUrl(child))">{{
-                                                                    child.title
-                                                                }}</span>
+                                                                {{ child.title }}
                                                             </a>
 
                                                             <!-- 3rd level dropdown -->
@@ -192,6 +271,12 @@ const isHomePage = computed(() => {
 const getMenuItemUrl = (item) => {
     console.log("Converting URL for:", item.title, "Original URL:", item.url);
 
+    // Handle empty, null, undefined, or placeholder URLs
+    if (!item.url || item.url.trim() === "" || item.url === "#") {
+        console.log("Empty/invalid URL detected for:", item.title, "- returning null");
+        return null; // Return null for invalid URLs
+    }
+
     // If it's an external URL (not your WordPress site), return as-is
     if (item.url.includes("http") && !item.url.includes("cutoutpartner-api.com")) {
         return item.url;
@@ -224,7 +309,7 @@ const getMenuItemUrl = (item) => {
             return "/";
         } catch (error) {
             console.error("Error parsing URL:", item.url, error);
-            return "/";
+            return null; // Return null for parsing errors
         }
     }
 
@@ -244,19 +329,85 @@ const getMenuItemUrl = (item) => {
         console.log("Custom link converted:", item.url, "→", path);
         return path;
     } catch {
-        // If URL parsing fails, assume it's a relative path
-        console.log("URL parsing failed, using as relative path:", item.url);
-        return item.url.startsWith("/") ? item.url : `/${item.url}`;
+        // If URL parsing fails and it's not empty, assume it's a relative path
+        if (item.url && item.url.trim() !== "") {
+            console.log("URL parsing failed, using as relative path:", item.url);
+            return item.url.startsWith("/") ? item.url : `/${item.url}`;
+        }
+
+        console.log("Invalid URL for:", item.title);
+        return null;
     }
+};
+
+const debugActiveLinks = () => {
+    console.log("=== Active Link Debug ===");
+    console.log("Current route:", route.path);
+
+    menuItems.value.forEach((item) => {
+        const itemUrl = getMenuItemUrl(item);
+        const isActive = isActiveLink(item);
+
+        console.log(`${item.title}: ${itemUrl} - Active: ${isActive}`);
+
+        if (item.children) {
+            item.children.forEach((child) => {
+                const childUrl = getMenuItemUrl(child);
+                const childActive = isActiveLink(child);
+                console.log(`  └─ ${child.title}: ${childUrl} - Active: ${childActive}`);
+            });
+        }
+    });
+    console.log("=== End Debug ===");
 };
 
 // Check if link is active
 const isActiveLink = (item) => {
     const itemUrl = getMenuItemUrl(item);
-    if (itemUrl === "/") {
-        return route.path === "/";
+
+    // If URL is null/invalid, never mark as active
+    if (itemUrl === null) {
+        return false;
     }
-    return route.path === itemUrl;
+
+    const currentPath = route.path;
+
+    // Handle root/home page - only exact match
+    if (itemUrl === "/" || itemUrl === "/home") {
+        return currentPath === "/";
+    }
+
+    // For other pages, use exact match
+    const normalizedItemUrl = itemUrl.replace(/\/$/, "") || "/";
+    const normalizedCurrentPath = currentPath.replace(/\/$/, "") || "/";
+
+    return normalizedCurrentPath === normalizedItemUrl;
+};
+
+// Handle parent click for dropdown items with children
+const handleParentClick = (event, item) => {
+    // If it's a regular click (not right-click), navigate to the parent page
+    if (event.button === 0) {
+        // Small delay to allow dropdown to show if needed
+        setTimeout(() => {
+            navigateTo(getMenuItemUrl(item));
+        }, 100);
+    }
+};
+
+// Handle mouse events for dropdown visibility
+const handleDropdownMouseLeave = (event) => {
+    // Close the dropdown when mouse leaves the dropdown container
+    const dropdown = event.currentTarget;
+    const bootstrapDropdown = window.bootstrap?.Dropdown?.getInstance(dropdown.previousElementSibling);
+    if (bootstrapDropdown) {
+        bootstrapDropdown.hide();
+    }
+};
+
+const handleDropdownMouseEnter = (event) => {
+    // Ensure dropdown stays open when mouse enters
+    event.stopPropagation();
 };
 
 // Methods
@@ -287,6 +438,19 @@ const closeNavbar = () => {
 onMounted(async () => {
     window.addEventListener("scroll", handleScroll);
 
+    // Initialize Bootstrap dropdowns with proper configuration
+    nextTick(() => {
+        const dropdownElements = document.querySelectorAll(".dropdown-toggle");
+        dropdownElements.forEach((element) => {
+            if (window.bootstrap) {
+                new window.bootstrap.Dropdown(element, {
+                    autoClose: "outside", // Close when clicking outside
+                    boundary: "viewport",
+                });
+            }
+        });
+    });
+
     // Fetch WordPress menu
     try {
         console.log("Fetching WordPress menu...");
@@ -309,6 +473,19 @@ onMounted(async () => {
         // Keep fallback navigation
     } finally {
         menuLoading.value = false;
+
+        // Re-initialize dropdowns after menu loads
+        nextTick(() => {
+            const dropdownElements = document.querySelectorAll(".dropdown-toggle");
+            dropdownElements.forEach((element) => {
+                if (window.bootstrap && !window.bootstrap.Dropdown.getInstance(element)) {
+                    new window.bootstrap.Dropdown(element, {
+                        autoClose: "outside",
+                        boundary: "viewport",
+                    });
+                }
+            });
+        });
     }
 
     // Fetch options data (if you have an API endpoint for this)
@@ -333,6 +510,8 @@ onBeforeUnmount(() => {
     width: 100%;
     z-index: 1030;
     transition: all 0.3s ease;
+    /* box-shadow: 5px 3px 8px #ddd;
+    background: #fff; */
 }
 
 .fixed-top-scroll {
@@ -345,11 +524,11 @@ img.logo {
 }
 
 .navbar-expand-lg .navbar-nav .nav-link {
-    padding-right: 1.5rem;
+    padding: 20px;
 }
 
 .navbar-nav li a {
-    text-transform: uppercase;
+    text-transform: capitalize;
     font-size: 14px;
     color: #000;
     font-weight: 500;
@@ -388,6 +567,126 @@ img.logo {
     color: #00bcd4 !important;
 }
 
+/* Mega Dropdown Styles */
+.mega-dropdown-menu {
+    border-top: 3px solid #00bcd4;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    min-width: 600px;
+    max-width: 900px;
+}
+
+/* Show dropdown on hover with smooth transition */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    margin-top: 0;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block !important;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Keep dropdown visible when hovering over the dropdown itself */
+.dropdown-menu:hover {
+    display: block !important;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Add a small invisible bridge to prevent gaps */
+.dropdown::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: transparent;
+    z-index: 999;
+}
+
+.dropdown:hover::before {
+    display: block;
+}
+
+.mega-dropdown-container {
+    padding: 10px;
+}
+
+.mega-dropdown-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mega-dropdown-column {
+    flex: 1;
+    min-width: 175px;
+    margin-bottom: 0;
+}
+
+.mega-dropdown-header {
+    margin-bottom: 5px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #00bcd4;
+}
+
+.mega-dropdown-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000 !important;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+
+.mega-dropdown-title:hover {
+    color: #00bcd4 !important;
+    text-decoration: none;
+}
+
+.mega-dropdown-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mega-dropdown-list li {
+    margin-bottom: 0;
+}
+
+.mega-dropdown-link {
+    color: #666 !important;
+    font-size: 14px;
+    text-decoration: none;
+    text-transform: capitalize;
+    transition: all 0.3s ease;
+    display: block;
+    padding: 5px 0;
+    border-left: 3px solid transparent;
+    padding-left: 0px;
+}
+
+.mega-dropdown-link:hover {
+    color: #00bcd4 !important;
+    text-decoration: none;
+    border-left-color: #00bcd4;
+    padding-left: 15px;
+}
+
+/* Regular dropdown styles (for non-services) */
 .dropdown-menu {
     border-top: 3px solid #00bcd4;
     padding-right: 15px;
@@ -415,7 +714,7 @@ img.logo {
 }
 
 .dropdown-menu .dropdown-items li a:hover {
-    color: #00bcd4 !important;
+    color: #0286a6 !important;
 }
 
 .dropdown-menu .dropdown-items:last-child {
@@ -451,6 +750,71 @@ img.logo {
     display: block;
 }
 
+/* Mobile Responsive */
+@media (max-width: 991.98px) {
+    /* Disable hover effects on mobile - use click instead */
+    .dropdown:hover .dropdown-menu {
+        display: none !important;
+    }
+
+    .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        transition: none;
+    }
+
+    /* Remove invisible bridge on mobile */
+    .dropdown::before {
+        display: none !important;
+    }
+
+    .mega-dropdown-menu {
+        position: static !important;
+        float: none;
+        width: auto;
+        margin-top: 0;
+        background-color: #f8f9fa;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        min-width: auto;
+        max-width: none;
+    }
+
+    .mega-dropdown-container {
+        padding: 15px;
+    }
+
+    .mega-dropdown-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mega-dropdown-column {
+        min-width: auto;
+        margin-bottom: 15px;
+    }
+
+    .mega-dropdown-header {
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+    }
+
+    .mega-dropdown-title {
+        font-size: 15px;
+    }
+
+    .mega-dropdown-link {
+        font-size: 13px;
+        padding: 3px 0;
+    }
+
+    .mega-dropdown-link:hover {
+        padding-left: 15px;
+    }
+}
+
 /* Mobile adjustments for submenus */
 @media (max-width: 991.98px) {
     .dropdown-submenu {
@@ -475,10 +839,6 @@ img.logo {
         box-shadow: none;
     }
 
-    .dropdown-menu.service-dropdown {
-        left: auto !important;
-    }
-
     .dropdown-menu .dropdown-items {
         border-right: none;
         margin-left: 0;
@@ -494,6 +854,14 @@ img.logo {
     img.logo {
         height: 30px;
     }
+
+    .mega-dropdown-title {
+        font-size: 14px;
+    }
+
+    .mega-dropdown-link {
+        font-size: 12px;
+    }
 }
 
 @media (max-width: 575.98px) {
@@ -503,6 +871,18 @@ img.logo {
 
     .navbar-nav li a {
         font-size: 12px;
+    }
+
+    .mega-dropdown-container {
+        padding: 10px;
+    }
+
+    .mega-dropdown-title {
+        font-size: 13px;
+    }
+
+    .mega-dropdown-link {
+        font-size: 11px;
     }
 }
 </style>

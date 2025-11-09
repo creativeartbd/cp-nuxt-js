@@ -1,5 +1,5 @@
 <template>
-    <div class="pro-approach" v-if="data">
+    <div class="pro-approach" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-12 section-title mb-4 mb-md-0">

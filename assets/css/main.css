@@ -14,6 +14,11 @@ html {
 
 a  {
     text-decoration: none;
+    color : #07b8d0;
+}
+
+a:hover {
+    color : #0d8d9e;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -42,7 +47,8 @@ ul {
 }
 
 ul li {
-    list-style: none;
+    /* list-style: none; */
+    list-style-position: inside;
 }
 
 label {
@@ -80,6 +86,7 @@ section p {
     border-color: black;
 }
 
+
 /* .navbar-collapse.show {
 
 } */
@@ -90,7 +97,7 @@ background: linear-gradient(90deg, rgba(0,188,212,1) 0%, rgba(255,255,255,1) 0%,
     background-color: #fbfbfb;
     height: 2px;
     width: 200px;
-    margin-top: 5px;
+    margin-top: 15px;
     margin-bottom: 20px;
     position: relative;
     border: 1px solid #e0e0e0;
@@ -221,7 +228,7 @@ input {
 }
 
 .header .navbar {
-    padding: 20px 0;
+    padding: 0;
 }
 
 .margin-top-100 {
@@ -230,7 +237,7 @@ input {
 
 .home-slider {
     position: relative;
-    margin-top: -72px;
+    margin-top: -64px;
     height: 100vh;
 }
 
@@ -344,7 +351,7 @@ img {
 }
 
 .dropdown-menu {
-    top: 59px !important;
+    top: 64px;
     left: 0;
     border-radius: 0;
     border-top: 0;
@@ -381,6 +388,7 @@ img {
 .coloured-slider {
     /* outline: 2px solid #dcdfff; */
     width : 100%;
+    height: 100% !important;
 }
 
 .spinner-grow {
@@ -555,3 +563,27 @@ figure.before:hover .overlay {
     }
 }
 
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+
+.coloured-slider {
+    --divider-width: 5px;
+    --divider-color: #fff;
+    --default-handle-opacity: 0;
+  }

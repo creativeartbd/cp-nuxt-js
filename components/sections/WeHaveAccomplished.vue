@@ -1,5 +1,14 @@
 <template>
-    <div class="we-can-deliver" v-if="data">
+    <div
+        class="we-can-deliver"
+        v-if="data"
+        :style="{
+            backgroundImage: `url(${data.background_image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+        }"
+    >
         <div class="container">
             <div class="row">
                 <div class="col-md-12">

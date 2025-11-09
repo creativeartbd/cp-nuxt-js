@@ -1,5 +1,5 @@
 <template>
-    <section class="pricing-table" v-if="data">
+    <section class="pricing-table" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
                 <div class="col-md-12 section-title text-center">
@@ -12,21 +12,7 @@
                 <div class="col-md-12">
                     <nav class="pricing-tab">
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button
-                                class="nav-link"
-                                :class="{ active: activeTab === 'All' }"
-                                id="nav-home-tab"
-                                data-bs-toggle="tab"
-                                data-bs-target="#nav-home"
-                                type="button"
-                                role="tab"
-                                aria-controls="nav-home"
-                                aria-selected="true"
-                                @click="setActiveTab('All')"
-                            >
-                                All
-                            </button>
-
+                            <!-- Removed the "All" tab button -->
                             <button
                                 class="nav-link"
                                 :class="{ active: activeTab === category.tab_name }"
@@ -46,37 +32,7 @@
                         </div>
                     </nav>
                     <div class="tab-content pricing-tab-content" id="nav-tabContent">
-                        <div
-                            class="tab-pane fade show"
-                            :class="{ 'show active': activeTab === 'All' }"
-                            id="nav-home"
-                            role="tabpanel"
-                            aria-labelledby="nav-home-tab"
-                        >
-                            <div class="row">
-                                <div
-                                    class="col-md-6 col-lg-3"
-                                    v-for="(pricing, pricing_index) in allPricing"
-                                    :key="pricing_index"
-                                >
-                                    <div class="price-table">
-                                        <img v-if="pricing.price_image" :src="pricing.price_image" />
-                                        <div
-                                            v-if="pricing.price_content"
-                                            v-html="pricing.price_content"
-                                            class="pricing-table-list"
-                                        ></div>
-                                        <router-link
-                                            v-if="pricing.button_label && pricing.button_url"
-                                            :to="pricing.button_url"
-                                            class="btn btn-default order-now"
-                                            >{{ pricing.button_label }}</router-link
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                        <!-- Removed the "All" tab content -->
                         <div
                             class="tab-pane fade"
                             :class="{ 'show active': activeTab === pricing.tab_name }"
@@ -124,13 +80,19 @@ export default {
     props: ["data"],
     data() {
         return {
-            activeTab: "All",
+            activeTab: "", // Changed from "All" to empty string
             allPricing: [],
         };
     },
     methods: {
         setActiveTab(tabTitle) {
             this.activeTab = tabTitle;
+        },
+        setDefaultActiveTab() {
+            // Set the first category as active by default
+            if (this.data && this.data.tabs && Array.isArray(this.data.tabs) && this.data.tabs.length > 0) {
+                this.activeTab = this.data.tabs[0].tab_name;
+            }
         },
     },
     mounted() {
@@ -145,6 +107,20 @@ export default {
                 }
             });
         }
+
+        // Set the first category as active by default
+        this.setDefaultActiveTab();
+    },
+    // Add a watcher to handle data changes after initial mount
+    watch: {
+        data: {
+            handler(newData) {
+                if (newData && !this.activeTab) {
+                    this.setDefaultActiveTab();
+                }
+            },
+            immediate: true,
+        },
     },
 };
 </script>
@@ -157,21 +133,6 @@ export default {
         rgba(0, 188, 212, 0.055081407563025264) 52%,
         rgba(255, 255, 255, 1) 100%
     );
-
-    /* background: radial-gradient(
-            43.91% 38.55% at 46.3% -6.67%,
-            rgba(226, 242, 255, 0.4) 15%,
-            rgba(225, 241, 255, 0.4) 50.41%,
-            rgba(255, 255, 255, 0) 100%
-        ),
-        radial-gradient(43.62% 36.72% at 61.93% 32.9%, rgba(218, 242, 229, 0.42) 22.41%, rgba(255, 255, 255, 0) 100%),
-        radial-gradient(
-            47.13% 32.19% at 5.26% 46.89%,
-            rgba(225, 241, 255, 0.5) 6.98%,
-            rgba(225, 241, 255, 0.35) 29.18%,
-            rgba(255, 255, 255, 0) 100%
-        ),
-        #fff; */
 }
 .pricing-table .section-title {
     padding-left: 10%;
@@ -255,6 +216,5 @@ export default {
 .pricing-tab .nav-link.active {
     color: #fff;
     background-color: #00bcd4;
-    /* background-image: linear-gradient(90deg, #00bcd4 0%, #0dd1ff 100%); */
 }
 </style>

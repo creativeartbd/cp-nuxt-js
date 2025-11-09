@@ -26,6 +26,7 @@ console.log("App.vue mounted - this runs once when the app starts");
 </script>
 
 <style>
+@import "~/assets/css/main.css";
 /* Global styles that apply to the entire app */
 #app {
     min-height: 100vh;
@@ -35,7 +36,7 @@ console.log("App.vue mounted - this runs once when the app starts");
 
 .main-content {
     flex: 1;
-    padding-top: 72px; /* Adjust based on your header height */
+    padding-top: 64px; /* Adjust based on your header height */
 }
 
 /* Remove this if you don't have a fixed header */

@@ -1,12 +1,12 @@
 <template>
-    <section class="contact-address" v-if="data">
+    <section class="contact-address" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
                     <div class="contact-info">
                         <p v-if="data.sub_title">{{ data.sub_title }}</p>
                         <h2 class="mb-3" v-if="data.title">{{ data.title }}</h2>
-                        <div class="divide-separator"></div>
+                        <!-- <div class="divide-separator"></div> -->
                         <img v-if="data.feature_image" :src="data.feature_image" alt="" class="mt-5" />
                     </div>
                 </div>
