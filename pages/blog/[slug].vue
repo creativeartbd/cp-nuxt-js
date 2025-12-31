@@ -1,9 +1,10 @@
 <template>
     <div class="single-post-page">
         <!-- Loading State -->
-        <div v-if="loading" class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>Loading...</p>
+        <div class="d-flex justify-content-center align-items-center mt-5 mb-5" v-if="loading">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
 
         <!-- Error State -->
@@ -43,25 +44,31 @@
                             <i class="bi bi-facebook"></i>
                             <i class="bi bi-linkedin"></i>
                             <i class="bi bi-pinterest"></i>
+                            <i class="bi bi-twitter"></i>
                         </div>
                     </div>
                     <div class="col-md-7">
                         <div v-html="post.content.rendered"></div>
                     </div>
                     <div class="col-md-4">
-                        <h5>Search</h5>
-                        <div class="single-page-search">
-                            <input type="text" v-model="search" class="form-control rounded" placeholder="Search" />
-                            <i class="bi bi-search" @click="searchPosts"></i>
+                        <div class="sticky-sidbare">
+                            <h5>Search</h5>
+                            <div class="single-page-search">
+                                <input type="text" v-model="search" class="form-control rounded" placeholder="Search" />
+                                <i class="bi bi-search" @click="searchPosts"></i>
+                            </div>
+                            <div class="single-page-banner">
+                                <img src="https://placehold.co/600x400" alt="" class="img-fluid rounded" />
+                            </div>
+                            <h5>Categories</h5>
+                            <ul class="single-page-categories">
+                                <li v-for="cat in categories" :key="cat.id">
+                                    <NuxtLink :to="`/blog?category=${cat.id}`" class="btn btn-link">{{
+                                        cat.name
+                                    }}</NuxtLink>
+                                </li>
+                            </ul>
                         </div>
-                        <h5>Categories</h5>
-                        <ul class="single-page-categories">
-                            <li v-for="cat in categories" :key="cat.id">
-                                <NuxtLink :to="`/blog?category=${cat.id}`" class="btn btn-link">{{
-                                    cat.name
-                                }}</NuxtLink>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -72,7 +79,7 @@
                     <div class="col-md-1"></div>
                     <div class="col-md-10">
                         <div class="row">
-                            <h4 class="text-center mb-4">Related Posts</h4>
+                            <h4 class="text-center mt-5 mb-4">Related Posts</h4>
                             <div v-for="related in relatedPosts" :key="related.id" class="col-md-4">
                                 <div class="related-post">
                                     <img :src="getImage(related)" alt="" class="img-fluid rounded" />
@@ -82,9 +89,9 @@
                                                 {{ getCategory(related) }}
                                             </NuxtLink>
                                         </span>
-                                        <h5>
+                                        <h4>
                                             <NuxtLink :to="`/blog/${related.slug}`" v-html="related.title.rendered" />
-                                        </h5>
+                                        </h4>
                                     </div>
                                 </div>
                             </div>
@@ -181,10 +188,6 @@ async function searchPosts() {
 </script>
 
 <style scoped>
-.single-post-page {
-    min-height: 100vh;
-}
-
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -213,10 +216,20 @@ async function searchPosts() {
 .single-post-social {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
+    border-radius: 5px;
+    background: #fff;
+    padding: 15px;
+    align-items: center;
+    box-shadow: 5px 7px 12px #e3e3e3;
 }
 .single-post-social i {
     font-size: 30px;
+    color: #06bcd4;
+}
+.single-post-social i:hover {
+    color: hwb(0 25% 75%);
+    cursor: pointer;
 }
 .single-page-search {
     margin-bottom: 30px;
@@ -227,7 +240,7 @@ async function searchPosts() {
     top: 7px;
     right: 12px;
     font-size: 20px;
-    color: #c8c8c8;
+    color: #8a8a8a;
     cursor: pointer;
 }
 .single-page-search input {
@@ -255,7 +268,17 @@ ul.single-page-categories li a:hover {
 .single-post-more-blog-taxonomy span a {
     color: #535353;
     display: block;
-    margin-bottom: 10px;
     margin-top: 10px;
+}
+.single-post-more-blog-taxonomy h4 a {
+    font-size: 19px;
+    color: #535353;
+}
+.single-page-banner {
+    margin-bottom: 30px;
+}
+.sticky-sidbare {
+    position: sticky;
+    top: 72px;
 }
 </style>

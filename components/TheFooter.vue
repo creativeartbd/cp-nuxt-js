@@ -82,14 +82,20 @@
 const route = useRoute();
 const { $api } = useNuxtApp();
 const footerSettings = ref(null);
+const siteSettings = useState("siteSettings", () => null);
 
 onMounted(async () => {
-    // Fetch footer settings
     try {
-        const footerData = await $api.getSiteSettings();
-        footerSettings.value = footerData.all_fields;
+        // Load only if not loaded before
+        if (!siteSettings.value) {
+            const data = await $api.getSiteSettings();
+            siteSettings.value = data;
+            footerSettings.value = data.all_fields;
+        } else {
+            footerSettings.value = siteSettings.value.all_fields;
+        }
     } catch (error) {
-        console.error("Error fetching site settings:", error);
+        console.error("Site settings load error:", error);
     }
 });
 </script>

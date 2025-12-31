@@ -21,7 +21,6 @@
         <!-- Content from WordPress -->
         <div v-else-if="data && data.sections && data.sections.length > 0" class="wp-content">
             <!-- <TheHeaderBannerVue :data="data" /> -->
-
             <!-- Loop through all sections -->
             <template v-for="(section, index) in data.sections" :key="index">
                 <div v-if="section.section_content && Array.isArray(section.section_content)" class="section-wrapper">
@@ -32,6 +31,7 @@
                         <component
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
+                            :service="siteSettings.all_fields.select_services"
                             v-if="componentMap[content.acf_fc_layout]"
                         />
 
@@ -88,6 +88,7 @@ const route = useRoute();
 const loading = ref(true);
 const data = ref(null);
 const error = ref(null);
+const siteSettings = useState("siteSettings");
 
 // SAME component mapping as index.vue
 const componentMap = markRaw({
@@ -116,12 +117,8 @@ const slug = computed(() => route.params.slug);
 
 // Fetch page data on client side (SAME PATTERN AS PAGES/[SLUG].VUE but using service API)
 onMounted(async () => {
-    console.log("Dynamic page mounted for slug:", slug.value);
-
     try {
-        console.log("Fetching page data...");
         const result = await $api.getService(slug.value); // ONLY DIFFERENCE: using getService instead of getPage
-        console.log("Page data received:", result);
         data.value = result;
 
         // Set SEO meta tags

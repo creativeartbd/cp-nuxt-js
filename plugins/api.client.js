@@ -1,9 +1,6 @@
 // plugins/api.client.js - Updated with services support
 export default defineNuxtPlugin(() => {
     const config = useRuntimeConfig();
-
-    console.log("API Plugin loading...", config.public.wordpressApiUrl);
-
     class ApiService {
         constructor() {
             this.baseURL = config.public.wordpressApiUrl;

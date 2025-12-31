@@ -21,7 +21,6 @@
         <!-- Content from WordPress -->
         <div v-else-if="data && data.sections && data.sections.length > 0" class="wp-content">
             <TheHeaderBannerVue :data="data" />
-
             <!-- Loop through all sections -->
             <template v-for="(section, index) in data.sections" :key="index">
                 <div v-if="section.section_content && Array.isArray(section.section_content)" class="section-wrapper">
@@ -33,6 +32,7 @@
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
                             v-if="componentMap[content.acf_fc_layout]"
+                            :service="siteSettings?.value?.all_fields?.select_services || []"
                         />
 
                         <!-- Fallback for unknown sections -->
@@ -78,10 +78,11 @@ import WeHaveAccomplished from "~/components/sections/WeHaveAccomplished.vue";
 import OurSample from "~/components/sections/OurSample.vue";
 import OurPricing from "~/components/sections/OurPricing.vue";
 import ContactPage from "~/components/sections/ContactPage.vue";
+import TextContent from "~/components/sections/TextContent.vue";
 
 const { $api } = useNuxtApp();
 const route = useRoute();
-
+const siteSettings = useState("siteSettings");
 const loading = ref(true);
 const data = ref(null);
 const error = ref(null);
@@ -103,6 +104,7 @@ const componentMap = markRaw({
     our_sample: OurSample,
     our_pricing: OurPricing,
     contact_page: ContactPage,
+    text_content: TextContent,
 });
 
 // Get the slug from the route
@@ -110,12 +112,8 @@ const slug = computed(() => route.params.slug);
 
 // Fetch page data on client side (SAME PATTERN AS INDEX.VUE)
 onMounted(async () => {
-    console.log("Dynamic page mounted for slug:", slug.value);
-
     try {
-        console.log("Fetching page data...");
         const result = await $api.getPage(slug.value);
-        console.log("Page data received:", result);
         data.value = result;
 
         // Set SEO meta tags
@@ -171,7 +169,7 @@ watch(
 }
 
 .container {
-    max-width: 1200px;
+    /* max-width: 1200px; */
     margin: 0 auto;
     padding: 0 20px;
 }

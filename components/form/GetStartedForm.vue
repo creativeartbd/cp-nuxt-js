@@ -24,11 +24,11 @@
                 </div>
                 <div class="mt-3">
                     <label for="selectServices" class="form-label" v-if="!isHome">Select services</label>
-                    <select id="selectServices" class="form-select">
-                        <option selected>Choose...</option>
-                        <option value="1">Service 1</option>
-                        <option value="2">Service 2</option>
-                        <option value="3">Service 3</option>
+                    <select id="selectServices" class="form-select" v-model="selectedService">
+                        <option disabled value="">Select a service</option>
+                        <option v-for="(item, index) in service" :key="index" :value="item.value">
+                            {{ item.label }}
+                        </option>
                     </select>
                 </div>
                 <div class="mt-3">
@@ -46,7 +46,9 @@
                             @change="fileInputHandler"
                             ref="fileInput"
                         />
-                        <button type="button" class="btn btn-primary btn-sm" @click="browseFiles">Browse</button>
+                        <button type="button" class="btn btn-primary btn-sm get-started-btn" @click="browseFiles">
+                            Browse
+                        </button>
                     </div>
                     <small class="file-info"
                         >If the size is more than 25 MB, share your image via cloud (Google Drive, Dropshare or
@@ -58,7 +60,7 @@
                     <input type="url" class="form-control" id="pasteLink" placeholder="Paste the link here" />
                 </div>
                 <div class="mt-3">
-                    <button type="submit" class="btn btn-default">Send Message</button>
+                    <button type="submit" class="btn btn-default">{{ buttonName }}</button>
                 </div>
             </form>
         </div>
@@ -68,11 +70,29 @@
 <script>
 export default {
     name: "GetStartedForm",
+    data() {
+        return {
+            selectedService: [],
+        };
+    },
     props: {
+        buttonName: {
+            type: String,
+            default: "Send Message",
+        },
         isHome: {
             type: [String, Boolean],
             default: false,
         },
+        service: {
+            type: [Array, Object],
+            default: false,
+        },
+    },
+    mounted() {
+        if (this.service) {
+            this.selectedService = this.service;
+        }
     },
     methods: {
         dragOverHandler() {
@@ -90,10 +110,10 @@ export default {
             this.handleFiles(files);
         },
         handleFiles(files) {
-            for (let i = 0; i < files.length; i++) {
-                console.log(`... file[${i}].name = ${files[i].name}`);
-                // Process files here (e.g., uploading to a server)
-            }
+            // for (let i = 0; i < files.length; i++) {
+            //     console.log(`... file[${i}].name = ${files[i].name}`);
+            //     // Process files here (e.g., uploading to a server)
+            // }
         },
     },
 };
@@ -107,6 +127,10 @@ export default {
     text-align: center;
     cursor: pointer;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
 .drag-area:hover {
@@ -118,7 +142,7 @@ export default {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 8px 9px 24px #ececec;
-    border: 1px solid #ebebeb;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
 }
 
 /* Chrome, Safari, Opera 15+ */
@@ -165,6 +189,10 @@ textarea::placeholder {
 
 .file-info {
     color: #7d7777;
+}
+
+.get-started-btn {
+    margin-top: 10px !important;
 }
 
 /* Responsive Design */

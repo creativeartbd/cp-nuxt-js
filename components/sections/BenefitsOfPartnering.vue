@@ -11,7 +11,7 @@
             <div class="row" v-if="data.services">
                 <div class="col-md-4 text-center" v-for="(data, index) in data.services" :key="index">
                     <img :src="data.image" alt="" />
-                    <h3 class="mt-3">{{ data.title }}</h3>
+                    <h3 class="mt-0">{{ data.title }}</h3>
                     <div v-html="data.content"></div>
                 </div>
             </div>
@@ -38,8 +38,8 @@ export default {
 
 .benefit-with-us img {
     margin-bottom: 15px;
-    width: 150px;
-    height: 150px;
+    width: 75px;
+    height: 75px;
 }
 
 .benefit-with-us h3 {

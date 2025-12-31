@@ -1,5 +1,8 @@
 <template>
-    <div class="header-banner">
+    <div
+        class="header-banner"
+        :style="{ backgroundImage: pageBanner ? `url('${pageBanner}')` : 'url(../assets/images/header_bg.jpg)' }"
+    >
         <div class="header-content">
             <h3>{{ data.page.title }}</h3>
             <nav class="breadcrumb" v-if="$route.params.slug">
@@ -10,20 +13,26 @@
         </div>
     </div>
 </template>
-<script>
-export default {
-    props: ["data"],
-};
+
+<script setup>
+defineProps({
+    data: Object,
+});
+
+const siteSettings = useState("siteSettings");
+
+// get the page banner
+const pageBanner = computed(() => {
+    return siteSettings.value?.all_fields?.upload_page_banner || null;
+});
 </script>
+
 <style scoped>
 .header-banner {
     position: relative;
-    background-image: url("../assets/images/top-bg.svg");
-    /* background-attachment: fixed; */
     background-repeat: no-repeat;
     background-size: cover;
     height: 300px;
-    background-size: cover;
     background-position: center center;
 }
 
@@ -37,13 +46,13 @@ export default {
 }
 
 .header-banner .header-content h3 {
-    font-size: 30px;
+    font-size: 25px;
     margin-bottom: 15px;
 }
 
 .header-banner .header-content h3,
 p {
-    color: #fff;
+    color: #000;
 }
 
 .header-banner img {
@@ -64,10 +73,6 @@ p {
 }
 
 .header-content a {
-    color: #fff;
-}
-
-.header-content h3 {
-    text-shadow: 1px 1px 1px #06aed6;
+    color: #000;
 }
 </style>

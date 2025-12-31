@@ -11,18 +11,59 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <get-started-form is-home="true"></get-started-form>
+                    <get-started-form
+                        is-home="true"
+                        :service="service"
+                        :button-name="data.form_submit_button_text"
+                    ></get-started-form>
                 </div>
             </div>
             <div class="row" v-if="data.contact_methods">
                 <div class="col-md-3" v-for="(methods, index) in data.contact_methods" :key="index">
-                    <div class="contact-box">
-                        <i :class="methods.icon_class"></i>
-                        <div class="contact-details">
-                            <h6 v-if="methods.title">{{ methods.title }}</h6>
-                            <p v-if="methods.address">{{ methods.address }}</p>
-                        </div>
-                    </div>
+                    <template v-if="methods.contact_type === 'email'">
+                        <a :href="'mailto:' + methods.address">
+                            <div class="contact-box">
+                                <i :class="methods.icon_class"></i>
+                                <div class="contact-details">
+                                    <h6 v-if="methods.title">{{ methods.title }}</h6>
+                                    <p v-if="methods.address">{{ methods.address }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                    <template v-else-if="methods.contact_type === 'whatsapp'">
+                        <a :href="'https://wa.me/' + methods.address" target="_new">
+                            <div class="contact-box">
+                                <i :class="methods.icon_class"></i>
+                                <div class="contact-details">
+                                    <h6 v-if="methods.title">{{ methods.title }}</h6>
+                                    <p v-if="methods.address">{{ methods.address }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                    <template v-else-if="methods.contact_type === 'mobile'">
+                        <a :href="'tel:' + methods.address" target="_new">
+                            <div class="contact-box">
+                                <i :class="methods.icon_class"></i>
+                                <div class="contact-details">
+                                    <h6 v-if="methods.title">{{ methods.title }}</h6>
+                                    <p v-if="methods.address">{{ methods.address }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                    <template v-else-if="methods.contact_type === 'team'">
+                        <a :href="'https://teams.microsoft.com/l/chat/0/0?users=' + methods.address" target="_new">
+                            <div class="contact-box">
+                                <i :class="methods.icon_class"></i>
+                                <div class="contact-details">
+                                    <h6 v-if="methods.title">{{ methods.title }}</h6>
+                                    <p v-if="methods.address">{{ methods.address }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
                 </div>
             </div>
         </div>
@@ -31,7 +72,7 @@
 <script>
 import GetStartedForm from "@/components/form/GetStartedForm.vue";
 export default {
-    props: ["data"],
+    props: ["data", "service", "buttonName"],
     components: {
         GetStartedForm,
     },

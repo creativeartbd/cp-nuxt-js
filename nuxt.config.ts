@@ -21,7 +21,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             wordpressApiUrl: process.env.WORDPRESS_API_URL || "https://cutoutpartner-api.com/wp-json",
-            siteUrl: process.env.SITE_URL || "https://cutoutpartner.com",
+            siteUrl: process.env.SITE_URL || "https://cutoutpartner-api.com",
             googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || "",
         },
     },

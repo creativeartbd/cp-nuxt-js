@@ -12,8 +12,7 @@
             :effect="'fade'"
         >
             <swiper-slide v-for="(slider, index) in data.sliders" :key="index">
-                <img v-if="slider.slider_image" :src="slider.slider_image" />
-                <div class="container slider-container">
+                <div class="container slider-container" v-if="slider.is_disable === 'no'">
                     <div class="row align-items-center">
                         <div class="col-lg-6 col-md-8 col-sm-10 col-12">
                             <div class="slider-content">
@@ -24,7 +23,9 @@
                                 </NuxtLink>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-4 d-none d-md-block"></div>
+                        <div class="col-lg-6 col-md-4">
+                            <img v-if="slider.slider_image" :src="slider.slider_image" />
+                        </div>
                     </div>
                 </div>
             </swiper-slide>
@@ -84,11 +85,12 @@ export default {
     margin-bottom: 30px;
     font-weight: 700;
     font-size: 300%;
-    color: #fff;
+    color: #000;
 }
 
 .slider-content p {
-    color: #fff;
+    color: #000;
+    line-height: 150%;
 }
 
 .swiper-wrapper {
@@ -97,30 +99,28 @@ export default {
 
 .swiper-wrapper img {
     width: 100%;
-    height: 100vh;
+    height: auto;
     object-fit: cover;
     object-position: center;
-    position: absolute;
+    /* position: absolute; */
     z-index: -1;
 }
 
 /* CSS */
 .order-btn {
-    background: #00bcd4;
+    background: linear-gradient(282deg, rgb(6 188 212) 0%, rgb(22 175 195) 100%);
     border-radius: 999px;
-    box-shadow: #00bcd4 0 10px 20px -10px;
     box-sizing: border-box;
     color: #ffffff;
     cursor: pointer;
     font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji",
         "Segoe UI Symbol", "Android Emoji", EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
         "Noto Sans", sans-serif;
-    font-size: 20px;
     font-weight: 600;
     line-height: 24px;
     opacity: 1;
     outline: 0 solid transparent;
-    padding: 18px 50px;
+    padding: 18px 30px;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
@@ -132,6 +132,9 @@ export default {
     display: inline-block;
 }
 
+.order-btn:hover {
+    background: linear-gradient(282deg, rgb(22 175 195) 0%, rgb(6 188 212) 100%);
+}
 /* Responsive adjustments */
 @media (max-width: 991.98px) {
     .slider-content h2 {

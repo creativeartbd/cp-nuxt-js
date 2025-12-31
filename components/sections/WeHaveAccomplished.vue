@@ -1,14 +1,5 @@
 <template>
-    <div
-        class="we-can-deliver"
-        v-if="data"
-        :style="{
-            backgroundImage: `url(${data.background_image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-        }"
-    >
+    <div class="we-can-deliver" v-if="data">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -42,8 +33,8 @@ export default {
 .we-can-deliver {
     padding-top: 100px;
     padding-bottom: 100px;
-    background-color: #fbfbfb;
-    background-image: url(https://themeim.com/wp/cliper/wp-content/uploads/2021/11/counter_bg.png);
+    background-color: #fff;
+    /* background-image: url(https://themeim.com/wp/cliper/wp-content/uploads/2021/11/counter_bg.png); */
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -61,12 +52,13 @@ export default {
     display: block;
     position: relative;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgb(121 215 229 / 43%), 0 3px 6px rgba(0, 0, 0, 0.06);
-    border-left: 6px solid #1e6570;
+    /* box-shadow: 0 2px 4px rgb(121 215 229 / 43%), 0 3px 6px rgba(0, 0, 0, 0.06); */
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    border-left: 5px solid #39c6da;
 }
 
 .deliver-item h3 {
-    font-size: 40px;
+    font-size: 30px;
     font-weight: normal;
     margin-bottom: 20px;
     color: #00364b;

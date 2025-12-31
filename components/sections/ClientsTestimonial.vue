@@ -101,7 +101,7 @@ export default {
     padding-top: 150px;
     padding-bottom: 150px;
     /* background-color : #fff; */
-    background-image: url(https://themeim.com/wp/cliper/wp-content/uploads/2021/11/Group-5762.png);
+    /* background-image: url(https://themeim.com/wp/cliper/wp-content/uploads/2021/11/Group-5762.png); */
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;

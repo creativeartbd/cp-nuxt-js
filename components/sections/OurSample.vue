@@ -5,7 +5,7 @@
                 <div class="col-md-12 section-title text-center">
                     <h2>{{ data.title }}</h2>
                     <div v-html="data.sub_title"></div>
-                    <div class="divide-separator divide-center"></div>
+                    <div class="divide-separator divide-separator-2 divide-center"></div>
                 </div>
                 <div class="col-md-12">
                     <div class="d-flex align-items-start sample-work">
@@ -55,11 +55,22 @@
                                 aria-labelledby="v-pills-home-tab"
                             >
                                 <div class="row">
-                                    <div class="col-sm-6 col-md-4" v-for="(image, index) in allImages" :key="index">
+                                    <div
+                                        class="col-sm-6 col-md-4"
+                                        v-for="(image, index) in frontImages.slice(0, displayedFrontImagesCount)"
+                                        :key="index"
+                                    >
                                         <div class="single-sample" @click.prevent="handleImgClick(image)">
                                             <img class="active-image" :src="image.before_image" alt="" />
                                             <img class="hover-image" :src="image.after_image" alt="" />
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="row" v-if="shouldShowLoadMoreButton">
+                                    <div class="col-12 text-center">
+                                        <button class="btn btn-primary" @click="loadMoreImages">
+                                            {{ siteSettings.value?.all_fields?.load_more_button_text || "Load More" }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -141,154 +152,193 @@
     </section>
 </template>
 
-<script>
-export default {
-    props: ["data"],
-    data() {
-        return {
-            activeTab: "All",
-            allImages: [],
-            popupImgSrc: null,
-            isPopupVisible: false,
-            isImgLoaded: false,
-            preloadedImages: new Set(),
-            loadingTimeout: null,
-        };
-    },
-    methods: {
-        markAsPreloaded(imageKey) {
-            this.preloadedImages.add(imageKey);
-        },
+<script setup>
+// --- PROPS ---
+const props = defineProps(["data"]);
 
-        setImgLoad() {
-            if (this.loadingTimeout) {
-                clearTimeout(this.loadingTimeout);
-            }
-            this.isImgLoaded = true;
-        },
+// --- COMPOSABLES ---
+const { $api } = useNuxtApp();
 
-        handleImageError() {
-            console.warn("Image failed to load");
-            this.setImgLoad();
-        },
+// --- STATE ---
+const siteSettings = useState("siteSettings", () => null);
 
-        handlePrev(currentIndex) {
-            if (currentIndex === 0) return;
+const activeTab = ref("All");
+const allImages = ref([]);
+const frontImages = ref([]);
+const displayedFrontImagesCount = ref(2); // Default value
+const popupImgSrc = ref(null);
+const isPopupVisible = ref(false);
+const isImgLoaded = ref(false);
+const preloadedImages = ref(new Set());
+const loadingTimeout = ref(null);
 
-            const prevIndex = currentIndex - 1;
-            if (this.allImages[prevIndex]) {
-                this.changeImage(this.allImages[prevIndex]);
-            }
-        },
+// --- COMPUTED PROPERTIES ---
+/**
+ * Determines if the "Load More" button should be visible.
+ * It's true if there are more images to show than are currently displayed.
+ */
+const shouldShowLoadMoreButton = computed(() => {
+    // Add a check to ensure frontImages is not null/undefined before accessing .length
+    return frontImages.value && displayedFrontImagesCount.value < frontImages.value.length;
+});
 
-        handleNext(currentIndex) {
-            if (currentIndex === this.allImages.length - 1) return;
-
-            const nextIndex = currentIndex + 1;
-            if (this.allImages[nextIndex]) {
-                this.changeImage(this.allImages[nextIndex]);
-            }
-        },
-
-        changeImage(image) {
-            const isPreloaded = this.preloadedImages.has(image.key);
-
-            if (isPreloaded) {
-                this.isImgLoaded = true;
-            } else {
-                this.isImgLoaded = false;
-                this.loadingTimeout = setTimeout(() => {
-                    this.isImgLoaded = true;
-                }, 2000);
-            }
-
-            this.popupImgSrc = {
-                src: image.before_image,
-                popup_image_text: image.popup_image_text,
-                index: image.key,
-                popup_image: image.popup_image,
-            };
-        },
-
-        closePopup() {
-            this.isPopupVisible = false;
-            if (this.loadingTimeout) {
-                clearTimeout(this.loadingTimeout);
-            }
-        },
-
-        handleImgClick(image) {
-            this.changeImage(image);
-            this.isPopupVisible = true;
-        },
-
-        setActiveTab(tabTitle) {
-            this.activeTab = tabTitle;
-        },
-
-        preloadAdjacentImages(currentIndex) {
-            const imagesToPreload = [];
-
-            if (currentIndex > 0) {
-                imagesToPreload.push(this.allImages[currentIndex - 1]);
-            }
-
-            if (currentIndex < this.allImages.length - 1) {
-                imagesToPreload.push(this.allImages[currentIndex + 1]);
-            }
-
-            imagesToPreload.forEach((image) => {
-                if (!this.preloadedImages.has(image.key)) {
-                    const img = new Image();
-                    img.onload = () => this.markAsPreloaded(image.key);
-                    img.onerror = () => this.markAsPreloaded(image.key);
-                    img.src = image.popup_image;
-                }
-            });
-        },
-    },
-
-    watch: {
-        popupImgSrc: {
-            handler(newVal) {
-                if (newVal && this.isPopupVisible) {
-                    this.preloadAdjacentImages(newVal.index);
-                }
-            },
-            immediate: true,
-        },
-    },
-
-    mounted() {
-        let uniqueIndex = 0;
-        if (this.data && this.data.tabs && Array.isArray(this.data.tabs)) {
-            this.data.tabs.forEach((tab) => {
-                tab.images.forEach((image) => {
-                    image.key = uniqueIndex++;
-                    this.allImages.push(image);
-                });
-            });
-        }
-
-        document.addEventListener("keydown", (e) => {
-            if (this.isPopupVisible) {
-                if (e.key === "ArrowLeft") {
-                    this.handlePrev(this.popupImgSrc.index);
-                } else if (e.key === "ArrowRight") {
-                    this.handleNext(this.popupImgSrc.index);
-                } else if (e.key === "Escape") {
-                    this.closePopup();
-                }
-            }
-        });
-    },
-
-    beforeDestroy() {
-        if (this.loadingTimeout) {
-            clearTimeout(this.loadingTimeout);
-        }
-    },
+// --- METHODS ---
+const markAsPreloaded = (imageKey) => {
+    preloadedImages.value.add(imageKey);
 };
+
+const setImgLoad = () => {
+    if (loadingTimeout.value) {
+        clearTimeout(loadingTimeout.value);
+    }
+    isImgLoaded.value = true;
+};
+
+const handleImageError = () => {
+    console.warn("Image failed to load");
+    setImgLoad();
+};
+
+const handlePrev = (currentIndex) => {
+    if (currentIndex === 0) return;
+    const prevIndex = currentIndex - 1;
+    if (allImages.value[prevIndex]) {
+        changeImage(allImages.value[prevIndex]);
+    }
+};
+
+const handleNext = (currentIndex) => {
+    if (currentIndex === allImages.value.length - 1) return;
+    const nextIndex = currentIndex + 1;
+    if (allImages.value[nextIndex]) {
+        changeImage(allImages.value[nextIndex]);
+    }
+};
+
+const changeImage = (image) => {
+    const isPreloaded = preloadedImages.value.has(image.key);
+
+    if (isPreloaded) {
+        isImgLoaded.value = true;
+    } else {
+        isImgLoaded.value = false;
+        loadingTimeout.value = setTimeout(() => {
+            isImgLoaded.value = true;
+        }, 2000);
+    }
+
+    popupImgSrc.value = {
+        src: image.before_image,
+        popup_image_text: image.popup_image_text,
+        index: image.key,
+        popup_image: image.popup_image,
+    };
+};
+
+const closePopup = () => {
+    isPopupVisible.value = false;
+    if (loadingTimeout.value) {
+        clearTimeout(loadingTimeout.value);
+    }
+};
+
+const handleImgClick = (image) => {
+    changeImage(image);
+    isPopupVisible.value = true;
+};
+
+const setActiveTab = (tabTitle) => {
+    activeTab.value = tabTitle;
+};
+
+const loadMoreImages = () => {
+    displayedFrontImagesCount.value += 2;
+};
+
+const preloadAdjacentImages = (currentIndex) => {
+    const imagesToPreload = [];
+
+    if (currentIndex > 0) {
+        imagesToPreload.push(allImages.value[currentIndex - 1]);
+    }
+
+    if (currentIndex < allImages.value.length - 1) {
+        imagesToPreload.push(allImages.value[currentIndex + 1]);
+    }
+
+    imagesToPreload.forEach((image) => {
+        if (!preloadedImages.value.has(image.key)) {
+            const img = new Image();
+            img.onload = () => markAsPreloaded(image.key);
+            img.onerror = () => markAsPreloaded(image.key);
+            img.src = image.popup_image;
+        }
+    });
+};
+
+// --- WATCHERS ---
+watch(popupImgSrc, (newVal) => {
+    if (newVal && isPopupVisible.value) {
+        preloadAdjacentImages(newVal.index);
+    }
+});
+
+// --- LIFECYCLE ---
+onMounted(async () => {
+    // Only fetch if siteSettings is not already loaded
+    if (!siteSettings.value) {
+        try {
+            const data = await $api.getSiteSettings();
+            if (data) {
+                siteSettings.value = data;
+                // Update the displayedFrontImagesCount after siteSettings is loaded
+                displayedFrontImagesCount.value =
+                    siteSettings.value?.all_fields?.number_of_images_to_be_shown_on_all_tab || 2;
+            }
+        } catch (error) {
+            console.error("Site settings load error:", error);
+        }
+    } else {
+        // If siteSettings is already loaded, update the count
+        displayedFrontImagesCount.value = siteSettings.value?.all_fields?.number_of_images_to_be_shown_on_all_tab || 2;
+    }
+
+    let uniqueIndex = 0;
+    if (props.data && props.data.tabs && Array.isArray(props.data.tabs)) {
+        props.data.tabs.forEach((tab) => {
+            tab.images.forEach((image) => {
+                image.key = uniqueIndex++;
+                allImages.value.push(image);
+
+                // Add to frontImages if is_front === "true" (string comparison)
+                if (image.is_front === "true") {
+                    frontImages.value.push(image);
+                }
+            });
+        });
+    }
+
+    const handleKeydown = (e) => {
+        if (isPopupVisible.value) {
+            if (e.key === "ArrowLeft") {
+                handlePrev(popupImgSrc.value.index);
+            } else if (e.key === "ArrowRight") {
+                handleNext(popupImgSrc.value.index);
+            } else if (e.key === "Escape") {
+                closePopup();
+            }
+        }
+    };
+
+    document.addEventListener("keydown", handleKeydown);
+
+    onUnmounted(() => {
+        document.removeEventListener("keydown", handleKeydown);
+        if (loadingTimeout.value) {
+            clearTimeout(loadingTimeout.value);
+        }
+    });
+});
 </script>
 
 <style>
@@ -316,12 +366,19 @@ export default {
     margin-bottom: 10px;
 }
 
+.sample-work .nav button:hover {
+    background-color: #2ebcd4;
+    color: #fff;
+    border: none;
+    border: 1px solid #2ebcd4;
+}
+
 .single-sample {
     box-shadow: 1px 1px 1px #ddd;
     margin-bottom: 15px;
     cursor: pointer;
     margin-bottom: 25px;
-    min-width: 327px;
+    /* min-width: 327px; */
 }
 
 .single-sample img {
@@ -362,8 +419,8 @@ export default {
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    min-height: 300px; /* Add minimum height */
-    min-width: 400px; /* Add minimum width */
+    min-height: 300px;
+    min-width: 400px;
 }
 
 .image-popup p {
@@ -375,7 +432,7 @@ export default {
     height: auto;
     display: block;
     border-radius: 5px;
-    min-height: 200px; /* Prevent layout shift */
+    min-height: 200px;
 }
 
 .image-popup .cross {
@@ -383,12 +440,12 @@ export default {
     top: -30px;
     right: 0px;
     cursor: pointer;
-    z-index: 1001; /* Add this line */
+    z-index: 1001;
 }
 
 .image-popup .cross i {
-    color: #fff; /* or any visible color */
-    font-size: 24px; /* make it larger to see if it's there */
+    color: #fff;
+    font-size: 24px;
 }
 
 .image-popup span.image-count {
@@ -429,7 +486,6 @@ export default {
     width: 100%;
 }
 
-/* NEW RESPONSIVE ADDITIONS - DO NOT MODIFY ABOVE */
 @media (max-width: 768px) {
     .sample-work {
         flex-direction: column;
@@ -474,7 +530,6 @@ export default {
     }
 }
 
-/* NEW OPTIMIZATION STYLES */
 .loading-container {
     min-height: 200px;
 }
@@ -491,5 +546,18 @@ export default {
 
 .arrows i:hover:not(.disabled) {
     color: #00bcd4;
+}
+
+.btn-primary {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+    color: #fff;
+    padding: 10px 30px;
+    margin-top: 20px;
+}
+
+.btn-primary:hover {
+    background-color: #0097a7;
+    border-color: #0097a7;
 }
 </style>

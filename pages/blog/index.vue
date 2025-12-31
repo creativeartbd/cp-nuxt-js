@@ -1,9 +1,10 @@
 <template>
     <div class="blog-page">
         <!-- ✅ Loading State -->
-        <div v-if="loading" class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>Loading...</p>
+        <div class="d-flex justify-content-center align-items-center mt-5 mb-5" v-if="loading">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
 
         <!-- ✅ Error State -->
@@ -165,7 +166,7 @@ const activeCategory = ref(null);
 onMounted(async () => {
     try {
         const [postData, catData, settingsData] = await Promise.all([
-            $api.getPosts({ per_page: 6 }),
+            $api.getPosts({ per_page: 9 }),
             $api.getCategories(),
             $api.getSiteSettings(),
         ]);
@@ -201,7 +202,7 @@ async function changePage(newPage) {
     loading.value = true;
     try {
         posts.value = await $api.getPosts({
-            per_page: 6,
+            per_page: 9,
             page: newPage,
             category: activeCategory.value,
             search: search.value || undefined,
@@ -218,7 +219,7 @@ async function filterByCategory(catId) {
     loading.value = true;
     try {
         posts.value = await $api.getPosts({
-            per_page: 6,
+            per_page: 9,
             page: 1,
             category: catId,
         });
@@ -235,7 +236,7 @@ async function searchPosts() {
     loading.value = true;
     try {
         posts.value = await $api.getPosts({
-            per_page: 6,
+            per_page: 9,
             page: 1,
             search: search.value,
         });
@@ -249,10 +250,6 @@ async function searchPosts() {
 </script>
 
 <style scoped>
-.blog-page {
-    min-height: 100vh;
-}
-
 @keyframes spin {
     0% {
         transform: rotate(0deg);

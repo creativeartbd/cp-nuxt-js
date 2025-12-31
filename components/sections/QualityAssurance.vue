@@ -2,12 +2,12 @@
     <div class="pro-approach" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-12 section-title mb-4 mb-md-0">
-                    <h2 v-if="data.title">{{ data.title }}</h2>
-                    <p v-if="data.sub_title">{{ data.sub_title }}</p>
-                    <!-- <div class="divide-separator"></div> -->
+                <div class="col-lg-4 col-md-4 col-sm-12 section-title mb-4 mb-md-0">
+                    <img src="http://cutoutpartner-api.com/wp-content/uploads/2025/12/quality-assurance.png" alt="" />
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="col-lg-8 col-md-8 col-sm-12">
+                    <h2 v-if="data.title">{{ data.title }}</h2>
+                    <p class="mb-3" v-if="data.sub_title">{{ data.sub_title }}</p>
                     <div class="section-content" v-if="data.content" v-html="data.content"></div>
                 </div>
             </div>
@@ -29,7 +29,7 @@ export default {
 }
 
 .section-title h2 {
-    margin-bottom: 20px;
+    margin-bottom: 0;
     line-height: 1.3;
     font-weight: 600;
 }

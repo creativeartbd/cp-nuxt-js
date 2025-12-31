@@ -88,7 +88,7 @@ export default {
 
 .how-it-works-list {
     position: relative;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
     display: flex;
     align-items: flex-start;
 }
@@ -102,20 +102,26 @@ export default {
     margin-bottom: 10px;
 }
 
-.how-it-works-list:nth-child(1) .how-it-works-number {
-    background-color: #a0c747;
+.how-it-works-list .how-it-works-number {
+    background: linear-gradient(
+        191deg,
+        rgba(0, 188, 212, 1) 0%,
+        rgba(115, 209, 225, 1) 0%,
+        rgb(6 188 212) 51%,
+        rgba(6, 188, 212, 1) 100%
+    );
     box-shadow: 0px 6px 12px 0px rgb(210 250 255);
 }
 
-.how-it-works-list:nth-child(2) .how-it-works-number {
-    background-color: #00bcd4;
-    box-shadow: 0px 6px 12px 0px rgb(210 250 255);
-}
+/* .how-it-works-list:nth-child(2) .how-it-works-number {
+        background-color: #00bcd4;
+        box-shadow: 0px 6px 12px 0px rgb(210 250 255);
+    }
 
-.how-it-works-list:nth-child(3) .how-it-works-number {
-    background-color: #f89748;
-    box-shadow: 0px 6px 12px 0px rgb(210 250 255);
-}
+    .how-it-works-list:nth-child(3) .how-it-works-number {
+        background-color: #f89748;
+        box-shadow: 0px 6px 12px 0px rgb(210 250 255);
+    } */
 
 .how-it-works-number {
     width: 75px;
@@ -126,10 +132,10 @@ export default {
     align-items: center;
     justify-content: center;
     color: #fff;
-    border: 8px solid #fff;
+    border: 8px solid #d3f8fd;
     margin-bottom: 20px;
     font-size: 25px;
-    box-shadow: 0px 6px 12px 0px rgb(210 250 255);
+    /* box-shadow: 0px 6px 12px 0px rgb(210 250 255); */
     margin-right: 20px;
     flex-shrink: 0;
 }

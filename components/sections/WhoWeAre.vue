@@ -2,13 +2,20 @@
     <div class="who-we-are" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4 col-md-5 col-sm-12 section-title mb-4 mb-md-0">
+                <div class="col-lg-8 col-md-8 col-sm-12 section-title mb-4 mb-md-0">
                     <h2 v-if="data.title">{{ data.title }}</h2>
-                    <p v-if="data.sub_title">{{ data.sub_title }}</p>
+                    <p class="mb-3" v-if="data.sub_title">{{ data.sub_title }}</p>
+                    <div class="section-content" v-html="data.content"></div>
                     <!-- <div class="divide-separator"></div> -->
                 </div>
-                <div class="col-lg-8 col-md-7 col-sm-12" v-if="data.content">
-                    <div class="section-content" v-html="data.content"></div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <img
+                            src="http://cutoutpartner-api.com/wp-content/uploads/2025/12/management.png"
+                            alt=""
+                            width="200"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -28,7 +35,7 @@ export default {
 }
 
 .section-title h2 {
-    margin-bottom: 20px;
+    margin-bottom: 0;
     line-height: 1.3;
     font-weight: 600;
 }

@@ -90,7 +90,13 @@ export default {
 }
 
 .common-questions .accordion-header button {
-    background-color: #00bcd4;
+    background: linear-gradient(
+        191deg,
+        rgba(0, 188, 212, 1) 0%,
+        rgba(115, 209, 225, 1) 0%,
+        rgb(6 188 212) 51%,
+        rgba(6, 188, 212, 1) 100%
+    );
     color: #fff;
 }
 
@@ -99,10 +105,9 @@ export default {
 }
 
 .common-questions img {
-    width: 50%;
+    width: 70%;
     margin: 35px auto 0 auto;
     display: block;
-    max-width: 100%;
     height: auto;
 }
 

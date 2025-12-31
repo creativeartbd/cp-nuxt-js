@@ -10,7 +10,7 @@
         </main>
 
         <!-- Optional: Global Footer -->
-        <TheFooter />
+        <TheFooter2 />
     </div>
 </template>
 
@@ -20,9 +20,6 @@ useHead({
     titleTemplate: "%s - Cutout Partner",
     meta: [{ charset: "utf-8" }, { name: "viewport", content: "width=device-width, initial-scale=1" }],
 });
-
-// You can add global logic here that runs once
-console.log("App.vue mounted - this runs once when the app starts");
 </script>
 
 <style>

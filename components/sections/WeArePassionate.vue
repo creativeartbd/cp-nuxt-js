@@ -14,8 +14,9 @@
                         :key="index"
                     >
                         <div class="out-passion-image" :class="{ 'middle-section': index === 1 }">
-                            <h3 v-if="section.section_title">{{ section.section_title }}</h3>
-                            <p v-if="section.section_content">{{ section.section_content }}</p>
+                            <h4 v-if="section.section_title" class="mb-3">{{ section.section_title }}</h4>
+                            <div v-html="section.section_content" v-if="section.section_content"></div>
+
                             <img v-if="section.section_image" :src="section.section_image" alt="" />
                             <NuxtLink
                                 class="btn btn-default mt-2"
@@ -105,10 +106,8 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 10;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
     white-space: nowrap;
+    border: 1px solid #fff;
 }
 
 /* Middle section (index 1) - all content centered */
@@ -119,6 +118,9 @@ export default {
     justify-content: center;
     text-align: center;
     height: 570px;
+    background-color: #fff;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    padding: 25px;
 }
 
 .middle-section h3 {

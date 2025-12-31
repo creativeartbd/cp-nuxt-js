@@ -30,6 +30,7 @@
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
                             v-if="componentMap[content.acf_fc_layout]"
+                            :service="siteSettings?.value?.all_fields?.select_services || []"
                         />
 
                         <!-- Fallback for unknown sections -->
@@ -69,7 +70,7 @@ import FAQ from "~/components/sections/Faq.vue";
 import CallToAction from "~/components/layout/CallToAction.vue";
 
 const { $api } = useNuxtApp();
-
+const siteSettings = useState("siteSettings");
 const loading = ref(true);
 const data = ref(null);
 const error = ref(null);
@@ -89,12 +90,8 @@ const componentMap = markRaw({
 
 // Fetch homepage data on client side
 onMounted(async () => {
-    console.log("Homepage mounted");
-
     try {
-        console.log("Fetching homepage data...");
         const result = await $api.getPage("home");
-        console.log("Homepage data received:", result);
         data.value = result;
 
         // Set SEO meta tags

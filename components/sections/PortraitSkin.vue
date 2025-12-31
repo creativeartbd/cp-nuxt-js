@@ -1,6 +1,5 @@
 <template>
-    <section class="portrait-skin" v-if="data" :style="{ backgroundColor: data.background_color }">
-        >
+    <section class="portrait-skin" v-if="data" :style="sectionStyle">
         <div class="container">
             <div class="row">
                 <div class="col-md-8">
@@ -11,7 +10,6 @@
                         <p v-if="data.sub_title">
                             {{ data.sub_title }}
                         </p>
-                        <!-- <div class="divide-separator"></div> -->
                     </div>
 
                     <div v-if="data.content" v-html="data.content"></div>
@@ -28,11 +26,9 @@
                             <!-- eslint-disable -->
                             <figure slot="first" class="before">
                                 <img slot="first" :src="data.before_image" />
-                                <figcaption>Before</figcaption>
                             </figure>
                             <figure slot="second" class="after">
                                 <img slot="second" :src="data.after_image" />
-                                <figcaption>After</figcaption>
                             </figure>
                             <div slot="handle">
                                 <div class="bf-circle">
@@ -42,6 +38,10 @@
                             </div>
                             <!-- eslint-enable -->
                         </ImgComparisonSlider>
+
+                        <!-- NEW: Overlay Labels positioned outside the slider -->
+                        <div class="comparison-label before-label">Before</div>
+                        <div class="comparison-label after-label">After</div>
 
                         <div class="button-group">
                             <router-link
@@ -80,9 +80,23 @@ export default {
     components: {
         ImgComparisonSlider,
     },
+    computed: {
+        sectionStyle() {
+            // Check if data exists and if background_color has a value
+            if (this.data && this.data.background_color) {
+                return { backgroundColor: this.data.background_color };
+            }
+            // Otherwise, return the default color
+            return { backgroundColor: "#effdfe" };
+        },
+    },
 };
 </script>
 <style scoped>
+/* --- Your Existing Component Styles (Unchanged) --- */
+.portrait-skin {
+    background-color: #effdfe;
+}
 .skin-review {
     display: flex;
     justify-content: space-between;
@@ -92,93 +106,30 @@ export default {
 }
 blockquote.skin-review img {
     float: left;
+    width: auto;
 }
-.portrait-skin-image {
-    margin-left: 62px;
-}
-
-.portrait-skin-image .before figcaption,
-.portrait-skin-image .after figcaption {
-    display: none;
-}
-
-.portrait-skin-image:hover .before figcaption {
-    display: block;
-}
-
-.portrait-skin-image:hover .after figcaption {
-    display: block;
-}
-
-.portrait-skin-image .before figcaption,
-.portrait-skin-image .after figcaption {
-    background: #5e5e5eb5;
-    border: none;
-    color: #fff;
-    opacity: 0.8;
-    padding: 12px;
-    position: absolute;
-    top: 10%;
-    transform: translateY(-50%);
-    line-height: 100%;
-}
-
-.portrait-skin-image .before figcaption {
-    left: 12px;
-}
-
-.portrait-skin-image .after figcaption {
-    right: 37px;
-}
-
 .portrait-skin-image:focus {
     outline: 0;
 }
-
-.portrait-skin-image img {
-    width: 353px;
-    height: 403px;
-    max-width: 100%;
-    object-fit: cover;
-}
-
-.portrait-comments {
-    background-color: #00bcd4;
-    padding: 20px;
-    border-radius: 20px;
-    color: #fff;
-    box-shadow: rgba(0, 188, 212, 0.4) 5px 5px;
-    font-style: italic;
-    margin-top: 50px;
-    width: 600px;
-    max-width: 100%;
-    font-size: 17px;
-}
-
 .portrait-skin ul {
     padding: 0;
 }
-
 .portrait-skin ul li {
     list-style-position: inside;
     line-height: 200%;
 }
-
 .portrait-skin .button-group {
     display: flex;
     justify-content: space-between;
     margin-top: 15px;
     text-align: center;
 }
-
 .portrait-skin .button-group .place-order {
     width: calc(50% - 10px);
 }
-
 .portrait-skin .button-group .free-trial {
     width: calc(50% - 10px);
 }
-
 .place-order,
 .free-trial {
     border: none;
@@ -186,17 +137,13 @@ blockquote.skin-review img {
     color: #fff;
     padding: 12px 0;
     font-size: 15px;
-    /* box-shadow: #45465a 0 10px 20px -10px; */
 }
-
 .place-order {
     background-color: #00bcd4;
 }
-
 .free-trial {
     background-color: #45465a;
 }
-
 .animated-border-quote {
     display: inline-block;
     margin: 1em;
@@ -248,7 +195,6 @@ blockquote.skin-review img {
 .animated-shadow-quote blockquote cite:before {
     content: "- ";
 }
-
 .bf-circle {
     border: 3px solid #fff;
     border-radius: 50%;
@@ -263,11 +209,9 @@ blockquote.skin-review img {
     outline-color: transparent;
     background-color: #2ebcd4;
 }
-
 .bf-circle i {
     color: #fff;
 }
-
 @keyframes shadows {
     0% {
         box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.75);
@@ -278,8 +222,59 @@ blockquote.skin-review img {
         transform: scale(1);
     }
 }
-
 .rendered:focus {
     outline: 0 !important;
+}
+
+/* --- FINAL FIX: Slider and Caption Styling --- */
+
+/* Ensure the container is positioned for the overlay labels */
+.portrait-skin-image {
+    position: relative;
+}
+
+/* Set the dimensions for the slider itself */
+.portrait-skin-image .ImgComparisonSlider {
+    width: 353px;
+    height: 403px;
+    max-width: 100%;
+}
+
+/* Ensure images inside the slider cover the area without distortion */
+.portrait-skin-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- Overlay and NEW Label Styling --- */
+.comparison-label {
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    padding: 7px 15px; /* Consistent padding for same size */
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 9999; /* Above everything */
+    pointer-events: none;
+    font-size: 14px;
+    white-space: nowrap; /* Prevents text from wrapping */
+}
+
+/* Specific positioning for each label */
+.before-label {
+    left: 20px;
+}
+
+.after-label {
+    right: 20px;
+}
+
+/* Show labels on hover */
+.portrait-skin-image:hover .comparison-label {
+    opacity: 1;
 }
 </style>

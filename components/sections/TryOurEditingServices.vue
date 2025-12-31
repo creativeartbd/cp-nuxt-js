@@ -12,7 +12,11 @@
                 </div>
                 <div class="col-lg-6 col-md-12">
                     <div class="form-wrapper">
-                        <get-started-form is-home="true"></get-started-form>
+                        <get-started-form
+                            is-home="true"
+                            :service="service"
+                            :button-name="data.form_submit_button_text"
+                        ></get-started-form>
                     </div>
                 </div>
             </div>
@@ -29,9 +33,10 @@ export default {
         data: {
             type: Object,
             required: true,
-            validator(value) {
-                return value && (value.title || value.content);
-            },
+        },
+        service: {
+            type: Object,
+            default: {},
         },
         color: {
             type: String,

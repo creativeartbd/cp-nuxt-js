@@ -6,12 +6,14 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
+
             <div class="row" v-else>
                 <div class="col-12 text-center section-title">
                     <h2 v-if="data.title">{{ data.title }}</h2>
                     <p v-if="data.sub_title">{{ data.sub_title }}</p>
                     <div class="divide-separator divide-center"></div>
                 </div>
+
                 <div class="col-12" v-if="hasValidTabs">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item" role="presentation" v-for="(tab, index) in data.tabs" :key="index">
@@ -43,43 +45,54 @@
                         >
                             <div class="row">
                                 <div class="col-md-8">
+                                    <!-- use getImages(tab) helper so it's always an array -->
                                     <div
                                         class="ods-mini-wrapper"
-                                        v-for="(image, imageIndex) in tab.tab_images"
+                                        v-for="(image, imageIndex) in getImages(tab)"
                                         :key="imageIndex"
                                     >
                                         <div class="ods-mini-img">
                                             <img :src="image.image" @click="handleImageClick(image)" />
-                                            <h6 @click="handleImageClick(image)">
-                                                {{ image.title || `Image ${imageIndex + 1}` }}
+                                            <h6>
+                                                <NuxtLink
+                                                    @click="handleImageClick(image)"
+                                                    v-if="image.choose_a_service"
+                                                    :to="'services/' + image.choose_a_service"
+                                                >
+                                                    {{ image.title || `Image ${imageIndex + 1}` }}
+                                                </NuxtLink>
+                                                <NuxtLink v-else>
+                                                    {{ image.title || `Image ${imageIndex + 1}` }}
+                                                </NuxtLink>
                                             </h6>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-4">
-                                    <div class="before-after" v-if="beforeImg && afterImg">
-                                        <ImgComparisonSlider class="coloured-slider">
-                                            <div class="overlay"></div>
+                                    <div
+                                        class="before-after"
+                                        v-if="beforeImg && afterImg"
+                                        :class="{ 'hide-overlay': isDragging }"
+                                    >
+                                        <!-- SLIDER 1 -->
+                                        <ImgComparisonSlider
+                                            class="coloured-slider"
+                                            @input="handleMove"
+                                            @mousedown="startDrag"
+                                            @touchstart="startDrag"
+                                            @mouseup="stopDrag"
+                                            @touchend="stopDrag"
+                                            @mouseleave="stopDrag"
+                                        >
                                             <figure slot="first" class="before">
-                                                <div class="overlay"></div>
-                                                <img
-                                                    slot="first"
-                                                    style="width: 100%"
-                                                    :src="beforeImg"
-                                                    @load="imageLoaded"
-                                                />
-                                                <figcaption>Before</figcaption>
+                                                <img style="object-fit: cover; width: 100%" :src="beforeImg" />
                                             </figure>
+
                                             <figure slot="second" class="after">
-                                                <div class="overlay"></div>
-                                                <img
-                                                    slot="second"
-                                                    style="width: 100%"
-                                                    :src="afterImg"
-                                                    @load="imageLoaded"
-                                                />
-                                                <figcaption>After</figcaption>
+                                                <img style="object-fit: cover; width: 100%" :src="afterImg" />
                                             </figure>
+
                                             <div slot="handle">
                                                 <div class="bf-circle">
                                                     <i class="bi bi-caret-left-fill"></i>
@@ -87,6 +100,11 @@
                                                 </div>
                                             </div>
                                         </ImgComparisonSlider>
+
+                                        <!-- NEW: Overlay Labels positioned outside the slider -->
+                                        <div class="comparison-label before-label">Before</div>
+                                        <div class="comparison-label after-label">After</div>
+
                                         <div v-if="isImageLoading" class="loading-indicator">
                                             <div class="spinner-border" role="status">
                                                 <span class="visually-hidden">Loading...</span>
@@ -94,21 +112,17 @@
                                         </div>
                                     </div>
 
-                                    <div class="before-after-message" v-else>
-                                        <p>Click on an image to view before/after comparison (if available)</p>
-                                    </div>
-
                                     <div class="before-after-bottom">
                                         <template v-if="data.discover_button_text && data.discover_button_text_url">
-                                            <NuxtLink :to="data.discover_button_text_url">
-                                                {{ data.discover_button_text }}
-                                            </NuxtLink>
+                                            <NuxtLink :to="data.discover_button_text_url">{{
+                                                data.discover_button_text
+                                            }}</NuxtLink>
                                         </template>
 
                                         <template v-if="data.contact_button_level && data.contact_button_url">
-                                            <NuxtLink :to="data.contact_button_url">
-                                                {{ data.contact_button_level }}
-                                            </NuxtLink>
+                                            <NuxtLink :to="data.contact_button_url">{{
+                                                data.contact_button_level
+                                            }}</NuxtLink>
                                         </template>
                                     </div>
                                 </div>
@@ -116,6 +130,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-12" v-else>
                     <div class="alert alert-info">No editing services data available at the moment.</div>
                 </div>
@@ -134,15 +149,17 @@ export default {
     },
     data() {
         return {
+            isDragging: false,
             isLoading: false,
-            beforeImg: null,
-            afterImg: null,
             isImageLoading: false,
+
+            beforeImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-Before.jpg?w=800&ssl=1",
+            afterImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-After.jpg?w=800&ssl=1",
         };
     },
     computed: {
         hasValidTabs() {
-            return this.data && this.data.tabs && Array.isArray(this.data.tabs) && this.data.tabs.length > 0;
+            return this.data && Array.isArray(this.data.tabs) && this.data.tabs.length > 0;
         },
     },
     mounted() {
@@ -150,27 +167,48 @@ export default {
         this.setInitialImage();
     },
     methods: {
+        // normalize tab.tab_images into an array
+        getImages(tab) {
+            if (!tab) return [];
+            const imgs = tab.tab_images;
+            if (!imgs) return [];
+            return Array.isArray(imgs) ? imgs : [imgs];
+        },
+
+        handleMove() {
+            this.isDragging = true;
+            if (this.dragTimeout) clearTimeout(this.dragTimeout);
+            this.dragTimeout = setTimeout(() => (this.isDragging = false), 500);
+        },
+        startDrag() {
+            this.isDragging = true;
+            if (this.dragTimeout) clearTimeout(this.dragTimeout);
+        },
+        stopDrag() {
+            if (this.dragTimeout) clearTimeout(this.dragTimeout);
+            this.dragTimeout = setTimeout(() => (this.isDragging = false), 150);
+        },
+
         preloadImages() {
             if (!this.hasValidTabs) return;
 
+            // iterate tabs safely
             this.data.tabs.forEach((tab) => {
-                if (tab.tab_images) {
-                    tab.tab_images.forEach((image) => {
-                        this.preloadImage(image.image);
-                        if (image.before_image) {
-                            this.preloadImage(image.before_image);
-                        }
-                        if (image.after_image) {
-                            this.preloadImage(image.after_image);
-                        }
-                    });
-                }
+                const images = this.getImages(tab);
+                images.forEach((image) => {
+                    if (image?.image) this.preloadImage(image.image);
+                    if (image?.before_image) this.preloadImage(image.before_image);
+                    if (image?.after_image) this.preloadImage(image.after_image);
+                });
             });
         },
+
         preloadImage(url) {
+            if (!url) return;
             const img = new Image();
             img.src = url;
         },
+
         handleImageClick(image) {
             if (!image) return;
 
@@ -179,35 +217,44 @@ export default {
             if (image.before_image && image.after_image) {
                 this.beforeImg = image.before_image;
                 this.afterImg = image.after_image;
-            } else {
-                this.beforeImg = null;
-                this.afterImg = null;
+            } else if (image.before_image) {
+                // fallback: if only one is present, use it for both to avoid blank slider
+                this.beforeImg = image.before_image;
+                this.afterImg = image.before_image;
+            } else if (image.after_image) {
+                this.beforeImg = image.after_image;
+                this.afterImg = image.after_image;
             }
+
+            // small delay to let images start loading
+            setTimeout(() => (this.isImageLoading = false), 250);
         },
+
         imageLoaded() {
             this.isImageLoading = false;
         },
+
         setInitialImage() {
             if (!this.hasValidTabs) return;
 
-            // Find first tab with images
-            const firstTab = this.data.tabs.find((tab) => tab.tab_images && tab.tab_images.length > 0);
+            // find first tab with images
+            const firstTab = this.data.tabs.find((tab) => this.getImages(tab).length > 0);
+            if (!firstTab) return;
 
-            if (firstTab) {
-                // Find first image with before/after
-                const firstImageWithComparison = firstTab.tab_images.find(
-                    (img) => img && img.before_image && img.after_image
-                );
+            // find first image with both before and after; fallback to first image otherwise
+            const images = this.getImages(firstTab);
+            const firstWithBoth = images.find((img) => img.before_image && img.after_image);
 
-                if (firstImageWithComparison) {
-                    this.handleImageClick(firstImageWithComparison);
-                }
+            const chosen = firstWithBoth || images[0];
+
+            if (chosen) {
+                this.beforeImg = chosen.before_image || chosen.image || this.beforeImg;
+                this.afterImg = chosen.after_image || chosen.image || this.afterImg;
             }
         },
     },
 };
 </script>
-
 <style scoped>
 .loading-indicator {
     position: absolute;
@@ -223,14 +270,6 @@ export default {
 .editing-services {
     padding-top: 100px;
     padding-bottom: 50px;
-    background-color: #fff;
-    background-image: url("../../../assets/images/background.png");
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-color: #f5feff;
-    background-color: transparent;
-    background-image: linear-gradient(90deg, #c3f6ff 0%, #dfddff 100%);
 }
 
 .editing-services .nav-item button {
@@ -268,37 +307,11 @@ export default {
     margin: 0;
 }
 
-.before figcaption,
-.after figcaption {
-    background: #5e5e5eb5;
-    border: none;
-    color: #fff;
-    opacity: 0.8;
-    padding: 12px;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    line-height: 100%;
-    display: none;
-}
-
-.before figcaption {
-    left: 12px;
-}
-
-.after figcaption {
-    right: 12px;
-}
-
-.before-after:hover figcaption {
-    display: block;
-}
-
 .before-after {
-    box-shadow: 0px 13px 38px 0px rgba(59.000000000000014, 190, 255, 0.16);
+    /* box-shadow: 0px 13px 38px 0px rgba(59.000000000000014, 190, 255, 0.16); */
     padding: 0;
     cursor: pointer;
-    background: #d5e7ff;
+    /* background: #d5e7ff; */
     position: relative;
 }
 
@@ -314,13 +327,14 @@ export default {
 .coloured-slider {
     --divider-color: rgba(255, 255, 255, 1);
     --default-handle-color: rgba(255, 255, 255, 1);
-    --divider-width: 30px !important;
+    --divider-width: 10px !important;
     position: relative;
-    border-width: 20px;
+    border-width: 10px;
+    outline: 0;
 }
 
 .divider:after {
-    border-width: 20px;
+    border-width: 10px;
 }
 
 .bf-circle {
@@ -369,6 +383,59 @@ export default {
 .alert {
     padding: 20px;
     border-radius: 5px;
+}
+
+.editing-services .ods-mini-img h6 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    text-align: center;
+    font-weight: normal;
+}
+
+.editing-services .ods-mini-img h6 a {
+    color: #000;
+}
+
+.editing-services .ods-mini-img h6 a:hover {
+    color: #00bcd4;
+}
+
+/* --- FINAL FIX: Slider and Caption Styling --- */
+
+/* --- Overlay and NEW Label Styling --- */
+.comparison-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    padding: 7px 15px; /* Consistent padding for same size */
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 9999; /* Above everything */
+    pointer-events: none; /* Allows clicking through to the slider */
+    font-size: 14px;
+    white-space: nowrap; /* Prevents text from wrapping */
+}
+
+/* Specific positioning for each label */
+.before-label {
+    left: 20px;
+}
+
+.after-label {
+    right: 20px;
+}
+
+/* Show labels on hover */
+.before-after:hover .comparison-label {
+    opacity: 1;
+}
+
+/* Hide labels when dragging for a better user experience */
+.hide-overlay .comparison-label {
+    opacity: 0 !important;
 }
 
 /* Responsive adjustments only */

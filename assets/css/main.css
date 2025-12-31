@@ -27,7 +27,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h2 {
-    font-size : 39px;
+    font-size : 32px;
     font-weight: 600;
 }
 
@@ -100,10 +100,15 @@ background: linear-gradient(90deg, rgba(0,188,212,1) 0%, rgba(255,255,255,1) 0%,
     margin-top: 15px;
     margin-bottom: 20px;
     position: relative;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #85d0e0;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+
+.divide-separator-2{
+    border: 1px solid #fff;
 }
 
 .divide-separator::before {
@@ -112,7 +117,7 @@ background: linear-gradient(90deg, rgba(0,188,212,1) 0%, rgba(255,255,255,1) 0%,
     bottom: 0;
     width: 100px;
     height: 4px;
-    background-color: #75c6d8;
+    background-color: #06bcd6;
     content: "";
     text-align: center;
     left: 50%;
@@ -127,7 +132,8 @@ background: linear-gradient(90deg, rgba(0,188,212,1) 0%, rgba(255,255,255,1) 0%,
 }
 
 .btn-default {
-    background-color: #00364b;
+    background-color: #00bcd4;
+    background: linear-gradient(282deg, rgb(6 188 212) 0%, rgb(22 175 195) 100%);
     border-radius: 25px;
     /* box-shadow: #00bcd4 0 10px 20px -10px; */
     box-sizing: border-box;
@@ -152,12 +158,13 @@ background: linear-gradient(90deg, rgba(0,188,212,1) 0%, rgba(255,255,255,1) 0%,
 
 .btn-default:hover {
     border: none;
-    background: #00bcd4;
+    background: linear-gradient(282deg, rgb(22 175 195) 0%, rgb(6 188 212) 100%);
     color: #fff;
-    -webkit-box-shadow: -11px 6px 78px -11px rgba(0,0,0,0.38);
+    /* -webkit-box-shadow: -11px 6px 78px -11px rgba(0,0,0,0.38);
     -moz-box-shadow: -11px 6px 78px -11px rgba(0,0,0,0.38);
-    box-shadow: -11px 6px 78px -11px rgba(0,0,0,0.38);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25); */
 }
+
 
 .btn-dark-default {
 
@@ -239,12 +246,13 @@ input {
     position: relative;
     margin-top: -64px;
     height: 100vh;
+    background: #effdfe;
+    /* background: linear-gradient(282deg,rgba(0, 188, 212, 1) 0%, rgba(15, 124, 140, 1) 100%); */
 }
 
 .home-slider .swiper-slide img {
     height: 100vh;
     object-fit: cover;
-    width : 100%;
 }
 
 .home-slider-content {
@@ -255,13 +263,14 @@ input {
 }
 
 img {
-    width : auto;
     max-width: 100%;
+    height: auto;
 }
 
 .swiper-pagination-bullet-active {
     background-color : #00bcd4;
 }
+
 
 /* .home-slider-content p{
     font-size : 1vw;
@@ -295,17 +304,6 @@ img {
     cursor: pointer;
 }
 
-.editing-services .ods-mini-img h6 {
-    margin-top : 0;
-    margin-bottom: 5px;
-    text-align: center;
-}
-
-.editing-services .ods-mini-img h6:hover {
-    color : #00bcd4
-}
-
-
 .editing-services .nav-tabs {
     margin-bottom: 15px;
 }
@@ -315,8 +313,7 @@ img {
 }
 
 .editing-services ul {
-    border-image: linear-gradient(to right, #4d95ff, #dcdfff);
-    border-bottom: 1px solid #00bcd4;
+    border-bottom: 1px solid #0abbd4;
     border-image-slice: 1;
 }
 
@@ -331,7 +328,8 @@ img {
 .editing-services ul li .nav-link.active{
     color : #fff;
     background-color: #00bcd4;
-    background-image: linear-gradient(90deg, #00bcd4 0%, #0dd1ff 100%);
+    /* background-image: linear-gradient(90deg, #00bcd4 0%, #0dd1ff 100%); */
+    background-color: #06bcd4;
 }
 
 .editing-services ul li button {
@@ -389,6 +387,7 @@ img {
     /* outline: 2px solid #dcdfff; */
     width : 100%;
     height: 100% !important;
+    outline: 0;
 }
 
 .spinner-grow {
@@ -405,6 +404,7 @@ img {
     position: relative;
     margin-left: 18px;
     margin-bottom: 5px;
+    list-style: none;
 }
 
 .pricing-table-list ul li::after {
@@ -431,72 +431,70 @@ p {
     display: inline-block;
 }
 
-.overlay {
-    position: absolute;
-    top: 0;
-    border: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, .5);
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    opacity: 0; /* Instead of display: none */
-    visibility: hidden; /* For better accessibility */
-    transition: opacity 0.3s ease, visibility 0.3s ease; 
+
+/* Footer section */
+.footer-grid a {
+    color: #797d88;
+    font-size: 15px;
+    line-height: 200%;
 }
 
-/* Define base styles for both figures */
-figure.before, 
-figure.after {
-    position: relative;
-    /* Add any other shared styling */
+.footer-grid p {
+    color: #797d88;
+    font-size: 15px;
+    line-height: 200%;
 }
 
-/* Ensure overlay styling is the same for both */
-figure.before .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, .5);
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+.footer-grid a i {
+    display: inline-block;
+    color: #797d88;
+    font-size: 25px;
+    cursor: pointer;
 }
 
-figure.after .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, .5);
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+.footer-grid a i:hover {
+    color: #07b8d0;
 }
 
-/* Hover effects for both */
-figure.before:hover .overlay {
-    opacity: 1;
-    visibility: visible;
-    
+.footer-grid .footer-column .footer-content i:hover {
+    color: #07b8d0;
+    /* background-color: #07b8d0; */
+    cursor: pointer;
 }
 
-.after:hover .overlay {
-    opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 9999 !important;
+.footer-grid .footer-column .footer-content i {
+    font-size: 25px;
+    margin-right: 10px;
 }
 
+.footer-grid a:hover{
+    color: #07b8d0;
+}
+
+.footer-grid .footer-column ul li {
+    list-style: none !important;
+    margin-bottom: 0;
+}
+
+.footer-inner-content i {
+    margin-right: 5px;
+}
+
+
+/* Fotter bottom */
+.footer-bottom-bg {
+    background: #000000;
+    padding: 15px 0;
+    color: #898989;
+}
+
+.footer-bottom-bg p{
+    font-size: 14px;
+    margin-bottom: 0;
+}
+/* Footer bottom end here */
+
+/* Foote section end here */
 
 /* HTML: <div class="loader"></div> */
 .loader {
@@ -539,14 +537,6 @@ figure.before:hover .overlay {
     }
 }
 
-/* .coloured-slider {
-    height : 100%;
-} */
-
-/* figure {
-    height: 100%;;
-} */
-
 @media ( max-width: 768px) { 
 
     .dropdown-container {
@@ -586,4 +576,5 @@ figure.before:hover .overlay {
     --divider-width: 5px;
     --divider-color: #fff;
     --default-handle-opacity: 0;
+    outline: 0;
   }

@@ -1,15 +1,10 @@
 <template>
     <div class="call-in-action" v-if="data">
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-4 col-md-12">
-                    <div class="action-title">
+                <div class="col-md-12">
+                    <div class="cta-section">
                         <h2 v-if="data.title">{{ data.title }}</h2>
-                    </div>
-                </div>
-                <div class="col-lg-1 d-none d-lg-block"></div>
-                <div class="col-lg-7 col-md-12">
-                    <div class="action-content">
                         <p v-if="data.content">{{ data.content }}</p>
                         <NuxtLink
                             v-if="data.button_location && data.button_label"
@@ -43,34 +38,37 @@ export default {
 <style scoped>
 .call-in-action h2,
 .call-in-action p {
-    color: #09364b;
+    color: #fff;
 }
 
 .call-in-action-btn {
+    margin-top: 30px;
     border: none;
     border-radius: 25px;
-    background-color: #00364b;
-    padding: 10px 50px;
-    color: #fff;
+    /* background-color: #00364b; */
+    padding: 15px 50px;
+    color: #171b26;
     text-decoration: none;
     display: inline-block;
     transition: all 0.3s ease;
+    background: #fff;
 }
 
 .call-in-action-btn:hover {
-    background-color: #2ebcd4;
+    background-color: #ff9a9a;
     color: #fff;
     text-decoration: none;
 }
 
 .call-in-action {
     padding: 70px;
-    background-color: #2ebcd4;
-    background-image: url("https://themeim.com/wp/cliper/wp-content/uploads/2021/11/3334703.png");
+    /* background-color: #2ebcd4;
+    background-image: url("https://themeim.com/wp/cliper/wp-content/uploads/2021/11/3334703.png"); */
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    background: linear-gradient(107deg, rgba(0, 188, 212, 1) 0%, rgba(8, 154, 174, 1) 53%, rgb(255 130 130) 47%);
 }
 
 .action-title {
@@ -88,6 +86,14 @@ export default {
 
 .action-content p {
     margin-bottom: 2rem;
+}
+
+.cta-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: column;
 }
 
 /* Responsive Design */
