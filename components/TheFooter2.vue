@@ -42,8 +42,9 @@
                         <!-- Links -->
                         <div v-if="item.acf_fc_layout === 'footer_link'" class="footer-link" :key="`link-${itemIndex}`">
                             <ul class="list-unstyled">
+                                <!-- Call the method from the template, just like your working component -->
                                 <li v-for="(link, i) in item.footer_page_link" :key="i">
-                                    <NuxtLink :to="link.guid">
+                                    <NuxtLink :to="getPostUrl(link)">
                                         {{ link.post_title }}
                                     </NuxtLink>
                                 </li>
@@ -61,63 +62,99 @@
             <div class="footer-bottom-grid" :style="footerBottomGridStyle">
                 <div class="footer-bottom-item" v-for="(fb, fbIndex) in footerBottom" :key="fbIndex">
                     <div v-if="fb.footer_bottom_content" v-html="fb.footer_bottom_content"></div>
+
                     <template v-if="fb.payment_icons" v-for="(icon, iconsIndex) in fb.payment_icons" :key="iconsIndex">
                         <img v-if="icon.upload_svg_icon" :src="icon.upload_svg_icon" :alt="icon.title" />
                     </template>
+
+                    <ul v-if="fb.select_page && fb.select_page.length" class="footer-bottom-link">
+                        <!-- Call the method from the template here as well -->
+                        <li v-for="(page, pageIndex) in fb.select_page" :key="pageIndex">
+                            <NuxtLink :to="getPostUrl(page)">{{ page.post_title }}</NuxtLink>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<script setup>
-const { $api } = useNuxtApp();
+<script>
+export default {
+    // Use the same data fetching pattern as your working component's parent would.
+    // We'll use a computed property to get the state.
+    computed: {
+        siteSettings() {
+            return useState("siteSettings").value;
+        },
+        footerSections() {
+            return this.siteSettings?.all_fields?.footer_top_section || [];
+        },
+        footerBottom() {
+            return this.siteSettings?.all_fields?.footer_bottom || [];
+        },
+        desktopGridStyle() {
+            const count = this.footerSections.length;
+            if (!count) return {};
+            return {
+                gridTemplateColumns: this.footerSections.map((_, i) => (i === 0 ? "1.5fr" : "1fr")).join(" "),
+            };
+        },
+        footerBottomGridStyle() {
+            const count = this.footerBottom.length;
+            if (!count) return {};
+            return {
+                gridTemplateColumns: Array(count).fill("1fr").join(" "),
+            };
+        },
+    },
+    methods: {
+        // This is the exact same method from your working component.
+        // The Options API's `this.$api` is reliable and works correctly.
+        getPostUrl(post) {
+            // Get the post type and slug, handling both API and ACF formats
+            const postType = post.post_type || post.type;
+            const slug = post.post_name || post.slug;
 
-// --- 1. Data & State ---
-const siteSettings = useState("siteSettings", () => null);
-
-const footerSections = computed(() => {
-    return siteSettings.value?.all_fields?.footer_top_section || [];
-});
-
-const footerBottom = computed(() => {
-    return siteSettings.value?.all_fields?.footer_bottom || [];
-});
-
-// --- 2. Grid Styles ---
-const desktopGridStyle = computed(() => {
-    const count = footerSections.value.length;
-    if (!count) return {};
-    return {
-        gridTemplateColumns: footerSections.value.map((_, i) => (i === 0 ? "1.5fr" : "1fr")).join(" "),
-    };
-});
-
-const footerBottomGridStyle = computed(() => {
-    const count = footerBottom.value.length;
-    if (!count) return {};
-    return {
-        gridTemplateColumns: Array(count).fill("1fr").join(" "),
-    };
-});
-
-// --- 3. Loader ---
-onMounted(async () => {
-    try {
-        // Only fetch if we don't have data
-        if (!siteSettings.value) {
-            const data = await $api.getSiteSettings();
-            if (data) {
-                siteSettings.value = data;
+            // If it's a standard 'post', we want the URL to be /blog/slug
+            if (postType === "post") {
+                return `/blog/${slug}`;
             }
+
+            // For any other custom post type (e.g., 'services'), use its name
+            // This will create a URL like /services/slug
+            if (postType === "page") {
+                return `/${slug}`;
+            } else {
+                return `/${postType}/${slug}`;
+            }
+
+            // Fallback if post type is missing for some reason
+            return `/blog/${slug}`;
+        },
+    },
+    // The mounted hook is the correct place to trigger data fetching if it hasn't happened yet.
+    mounted() {
+        // Only fetch if the parent hasn't already loaded the data
+        if (!this.siteSettings) {
+            const { $api } = useNuxtApp();
+            $api.getSiteSettings()
+                .then((data) => {
+                    if (data) {
+                        // Update the global state
+                        useState("siteSettings").value = data;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Site settings load error:", error);
+                });
         }
-    } catch (error) {
-        console.error("Site settings load error:", error);
-    }
-});
+    },
+};
 </script>
 
 <style scoped>
+/* All your existing styles remain unchanged */
 .footer-bg {
     background-color: #fff;
 }
@@ -209,8 +246,20 @@ onMounted(async () => {
     align-items: center;
 }
 .footer-bottom-item img {
-    width: 20px;
+    width: 150px;
     margin-left: 10px;
+}
+.footer-bottom-link {
+    display: flex;
+    column-gap: 15px;
+    align-items: center;
+    margin-bottom: 0;
+}
+.footer-bottom-link li {
+    list-style: none;
+}
+.footer-logo {
+    margin-bottom: 20px;
 }
 
 /* Responsive Media Queries */

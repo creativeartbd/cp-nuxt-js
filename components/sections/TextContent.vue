@@ -1,5 +1,5 @@
 <template>
-    <div class="get-started" :style="{ backgroundColor: data.background_color }">
+    <div class="text-content" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
                 <div class="col-md-12 p-5" v-if="data.text_content" v-html="data.text_content"></div>
@@ -19,3 +19,9 @@ export default {
     },
 };
 </script>
+<style>
+.text-content h2 {
+    margin-bottom: 30px;
+    margin-top: 10px;
+}
+</style>

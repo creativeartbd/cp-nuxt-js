@@ -4,8 +4,10 @@
             <div class="row">
                 <div class="col-lg-6 col-md-12">
                     <div class="happy-clients-details">
-                        <h6 class="section-top-sub" v-if="data.title">{{ data.title }}</h6>
-                        <h2 v-if="data.sub_title">{{ data.sub_title }}</h2>
+                        <div class="section-title">
+                            <p class="section-top-sub" v-if="data.title">{{ data.title }}</p>
+                            <h2 v-if="data.sub_title">{{ data.sub_title }}</h2>
+                        </div>
 
                         <swiper
                             :pagination="{ clickable: true }"

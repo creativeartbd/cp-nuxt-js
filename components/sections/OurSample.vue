@@ -5,7 +5,7 @@
                 <div class="col-md-12 section-title text-center">
                     <h2>{{ data.title }}</h2>
                     <div v-html="data.sub_title"></div>
-                    <div class="divide-separator divide-separator-2 divide-center"></div>
+                    <div class="divide-separator divide-separator-3 divide-center"></div>
                 </div>
                 <div class="col-md-12">
                     <div class="d-flex align-items-start sample-work">
@@ -66,13 +66,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row" v-if="shouldShowLoadMoreButton">
+                                <!-- <div class="row" v-if="shouldShowLoadMoreButton">
                                     <div class="col-12 text-center">
                                         <button class="btn btn-primary" @click="loadMoreImages">
                                             {{ siteSettings.value?.all_fields?.load_more_button_text || "Load More" }}
                                         </button>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div
                                 v-for="(tab, index) in data.tabs"
@@ -356,9 +356,9 @@ onMounted(async () => {
 .sample-work .nav-link {
     color: #333;
     text-align: left;
-    border: 1px solid #333;
+    border: 1px solid #06bcd4;
     border-radius: 0;
-    background: #f1f1f1;
+    background: #fff;
 }
 
 .sample-work .nav button {
@@ -378,7 +378,11 @@ onMounted(async () => {
     margin-bottom: 15px;
     cursor: pointer;
     margin-bottom: 25px;
-    /* min-width: 327px; */
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+}
+
+.divide-separator-3 {
+    border: 1px solid #5becff;
 }
 
 .single-sample img {

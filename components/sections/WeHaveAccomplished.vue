@@ -1,5 +1,5 @@
 <template>
-    <div class="we-can-deliver" v-if="data">
+    <div class="we-can-deliver" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -68,18 +68,6 @@ export default {
     margin-bottom: 20px;
     font-size: 16px;
     color: #00364b;
-}
-
-/* Only responsive additions below - no changes to existing styles */
-.divide-separator {
-    width: 60px;
-    height: 3px;
-    background-color: #1e6570;
-    border-radius: 2px;
-}
-
-.divide-center {
-    margin: 0 auto;
 }
 
 /* Tablet */

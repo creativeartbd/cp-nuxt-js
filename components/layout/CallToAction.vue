@@ -27,9 +27,6 @@ export default {
         data: {
             type: Object,
             required: true,
-            validator(value) {
-                return value && (value.title || value.content);
-            },
         },
     },
 };

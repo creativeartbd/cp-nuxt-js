@@ -52,10 +52,13 @@
                                         :key="imageIndex"
                                     >
                                         <div class="ods-mini-img">
-                                            <img :src="image.image" @click="handleImageClick(image)" />
+                                            <img
+                                                :src="image.image"
+                                                @click="handleImageClick(image, image.choose_a_service)"
+                                            />
                                             <h6>
                                                 <NuxtLink
-                                                    @click="handleImageClick(image)"
+                                                    @click="handleImageClick(image, image.choose_a_service)"
                                                     v-if="image.choose_a_service"
                                                     :to="'services/' + image.choose_a_service"
                                                 >
@@ -113,8 +116,14 @@
                                     </div>
 
                                     <div class="before-after-bottom">
-                                        <template v-if="data.discover_button_text && data.discover_button_text_url">
+                                        <!-- <template v-if="data.discover_button_text && data.discover_button_text_url">
                                             <NuxtLink :to="data.discover_button_text_url">{{
+                                                data.discover_button_text
+                                            }}</NuxtLink>
+                                        </template> -->
+
+                                        <template v-if="currentServiceLink">
+                                            <NuxtLink :to="'services/' + currentServiceLink">{{
                                                 data.discover_button_text
                                             }}</NuxtLink>
                                         </template>
@@ -152,7 +161,7 @@ export default {
             isDragging: false,
             isLoading: false,
             isImageLoading: false,
-
+            currentServiceLink: null,
             beforeImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-Before.jpg?w=800&ssl=1",
             afterImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-After.jpg?w=800&ssl=1",
         };
@@ -209,7 +218,7 @@ export default {
             img.src = url;
         },
 
-        handleImageClick(image) {
+        handleImageClick(image, serverLink) {
             if (!image) return;
 
             this.isImageLoading = true;
@@ -225,6 +234,8 @@ export default {
                 this.beforeImg = image.after_image;
                 this.afterImg = image.after_image;
             }
+
+            this.currentServiceLink = serverLink;
 
             // small delay to let images start loading
             setTimeout(() => (this.isImageLoading = false), 250);
@@ -250,6 +261,7 @@ export default {
             if (chosen) {
                 this.beforeImg = chosen.before_image || chosen.image || this.beforeImg;
                 this.afterImg = chosen.after_image || chosen.image || this.afterImg;
+                this.currentServiceLink = chosen.choose_a_service;
             }
         },
     },
@@ -270,6 +282,10 @@ export default {
 .editing-services {
     padding-top: 100px;
     padding-bottom: 50px;
+}
+
+.editing-services ul li {
+    margin-bottom: 0;
 }
 
 .editing-services .nav-item button {

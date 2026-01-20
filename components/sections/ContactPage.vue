@@ -3,9 +3,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="contact-info">
+                    <div class="contact-info section-title">
+                        <h2 v-if="data.title">{{ data.title }}</h2>
                         <p v-if="data.sub_title">{{ data.sub_title }}</p>
-                        <h2 class="mb-3" v-if="data.title">{{ data.title }}</h2>
                         <!-- <div class="divide-separator"></div> -->
                         <img v-if="data.feature_image" :src="data.feature_image" alt="" class="mt-5" />
                     </div>
@@ -84,12 +84,12 @@ export default {
     align-items: center;
     margin-bottom: 40px;
     background-color: #fbfbfb;
-    padding: 25px;
+    padding: 25px 10px 25px 0;
     border-radius: 10px;
     box-shadow: 1px 1px 1px #ddd;
     margin-top: 100px;
     transition: all ease-in 0.3s;
-    border-bottom: 4px solid #2ebcd4;
+    border-bottom: 2px solid #2ebcd4;
 }
 
 .contact-box:hover {
@@ -109,13 +109,17 @@ export default {
     margin-bottom: 0;
 }
 
-.contact-box h5 {
-    font-weight: normal;
+.contact-box h6 {
+    font-size: 14px;
+    color: #7d888a;
 }
 
 .contact-box i {
     color: #00bcd4;
     font-size: 30px;
+    border-radius: 50%;
+    padding: 10px;
+    box-shadow: 1px 1px 1px #06bcd4;
 }
 
 @media (max-width: 768px) {

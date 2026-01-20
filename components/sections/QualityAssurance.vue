@@ -2,8 +2,10 @@
     <div class="pro-approach" v-if="data" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-12 section-title mb-4 mb-md-0">
-                    <img src="http://cutoutpartner-api.com/wp-content/uploads/2025/12/quality-assurance.png" alt="" />
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <div class="d-flex justify-content-center align-items-center h-100" v-if="data.image">
+                        <img :src="data.image" :alt="data.title" width="150" />
+                    </div>
                 </div>
                 <div class="col-lg-8 col-md-8 col-sm-12">
                     <h2 v-if="data.title">{{ data.title }}</h2>

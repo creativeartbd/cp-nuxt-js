@@ -173,8 +173,8 @@ export default {
     margin-top: 10px;
     width: 100%;
     background-color: transparent;
-    border: 1px solid #000;
-    color: #000;
+    border: 0;
+    color: #fff;
 }
 
 .pricing-table .price-table:hover {

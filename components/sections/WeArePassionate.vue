@@ -21,7 +21,7 @@
                             <NuxtLink
                                 class="btn btn-default mt-2"
                                 :class="{ 'center-button': index === 0 || index === 2 }"
-                                :to="section.section_button_url"
+                                :to="getPostUrl(section.section_button_url)"
                             >
                                 {{ section.section_button }}
                             </NuxtLink>
@@ -36,6 +36,29 @@
 <script>
 export default {
     props: ["data"],
+    methods: {
+        getPostUrl(post) {
+            // Get the post type and slug, handling both API and ACF formats
+            const postType = post.post_type || post.type;
+            const slug = post.post_name || post.slug;
+
+            // If it's a standard 'post', we want the URL to be /blog/slug
+            if (postType === "post") {
+                return `/blog/${slug}`;
+            }
+
+            // For any other custom post type (e.g., 'services'), use its name
+            // This will create a URL like /services/slug
+            if (postType === "page") {
+                return `/${slug}`;
+            } else {
+                return `/${postType}/${slug}`;
+            }
+
+            // Fallback if post type is missing for some reason
+            return `/blog/${slug}`;
+        },
+    },
 };
 </script>
 
@@ -119,7 +142,7 @@ export default {
     text-align: center;
     height: 570px;
     background-color: #fff;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    box-shadow: 0 20px 25px -5px #0000001a, 0 10px 10px -5px #0000000a;
     padding: 25px;
 }
 
