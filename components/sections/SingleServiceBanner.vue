@@ -11,8 +11,12 @@
         <div class="container">
             <div class="banner-wrapper">
                 <div class="banner-text">
-                    <h2 class="mb-3" v-if="data.title">{{ data.title }}</h2>
-                    <p v-if="data.sub_title">{{ data.sub_title }}</p>
+                    <h2 class="mb-3" v-if="data.title.title_label" :style="{ color: `${data.title.title_color}` }">
+                        {{ data.title.title_label }}
+                    </h2>
+                    <p v-if="data.sub_title.sub_title_content" :style="{ color: `${data.sub_title.sub_title_color}` }">
+                        {{ data.sub_title.sub_title_content }}
+                    </p>
                     <div class="button-group" v-if="data.buttons.length">
                         <router-link
                             v-for="(button, index) in data.buttons"

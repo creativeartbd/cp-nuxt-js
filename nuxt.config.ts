@@ -118,4 +118,6 @@ export default defineNuxtConfig({
             changeOrigin: true,
         },
     },
+
+    loadingIndicator: { name: "chasing-dots", color: "#07b8d0", background: "white" },
 });

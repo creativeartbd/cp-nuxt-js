@@ -1,14 +1,7 @@
-<!-- pages/[slug].vue - Updated to match index.vue -->
 <template>
     <div class="home-page">
-        <!-- Loading State -->
-        <div v-if="loading" class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>Loading...</p>
-        </div>
-
         <!-- Error State -->
-        <div v-else-if="error" class="error-container">
+        <div v-if="error" class="error-container">
             <div class="container">
                 <h1>Page Not Found</h1>
                 <p>The page "{{ $route.params.slug }}" doesn't exist.</p>
@@ -20,14 +13,12 @@
 
         <!-- Content from WordPress -->
         <div v-else-if="data && data.sections && data.sections.length > 0" class="wp-content">
-            <TheHeaderBannerVue :data="data" />
+            <TheHeaderBannerVue :data="data" :page-banner="siteSettings?.all_fields?.upload_page_banner" />
             <!-- Loop through all sections -->
             <template v-for="(section, index) in data.sections" :key="index">
                 <div v-if="section.section_content && Array.isArray(section.section_content)" class="section-wrapper">
                     <!-- Display each section using dynamic components -->
                     <div v-for="(content, contentIndex) in section.section_content" :key="contentIndex">
-                        <!-- FIXED: Dynamic component rendering -->
-
                         <component
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
@@ -58,11 +49,11 @@
 </template>
 
 <script setup>
-import { markRaw } from "vue";
+import { markRaw, computed } from "vue";
 // page header
 import TheHeaderBannerVue from "../components/TheHeaderBanner.vue";
 
-// Import all section components (SAME AS INDEX.VUE)
+// Import all section components
 import HomeSlider from "~/components/sections/HomeSlider.vue";
 import WeArePassionate from "~/components/sections/WeArePassionate.vue";
 import OurEditingServices from "~/components/sections/OurEditingServices.vue";
@@ -80,14 +71,13 @@ import OurPricing from "~/components/sections/OurPricing.vue";
 import ContactPage from "~/components/sections/ContactPage.vue";
 import TextContent from "~/components/sections/TextContent.vue";
 
-const { $api } = useNuxtApp();
 const route = useRoute();
-const siteSettings = useState("siteSettings");
-const loading = ref(true);
-const data = ref(null);
-const error = ref(null);
+const { $api } = useNuxtApp();
 
-// SAME component mapping as index.vue
+// Import and use the shared composables
+const { siteSettings, fetchSettings, pageDataCache, fetchPageData } = useSiteSettings();
+
+// Component mapping (using markRaw is good practice)
 const componentMap = markRaw({
     home_slider: HomeSlider,
     we_are_passionate: WeArePassionate,
@@ -110,57 +100,56 @@ const componentMap = markRaw({
 // Get the slug from the route
 const slug = computed(() => route.params.slug);
 
-// Fetch page data on client side (SAME PATTERN AS INDEX.VUE)
-onMounted(async () => {
+// --- Main Data Fetching with useAsyncData ---
+// This fetches data on the server and client, and reacts to slug changes.
+const { data: asyncData, error: asyncError } = await useAsyncData(`page-${slug.value}`, async () => {
+    if (!slug.value) return null; // Don't fetch if there's no slug
+
     try {
-        const result = await $api.getPage(slug.value);
-        data.value = result;
+        // Fetch the page data using our composable
+        const pageData = await fetchPageData(slug.value);
 
         // Set SEO meta tags
-        if (result?.seo) {
+        if (pageData?.seo) {
             useHead({
-                title: result.seo.title || result.page?.title || "Cutout Partner",
+                title: pageData.seo.title || pageData.page?.title || "Cutout Partner",
                 meta: [
+                    { name: "description", content: pageData.seo.description || "Professional photo editing services" },
                     {
-                        name: "description",
-                        content: result.seo.description || "Professional photo editing services",
+                        property: "og:title",
+                        content: pageData.seo.og_title || pageData.seo.title || pageData.page?.title,
                     },
-                    { property: "og:title", content: result.seo.og_title || result.seo.title || result.page?.title },
-                    { property: "og:description", content: result.seo.og_description || result.seo.description },
-                    { property: "og:image", content: result.seo.og_image },
-                    { name: "robots", content: result.seo?.noindex ? "noindex" : "index,follow" },
+                    { property: "og:description", content: pageData.seo.og_description || pageData.seo.description },
+                    { property: "og:image", content: pageData.seo.og_image },
+                    { name: "robots", content: pageData.seo?.noindex ? "noindex" : "index,follow" },
                 ],
-                link: [{ rel: "canonical", href: result.seo?.canonical_url }],
+                link: [{ rel: "canonical", href: pageData.seo?.canonical_url }],
             });
         }
+        return pageData;
     } catch (err) {
-        console.error("Error fetching page:", err);
-        error.value = err.message || "Page not found";
-    } finally {
-        loading.value = false;
+        // If the page is not found, throw a proper Nuxt error
+        if (err.response?.status === 404) {
+            throw createError({
+                statusCode: 404,
+                statusMessage: "This page does not exist.",
+            });
+        }
+        // For other errors, throw a generic error
+        throw createError({
+            statusCode: 500,
+            statusMessage: "Failed to load page.",
+        });
     }
 });
 
-// Watch for route changes (DIFFERENT FROM INDEX.VUE)
-watch(
-    () => route.params.slug,
-    async (newSlug) => {
-        if (newSlug) {
-            loading.value = true;
-            error.value = null;
-            data.value = null;
+// --- Create reactive refs for the template ---
+// This makes the data from useAsyncData easy to use in the template
+const data = computed(() => asyncData.value);
+const error = computed(() => asyncError.value);
 
-            try {
-                const result = await $api.getPage(newSlug);
-                data.value = result;
-            } catch (err) {
-                error.value = err.message || "Page not found";
-            } finally {
-                loading.value = false;
-            }
-        }
-    }
-);
+// --- Fetch main site settings in the background ---
+fetchSettings();
 </script>
 
 <style scoped>
@@ -169,18 +158,8 @@ watch(
 }
 
 .container {
-    /* max-width: 1200px; */
     margin: 0 auto;
     padding: 0 20px;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
 }
 
 .error-container,

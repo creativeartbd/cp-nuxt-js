@@ -46,6 +46,7 @@ ul {
     padding : 0;
 }
 
+
 ul li {
     /* list-style: none; */
     list-style-position: inside;
@@ -55,6 +56,17 @@ ul li {
     margin-bottom : 5px; 
     line-height: 150%;
 }
+
+#nuxt-loading-indicator {
+    background: #07b8d0; /* Your brand color */
+    height: 3px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    pointer-events: none;
+  }
 
 label {
     margin-top : 10px;
@@ -525,6 +537,11 @@ h6 {
 .blog-post ol li {
     margin-bottom: 10px;
     line-height: 150%;
+}
+
+.side-banner img {
+    width: 340px !important;
+    margin: 15px 0;
 }
 /* Footer bottom end here */
 

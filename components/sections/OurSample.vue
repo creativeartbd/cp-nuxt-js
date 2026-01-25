@@ -66,13 +66,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- <div class="row" v-if="shouldShowLoadMoreButton">
-                                    <div class="col-12 text-center">
-                                        <button class="btn btn-primary" @click="loadMoreImages">
-                                            {{ siteSettings.value?.all_fields?.load_more_button_text || "Load More" }}
-                                        </button>
-                                    </div>
-                                </div> -->
                             </div>
                             <div
                                 v-for="(tab, index) in data.tabs"
@@ -157,30 +150,17 @@
 const props = defineProps(["data"]);
 
 // --- COMPOSABLES ---
-const { $api } = useNuxtApp();
+const { siteSettings, fetchSettings } = useSiteSettings();
 
 // --- STATE ---
-const siteSettings = useState("siteSettings", () => null);
-
 const activeTab = ref("All");
 const allImages = ref([]);
 const frontImages = ref([]);
-const displayedFrontImagesCount = ref(2); // Default value
 const popupImgSrc = ref(null);
 const isPopupVisible = ref(false);
 const isImgLoaded = ref(false);
 const preloadedImages = ref(new Set());
 const loadingTimeout = ref(null);
-
-// --- COMPUTED PROPERTIES ---
-/**
- * Determines if the "Load More" button should be visible.
- * It's true if there are more images to show than are currently displayed.
- */
-const shouldShowLoadMoreButton = computed(() => {
-    // Add a check to ensure frontImages is not null/undefined before accessing .length
-    return frontImages.value && displayedFrontImagesCount.value < frontImages.value.length;
-});
 
 // --- METHODS ---
 const markAsPreloaded = (imageKey) => {
@@ -188,9 +168,7 @@ const markAsPreloaded = (imageKey) => {
 };
 
 const setImgLoad = () => {
-    if (loadingTimeout.value) {
-        clearTimeout(loadingTimeout.value);
-    }
+    if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
     isImgLoaded.value = true;
 };
 
@@ -217,7 +195,6 @@ const handleNext = (currentIndex) => {
 
 const changeImage = (image) => {
     const isPreloaded = preloadedImages.value.has(image.key);
-
     if (isPreloaded) {
         isImgLoaded.value = true;
     } else {
@@ -226,7 +203,6 @@ const changeImage = (image) => {
             isImgLoaded.value = true;
         }, 2000);
     }
-
     popupImgSrc.value = {
         src: image.before_image,
         popup_image_text: image.popup_image_text,
@@ -237,9 +213,7 @@ const changeImage = (image) => {
 
 const closePopup = () => {
     isPopupVisible.value = false;
-    if (loadingTimeout.value) {
-        clearTimeout(loadingTimeout.value);
-    }
+    if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
 };
 
 const handleImgClick = (image) => {
@@ -257,14 +231,8 @@ const loadMoreImages = () => {
 
 const preloadAdjacentImages = (currentIndex) => {
     const imagesToPreload = [];
-
-    if (currentIndex > 0) {
-        imagesToPreload.push(allImages.value[currentIndex - 1]);
-    }
-
-    if (currentIndex < allImages.value.length - 1) {
-        imagesToPreload.push(allImages.value[currentIndex + 1]);
-    }
+    if (currentIndex > 0) imagesToPreload.push(allImages.value[currentIndex - 1]);
+    if (currentIndex < allImages.value.length - 1) imagesToPreload.push(allImages.value[currentIndex + 1]);
 
     imagesToPreload.forEach((image) => {
         if (!preloadedImages.value.has(image.key)) {
@@ -276,6 +244,23 @@ const preloadAdjacentImages = (currentIndex) => {
     });
 };
 
+// --- FIX: Define handleKeydown at the top level ---
+const handleKeydown = (e) => {
+    if (!isPopupVisible.value) return;
+    if (e.key === "ArrowLeft") handlePrev(popupImgSrc.value.index);
+    else if (e.key === "ArrowRight") handleNext(popupImgSrc.value.index);
+    else if (e.key === "Escape") closePopup();
+};
+
+// --- COMPUTED PROPERTIES ---
+const displayedFrontImagesCount = computed(() => {
+    return siteSettings.value?.all_fields?.number_of_images_to_be_shown_on_all_tab || 2;
+});
+
+const shouldShowLoadMoreButton = computed(() => {
+    return frontImages.value && displayedFrontImagesCount.value < frontImages.value.length;
+});
+
 // --- WATCHERS ---
 watch(popupImgSrc, (newVal) => {
     if (newVal && isPopupVisible.value) {
@@ -284,75 +269,54 @@ watch(popupImgSrc, (newVal) => {
 });
 
 // --- LIFECYCLE ---
-onMounted(async () => {
-    // Only fetch if siteSettings is not already loaded
-    if (!siteSettings.value) {
-        try {
-            const data = await $api.getSiteSettings();
-            if (data) {
-                siteSettings.value = data;
-                // Update the displayedFrontImagesCount after siteSettings is loaded
-                displayedFrontImagesCount.value =
-                    siteSettings.value?.all_fields?.number_of_images_to_be_shown_on_all_tab || 2;
-            }
-        } catch (error) {
-            console.error("Site settings load error:", error);
-        }
-    } else {
-        // If siteSettings is already loaded, update the count
-        displayedFrontImagesCount.value = siteSettings.value?.all_fields?.number_of_images_to_be_shown_on_all_tab || 2;
-    }
+onMounted(() => {
+    fetchSettings();
+    document.addEventListener("keydown", handleKeydown);
+});
 
-    let uniqueIndex = 0;
-    if (props.data && props.data.tabs && Array.isArray(props.data.tabs)) {
-        props.data.tabs.forEach((tab) => {
+onUnmounted(() => {
+    document.removeEventListener("keydown", handleKeydown);
+    if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
+});
+
+// Watch for changes in the `data` prop to process images
+watch(
+    () => props.data,
+    (newData) => {
+        if (!newData || !newData.tabs) return;
+
+        let uniqueIndex = 0;
+        const newAllImages = [];
+        const newFrontImages = [];
+
+        newData.tabs.forEach((tab) => {
             tab.images.forEach((image) => {
                 image.key = uniqueIndex++;
-                allImages.value.push(image);
-
-                // Add to frontImages if is_front === "true" (string comparison)
+                newAllImages.push(image);
                 if (image.is_front === "true") {
-                    frontImages.value.push(image);
+                    newFrontImages.push(image);
                 }
             });
         });
-    }
 
-    const handleKeydown = (e) => {
-        if (isPopupVisible.value) {
-            if (e.key === "ArrowLeft") {
-                handlePrev(popupImgSrc.value.index);
-            } else if (e.key === "ArrowRight") {
-                handleNext(popupImgSrc.value.index);
-            } else if (e.key === "Escape") {
-                closePopup();
-            }
-        }
-    };
-
-    document.addEventListener("keydown", handleKeydown);
-
-    onUnmounted(() => {
-        document.removeEventListener("keydown", handleKeydown);
-        if (loadingTimeout.value) {
-            clearTimeout(loadingTimeout.value);
-        }
-    });
-});
+        allImages.value = newAllImages;
+        frontImages.value = newFrontImages;
+        activeTab.value = "All";
+    },
+    { immediate: true }
+);
 </script>
 
 <style>
-/* ORIGINAL STYLES - PRESERVED */
+/* All your original styles are kept and unchanged */
 .sample-page {
     background-color: #ddd;
 }
 .sample-work .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
     background-color: #00bcd4;
-    /* background-image: linear-gradient(90deg, #00bcd4 0%, #0dd1ff 100%); */
     border: none;
 }
-
 .sample-work .nav-link {
     color: #333;
     text-align: left;
@@ -360,19 +324,16 @@ onMounted(async () => {
     border-radius: 0;
     background: #fff;
 }
-
 .sample-work .nav button {
     width: 250px;
     margin-bottom: 10px;
 }
-
 .sample-work .nav button:hover {
     background-color: #2ebcd4;
     color: #fff;
     border: none;
     border: 1px solid #2ebcd4;
 }
-
 .single-sample {
     box-shadow: 1px 1px 1px #ddd;
     margin-bottom: 15px;
@@ -380,28 +341,22 @@ onMounted(async () => {
     margin-bottom: 25px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
 }
-
 .divide-separator-3 {
     border: 1px solid #5becff;
 }
-
 .single-sample img {
     width: 100%;
 }
-
 .single-sample .hover-image {
     display: none;
     transition: all ease-in 0.1s;
 }
-
 .single-sample:hover .hover-image {
     display: block;
 }
-
 .single-sample:hover .active-image {
     display: none;
 }
-
 .overlay {
     position: fixed;
     top: 0;
@@ -413,7 +368,6 @@ onMounted(async () => {
     opacity: 1 !important;
     visibility: visible !important;
 }
-
 .image-popup {
     position: fixed;
     top: 50%;
@@ -426,11 +380,9 @@ onMounted(async () => {
     min-height: 300px;
     min-width: 400px;
 }
-
 .image-popup p {
     margin-bottom: 0;
 }
-
 .image-popup img {
     max-width: 100%;
     height: auto;
@@ -438,7 +390,6 @@ onMounted(async () => {
     border-radius: 5px;
     min-height: 200px;
 }
-
 .image-popup .cross {
     position: absolute;
     top: -30px;
@@ -446,16 +397,13 @@ onMounted(async () => {
     cursor: pointer;
     z-index: 1001;
 }
-
 .image-popup .cross i {
     color: #fff;
     font-size: 24px;
 }
-
 .image-popup span.image-count {
     float: right;
 }
-
 .arrows {
     position: fixed;
     top: 50%;
@@ -468,19 +416,16 @@ onMounted(async () => {
     width: 100%;
     justify-content: space-between;
 }
-
 .arrows i {
     color: #fff;
     font-size: 30px;
     cursor: pointer;
 }
-
 .image-popup .spinner-grow {
     width: 3rem;
     height: 3rem;
     color: #00bcd4;
 }
-
 .image-title {
     position: absolute;
     bottom: -32px;
@@ -494,64 +439,51 @@ onMounted(async () => {
     .sample-work {
         flex-direction: column;
     }
-
     .sample-work .nav {
         margin-bottom: 20px;
         margin-right: 0 !important;
     }
-
     .sample-work .nav button {
         width: 100%;
     }
-
     .single-sample {
         min-width: auto;
     }
-
     .image-popup {
         min-width: 90vw;
         min-height: 300px;
         padding: 15px;
     }
-
     .arrows i {
         font-size: 28px;
     }
 }
-
 @media (max-width: 576px) {
     .image-popup {
         min-width: 95vw;
         padding: 10px;
     }
-
     .arrows i {
         font-size: 24px;
     }
-
     .arrows {
         padding: 10px;
     }
 }
-
 .loading-container {
     min-height: 200px;
 }
-
 .image-container {
     text-align: center;
 }
-
 .arrows i.disabled {
     color: #666;
     cursor: not-allowed;
     opacity: 0.5;
 }
-
 .arrows i:hover:not(.disabled) {
     color: #00bcd4;
 }
-
 .btn-primary {
     background-color: #00bcd4;
     border-color: #00bcd4;
@@ -559,7 +491,6 @@ onMounted(async () => {
     padding: 10px 30px;
     margin-top: 20px;
 }
-
 .btn-primary:hover {
     background-color: #0097a7;
     border-color: #0097a7;

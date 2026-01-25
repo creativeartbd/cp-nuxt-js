@@ -31,7 +31,17 @@ export default defineNuxtPlugin(() => {
         }
 
         async getCategories() {
-            return await $fetch(`/wp/v2/categories`, { baseURL: this.baseURL });
+            try {
+                const data = await $fetch("/wp/v2/categories", {
+                    baseURL: this.baseURL,
+                    retry: 2,
+                    timeout: 10000,
+                });
+                return data;
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+                return [];
+            }
         }
 
         async getStickyPost() {
@@ -42,6 +52,7 @@ export default defineNuxtPlugin(() => {
                         _embed: true,
                         sticky: true,
                         per_page: 1,
+                        // _fields: "id,slug,title,featured_media,categories,_links,_embedded",
                     },
                     retry: 2,
                     timeout: 10000,
@@ -53,7 +64,7 @@ export default defineNuxtPlugin(() => {
             }
         }
 
-        async getPostUrl(post) {
+        getPostUrl(post) {
             // Get the post type and slug, handling both API and ACF formats
             const postType = post.post_type || post.type;
             const slug = post.post_name || post.slug;
@@ -152,21 +163,6 @@ export default defineNuxtPlugin(() => {
                 return data;
             } catch (error) {
                 console.error("Error fetching posts:", error);
-                return [];
-            }
-        }
-
-        // NEW: Get all categories
-        async getCategories() {
-            try {
-                const data = await $fetch("/wp/v2/categories", {
-                    baseURL: this.baseURL,
-                    retry: 2,
-                    timeout: 10000,
-                });
-                return data;
-            } catch (error) {
-                console.error("Error fetching categories:", error);
                 return [];
             }
         }

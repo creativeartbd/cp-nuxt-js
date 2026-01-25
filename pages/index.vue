@@ -1,14 +1,7 @@
-<!-- pages/index.vue - Fixed Dynamic Component Version -->
 <template>
     <div class="home-page">
-        <!-- Loading State -->
-        <div v-if="loading" class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>Loading...</p>
-        </div>
-
         <!-- Error State -->
-        <div v-else-if="error" class="error-container">
+        <div v-if="error" class="error-container">
             <div class="container">
                 <h1>Welcome to Cutout Partner</h1>
                 <p>Professional photo editing services with AI-powered background removal and retouching.</p>
@@ -25,12 +18,11 @@
                 <div v-if="section.section_content && Array.isArray(section.section_content)" class="section-wrapper">
                     <!-- Display each section using dynamic components -->
                     <div v-for="(content, contentIndex) in section.section_content" :key="contentIndex">
-                        <!-- FIXED: Dynamic component rendering -->
                         <component
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
                             v-if="componentMap[content.acf_fc_layout]"
-                            :service="siteSettings?.value?.all_fields?.select_services || []"
+                            :service="siteSettings?.all_fields?.select_services || []"
                         />
 
                         <!-- Fallback for unknown sections -->
@@ -56,7 +48,7 @@
 </template>
 
 <script setup>
-import { markRaw } from "vue";
+import { markRaw, computed } from "vue";
 
 // Import all section components
 import HomeSlider from "~/components/sections/HomeSlider.vue";
@@ -70,12 +62,13 @@ import FAQ from "~/components/sections/Faq.vue";
 import CallToAction from "~/components/layout/CallToAction.vue";
 
 const { $api } = useNuxtApp();
-const siteSettings = useState("siteSettings");
-const loading = ref(true);
-const data = ref(null);
-const error = ref(null);
 
-// FIXED: Direct component mapping using markRaw (no string names)
+// Import and use the shared composables
+const { siteSettings, fetchSettings, pageDataCache, fetchPageData } = useSiteSettings();
+
+// --- State (no more 'loading' ref or 'error' ref) ---
+
+// Component mapping (using markRaw is good practice)
 const componentMap = markRaw({
     home_slider: HomeSlider,
     we_are_passionate: WeArePassionate,
@@ -88,45 +81,43 @@ const componentMap = markRaw({
     call_to_action: CallToAction,
 });
 
-// Fetch homepage data on client side
-onMounted(async () => {
+// --- Main Data Fetching with useAsyncData ---
+// This fetches the 'home' page data on the server for super-fast loads.
+const { data: asyncData, error: asyncError } = await useAsyncData("page-home", async () => {
     try {
-        const result = await $api.getPage("home");
-        data.value = result;
+        // Fetch the homepage data using our composable
+        const pageData = await fetchPageData("home");
 
         // Set SEO meta tags
-        if (result?.seo) {
+        if (pageData?.seo) {
             useHead({
-                title: result.seo.title || "Cutout Partner - Professional Photo Editing Services",
+                title: pageData.seo.title || "Cutout Partner - Professional Photo Editing Services",
                 meta: [
                     {
                         name: "description",
                         content:
-                            result.seo.description ||
+                            pageData.seo.description ||
                             "Professional photo editing services with AI-powered background removal, retouching, and image enhancement.",
                     },
                 ],
             });
         }
+        return pageData;
     } catch (err) {
-        console.error("Error fetching homepage:", err);
-        error.value = err.message || "Failed to load homepage content";
-    } finally {
-        loading.value = false;
+        // Throw a generic error for the homepage
+        throw createError({
+            statusCode: 500,
+            statusMessage: "Failed to load homepage content.",
+        });
     }
 });
 
-// Default SEO for homepage
-useHead({
-    title: "Cutout Partner - Professional Photo Editing Services",
-    meta: [
-        {
-            name: "description",
-            content:
-                "Professional photo editing services with AI-powered background removal, retouching, and image enhancement.",
-        },
-    ],
-});
+// --- Create reactive refs for the template ---
+const data = computed(() => asyncData.value);
+const error = computed(() => asyncError.value);
+
+// --- Fetch main site settings in the background ---
+fetchSettings();
 </script>
 
 <style scoped>
@@ -138,33 +129,6 @@ useHead({
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-}
-
-.loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-}
-
-.loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
 }
 
 .error-container,

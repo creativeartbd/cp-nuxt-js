@@ -1,12 +1,21 @@
 <!-- app.vue - Root application component -->
 <template>
     <div id="app">
+        <!-- Loading bar -->
+        <TheLoadingBar />
+
         <!-- Global Navigation - loads once and stays mounted -->
         <TheNavigation />
 
         <!-- Page content -->
         <main class="main-content">
-            <NuxtPage />
+            <!-- 
+              Wrap NuxtPage in ClientOnly to prevent hydration mismatches.
+              This ensures that the server and client render the same thing.
+            -->
+            <ClientOnly>
+                <NuxtPage />
+            </ClientOnly>
         </main>
 
         <!-- Optional: Global Footer -->

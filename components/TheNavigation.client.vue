@@ -38,7 +38,7 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                             <!-- Show loading state -->
-                            <li v-if="menuLoading" class="nav-item">
+                            <li v-if="pending" class="nav-item">
                                 <span class="nav-link">Loading...</span>
                             </li>
 
@@ -163,33 +163,47 @@
 </template>
 
 <script setup>
-// get the site settings
-const siteSettings = useState("siteSettings");
 const route = useRoute();
 const { $api } = useNuxtApp();
+
+// Import and use the shared composable
+const { siteSettings, fetchSettings } = useSiteSettings();
 
 // Reactive data
 const isSticky = ref(false);
 const optionData = ref(null);
-const menuLoading = ref(true);
-const menuItems = ref([]);
 
-// Computed properties
-const isHomePage = computed(() => {
-    return route.path === "/";
+// --- Fetch menu data with useAsyncData ---
+const { data: asyncMenuData, pending } = await useAsyncData("main-menu", async () => {
+    try {
+        // Try to get primary menu first
+        const menuData = await $api.getMenu("primary");
+        if (menuData && menuData.items) {
+            return menuData.items;
+        } else {
+            console.warn("No primary menu found, trying to get all menus...");
+            // Fallback: get all menus and use the first one
+            const allMenus = await $api.getMenus();
+            if (allMenus && allMenus.length > 0) {
+                return allMenus[0].items;
+            }
+            return null; // Return null if no menus are found
+        }
+    } catch (err) {
+        console.error("Error loading WordPress menu:", err);
+        // Return null to trigger the fallback menu
+        return null;
+    }
 });
 
-const stickyLogo = computed(() => {
-    return siteSettings.value?.all_fields?.sticky_logo || null;
-});
+// Create a computed property for the menu items
+const menuItems = computed(() => asyncMenuData.value);
 
-const homeLogo = computed(() => {
-    return siteSettings.value?.all_fields?.home_page_logo || null;
-});
-
-const otherPagesLogo = computed(() => {
-    return siteSettings.value?.all_fields?.other_pages_logo || null;
-});
+// Computed properties for logos, now safely accessing the composable
+const isHomePage = computed(() => route.path === "/");
+const stickyLogo = computed(() => siteSettings.value?.all_fields?.sticky_logo || null);
+const homeLogo = computed(() => siteSettings.value?.all_fields?.home_page_logo || null);
+const otherPagesLogo = computed(() => siteSettings.value?.all_fields?.other_pages_logo || null);
 
 // Convert WordPress menu URLs to Nuxt-friendly URLs
 const getMenuItemUrl = (item) => {
@@ -255,20 +269,6 @@ const getMenuItemUrl = (item) => {
     }
 };
 
-const debugActiveLinks = () => {
-    menuItems.value.forEach((item) => {
-        const itemUrl = getMenuItemUrl(item);
-        const isActive = isActiveLink(item);
-
-        if (item.children) {
-            item.children.forEach((child) => {
-                const childUrl = getMenuItemUrl(child);
-                const childActive = isActiveLink(child);
-            });
-        }
-    });
-};
-
 // Check if link is active
 const isActiveLink = (item) => {
     const itemUrl = getMenuItemUrl(item);
@@ -321,7 +321,7 @@ const handleDropdownMouseEnter = (event) => {
 // Methods
 const handleScroll = () => {
     const navbar = document.getElementById("navbar");
-    if (window.scrollY > 150) {
+    if (window.scrollY > 60) {
         navbar.classList.add("fixed-top-scroll");
         isSticky.value = true;
     } else {
@@ -342,61 +342,44 @@ const closeNavbar = () => {
     }
 };
 
+// Helper function to initialize dropdowns
+const initializeDropdowns = () => {
+    const dropdownElements = document.querySelectorAll(".dropdown-toggle");
+    dropdownElements.forEach((element) => {
+        // Ensure we don't re-initialize an already existing dropdown
+        if (window.bootstrap && !window.bootstrap.Dropdown.getInstance(element)) {
+            new window.bootstrap.Dropdown(element, {
+                autoClose: "outside",
+                boundary: "viewport",
+            });
+        }
+    });
+};
+
 // Lifecycle hooks
-onMounted(async () => {
+onMounted(() => {
     window.addEventListener("scroll", handleScroll);
 
-    // Initialize Bootstrap dropdowns with proper configuration
+    // Initial dropdown initialization
     nextTick(() => {
-        const dropdownElements = document.querySelectorAll(".dropdown-toggle");
-        dropdownElements.forEach((element) => {
-            if (window.bootstrap) {
-                new window.bootstrap.Dropdown(element, {
-                    autoClose: "outside", // Close when clicking outside
-                    boundary: "viewport",
-                });
-            }
-        });
+        initializeDropdowns();
     });
-
-    // Fetch WordPress menu
-    try {
-        // Try to get primary menu first
-        const menuData = await $api.getMenu("primary");
-        if (menuData && menuData.items) {
-            menuItems.value = menuData.items;
-        } else {
-            console.warn("No primary menu found, trying to get all menus...");
-            // Fallback: get all menus and use the first one
-            const allMenus = await $api.getMenus();
-            if (allMenus && allMenus.length > 0) {
-                menuItems.value = allMenus[0].items;
-            }
-        }
-    } catch (error) {
-        console.error("Error loading WordPress menu:", error);
-        // Keep fallback navigation
-    } finally {
-        menuLoading.value = false;
-
-        // Re-initialize dropdowns after menu loads
-        nextTick(() => {
-            const dropdownElements = document.querySelectorAll(".dropdown-toggle");
-            dropdownElements.forEach((element) => {
-                if (window.bootstrap && !window.bootstrap.Dropdown.getInstance(element)) {
-                    new window.bootstrap.Dropdown(element, {
-                        autoClose: "outside",
-                        boundary: "viewport",
-                    });
-                }
-            });
-        });
-    }
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener("scroll", handleScroll);
 });
+
+// Watch for menu data to be ready and re-initialize dropdowns
+watch(menuItems, () => {
+    // Re-initialize dropdowns after menu loads
+    nextTick(() => {
+        initializeDropdowns();
+    });
+});
+
+// Fetch main site settings in the background
+fetchSettings();
 </script>
 
 <style scoped>

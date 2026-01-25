@@ -15,16 +15,20 @@
 </template>
 
 <script setup>
+// Define the props the component expects
 defineProps({
-    data: Object,
+    data: {
+        type: Object,
+        required: true,
+    },
+    pageBanner: {
+        type: String,
+        default: null, // The banner URL is now passed in
+    },
 });
 
-const siteSettings = useState("siteSettings");
-
-// get the page banner
-const pageBanner = computed(() => {
-    return siteSettings.value?.all_fields?.upload_page_banner || null;
-});
+// NO LONGER NEEDED: const siteSettings = useState("siteSettings");
+// NO LONGER NEEDED: const pageBanner = computed(() => { ... });
 </script>
 
 <style scoped>
@@ -46,7 +50,7 @@ const pageBanner = computed(() => {
 }
 
 .header-banner .header-content h3 {
-    font-size: 25px;
+    font-size: 30px;
     margin-bottom: 15px;
 }
 

@@ -1,3 +1,4 @@
+<!-- components/TheFooter.vue -->
 <template>
     <!-- Loading state -->
     <div v-if="!footerSections || !footerSections.length" class="footer-skeleton">Loading footer...</div>
@@ -34,6 +35,7 @@
                                 :key="i"
                                 :href="social.location"
                                 target="_blank"
+                                rel="noopener noreferrer"
                             >
                                 <i :class="social.bootstrap_icon_class_name"></i>
                             </a>
@@ -42,9 +44,8 @@
                         <!-- Links -->
                         <div v-if="item.acf_fc_layout === 'footer_link'" class="footer-link" :key="`link-${itemIndex}`">
                             <ul class="list-unstyled">
-                                <!-- Call the method from the template, just like your working component -->
                                 <li v-for="(link, i) in item.footer_page_link" :key="i">
-                                    <NuxtLink :to="getPostUrl(link)">
+                                    <NuxtLink :to="$api.getPostUrl(link)">
                                         {{ link.post_title }}
                                     </NuxtLink>
                                 </li>
@@ -68,9 +69,8 @@
                     </template>
 
                     <ul v-if="fb.select_page && fb.select_page.length" class="footer-bottom-link">
-                        <!-- Call the method from the template here as well -->
                         <li v-for="(page, pageIndex) in fb.select_page" :key="pageIndex">
-                            <NuxtLink :to="getPostUrl(page)">{{ page.post_title }}</NuxtLink>
+                            <NuxtLink :to="$api.getPostUrl(page)">{{ page.post_title }}</NuxtLink>
                         </li>
                     </ul>
                 </div>
@@ -79,78 +79,36 @@
     </div>
 </template>
 
-<script>
-export default {
-    // Use the same data fetching pattern as your working component's parent would.
-    // We'll use a computed property to get the state.
-    computed: {
-        siteSettings() {
-            return useState("siteSettings").value;
-        },
-        footerSections() {
-            return this.siteSettings?.all_fields?.footer_top_section || [];
-        },
-        footerBottom() {
-            return this.siteSettings?.all_fields?.footer_bottom || [];
-        },
-        desktopGridStyle() {
-            const count = this.footerSections.length;
-            if (!count) return {};
-            return {
-                gridTemplateColumns: this.footerSections.map((_, i) => (i === 0 ? "1.5fr" : "1fr")).join(" "),
-            };
-        },
-        footerBottomGridStyle() {
-            const count = this.footerBottom.length;
-            if (!count) return {};
-            return {
-                gridTemplateColumns: Array(count).fill("1fr").join(" "),
-            };
-        },
-    },
-    methods: {
-        // This is the exact same method from your working component.
-        // The Options API's `this.$api` is reliable and works correctly.
-        getPostUrl(post) {
-            // Get the post type and slug, handling both API and ACF formats
-            const postType = post.post_type || post.type;
-            const slug = post.post_name || post.slug;
+<script setup>
+// Import our new composable
+import { useSiteSettings } from "~/composables/useSiteSettings";
 
-            // If it's a standard 'post', we want the URL to be /blog/slug
-            if (postType === "post") {
-                return `/blog/${slug}`;
-            }
+// Get the API instance
+const { $api } = useNuxtApp();
 
-            // For any other custom post type (e.g., 'services'), use its name
-            // This will create a URL like /services/slug
-            if (postType === "page") {
-                return `/${slug}`;
-            } else {
-                return `/${postType}/${slug}`;
-            }
+// Use the composable to get the shared, reactive state
+const { siteSettings } = useSiteSettings();
 
-            // Fallback if post type is missing for some reason
-            return `/blog/${slug}`;
-        },
-    },
-    // The mounted hook is the correct place to trigger data fetching if it hasn't happened yet.
-    mounted() {
-        // Only fetch if the parent hasn't already loaded the data
-        if (!this.siteSettings) {
-            const { $api } = useNuxtApp();
-            $api.getSiteSettings()
-                .then((data) => {
-                    if (data) {
-                        // Update the global state
-                        useState("siteSettings").value = data;
-                    }
-                })
-                .catch((error) => {
-                    console.error("Site settings load error:", error);
-                });
-        }
-    },
-};
+// Computed properties are now simple and safe
+// They derive from the shared `siteSettings` state
+const footerSections = computed(() => siteSettings.value?.all_fields?.footer_top_section || []);
+const footerBottom = computed(() => siteSettings.value?.all_fields?.footer_bottom || []);
+
+const desktopGridStyle = computed(() => {
+    const count = footerSections.value.length;
+    if (!count) return {};
+    return {
+        gridTemplateColumns: footerSections.value.map((_, i) => (i === 0 ? "1.5fr" : "1fr")).join(" "),
+    };
+});
+
+const footerBottomGridStyle = computed(() => {
+    const count = footerBottom.value.length;
+    if (!count) return {};
+    return {
+        gridTemplateColumns: Array(count).fill("1fr").join(" "),
+    };
+});
 </script>
 
 <style scoped>
@@ -184,7 +142,7 @@ export default {
     padding: 80px 0;
     text-align: center;
     color: #aaa;
-    background: #171b26;
+    background: #f8f9fa;
 }
 
 /* Component Styles */
