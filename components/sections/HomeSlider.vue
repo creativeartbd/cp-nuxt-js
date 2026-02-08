@@ -13,8 +13,8 @@
         >
             <swiper-slide v-for="(slider, index) in data.sliders" :key="index">
                 <div class="container slider-container" v-if="slider.is_disable === 'no'">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6 col-md-8 col-sm-10 col-12">
+                    <div class="row align-items-center g-5">
+                        <div class="col-lg-6 col-md-12">
                             <div class="slider-content">
                                 <h2 v-if="slider.slider_title">{{ slider.slider_title }}</h2>
                                 <p v-if="slider.slider_sub_title">{{ slider.slider_sub_title }}</p>
@@ -23,7 +23,7 @@
                                 </NuxtLink>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-4">
+                        <div class="col-lg-6 col-md-12">
                             <img v-if="slider.slider_image" :src="slider.slider_image" />
                         </div>
                     </div>
@@ -73,13 +73,6 @@ export default {
 </script>
 
 <style scoped>
-.slider-container {
-    height: 100vh;
-    justify-content: center;
-    align-items: center;
-    display: flex;
-}
-
 .slider-content h2 {
     line-height: 1.2;
     margin-bottom: 30px;
@@ -134,45 +127,5 @@ export default {
 
 .order-btn:hover {
     background: linear-gradient(282deg, rgb(22 175 195) 0%, rgb(6 188 212) 100%);
-}
-/* Responsive adjustments */
-@media (max-width: 991.98px) {
-    .slider-content h2 {
-        font-size: 250%;
-    }
-}
-
-@media (max-width: 767.98px) {
-    .slider-content h2 {
-        font-size: 200%;
-        margin-bottom: 20px;
-    }
-
-    .slider-content {
-        text-align: center;
-    }
-
-    .order-btn {
-        font-size: 18px;
-        padding: 15px 40px;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .slider-content h2 {
-        font-size: 150%;
-        margin-bottom: 15px;
-    }
-
-    .slider-content p {
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
-
-    .order-btn {
-        font-size: 16px;
-        padding: 12px 30px;
-        margin-top: 20px;
-    }
 }
 </style>

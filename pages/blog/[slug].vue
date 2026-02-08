@@ -112,102 +112,140 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Call to Action -->
-            <CallToAction
-                v-if="blogPageData.sections[0].section_content[0].acf_fc_layout === 'call_to_action'"
-                :data="blogPageData.sections[0].section_content[0]"
-            />
         </ClientOnly>
     </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import CallToAction from "~/components/layout/CallToAction.vue";
+import { ref, computed } from "vue";
+
 const { $api } = useNuxtApp();
 const route = useRoute();
 
 // Import and use the shared composable
-const { siteSettings, fetchSettings, pageDataCache, fetchPageData } = useSiteSettings();
+const { siteSettings } = useSiteSettings();
 
-// --- State (no more 'loading' ref) ---
+// --- State ---
 const error = ref(null);
-
 const post = ref(null);
 const categories = ref([]);
 const relatedPosts = ref([]);
 const search = ref("");
-const blogPageData = computed(() => pageDataCache.value["blog"]);
 
-// --- Data Fetching with onMounted inside ClientOnly ---
-onMounted(async () => {
-    const slug = route.params.slug;
+const slug = computed(() => route.params.slug);
 
-    try {
-        // Load critical data FIRST (parallel)
-        const [singlePost, allCategories] = await Promise.all([
-            $api.getPost(slug),
-            $api.getCategories(),
-            fetchPageData("blog"),
-        ]);
+// --- Main Data Fetching with useAsyncData ---
+const { data: asyncData, error: asyncError } = await useAsyncData(
+    `post-${slug.value}`,
+    async () => {
+        if (!slug.value) return null;
 
-        if (!singlePost) {
-            error.value = "This post does not exist.";
-            return;
-        }
+        try {
+            // Load critical data FIRST (parallel)
+            const [singlePost, allCategories] = await Promise.all([$api.getPost(slug.value), $api.getCategories()]);
 
-        post.value = singlePost;
-        categories.value = allCategories;
+            if (!singlePost) {
+                throw createError({
+                    statusCode: 404,
+                    statusMessage: "This post does not exist.",
+                });
+            }
 
-        // Load related posts (non-blocking)
-        const firstCategory = singlePost.categories?.[0];
-        if (firstCategory) {
-            $api.getPosts({
-                category: firstCategory,
-                per_page: 3,
-            }).then((res) => {
-                relatedPosts.value = res.filter((p) => p.id !== singlePost.id);
+            // Load related posts (non-blocking)
+            let related = [];
+            const firstCategory = singlePost.categories?.[0];
+            if (firstCategory) {
+                const res = await $api.getPosts({
+                    category: firstCategory,
+                    per_page: 3,
+                });
+
+                // Handle both array response and object with posts array
+                const postsArray = Array.isArray(res) ? res : res.posts || [];
+                related = postsArray.filter((p) => p.id !== singlePost.id);
+            }
+
+            // SEO
+            useHead({
+                title: `${singlePost.title.rendered} | Blog`,
+                meta: [
+                    {
+                        name: "description",
+                        content: singlePost.excerpt?.rendered?.replace(/(<([^>]+)>)/gi, "") || "",
+                    },
+                    { property: "og:title", content: singlePost.title.rendered },
+                    {
+                        property: "og:description",
+                        content: singlePost.excerpt?.rendered?.replace(/(<([^>]+)>)/gi, "") || "",
+                    },
+                    { property: "og:image", content: getImage(singlePost) },
+                ],
+            });
+
+            return {
+                post: singlePost,
+                categories: allCategories,
+                relatedPosts: related,
+            };
+        } catch (err) {
+            if (err.statusCode === 404) {
+                throw createError({
+                    statusCode: 404,
+                    statusMessage: "This post does not exist.",
+                });
+            }
+            throw createError({
+                statusCode: 500,
+                statusMessage: "Failed to load post.",
             });
         }
-
-        // SEO
-        useHead({
-            title: `${singlePost.title.rendered} | Blog`,
-            meta: [
-                {
-                    name: "description",
-                    content: singlePost.excerpt?.rendered?.replace(/(<([^>]+)>)/gi, "") || "",
-                },
-                { property: "og:title", content: singlePost.title.rendered },
-                {
-                    property: "og:description",
-                    content: singlePost.excerpt?.rendered?.replace(/(<([^>]+)>)/gi, "") || "",
-                },
-                { property: "og:image", content: getImage(singlePost) },
-            ],
-        });
-    } catch (err) {
-        error.value = err.message || "Failed to load post.";
+    },
+    {
+        watch: [slug], // Re-fetch when slug changes
     }
-});
+);
 
-// Fetch settings in the background
-fetchSettings();
+// --- Populate refs from asyncData ---
+watch(
+    asyncData,
+    (newData) => {
+        if (newData) {
+            post.value = newData.post;
+            categories.value = newData.categories;
+            relatedPosts.value = newData.relatedPosts;
+        }
+    },
+    { immediate: true }
+);
+
+// --- Handle errors ---
+watch(
+    asyncError,
+    (newError) => {
+        if (newError) {
+            error.value = newError.message || "Failed to load post";
+        }
+    },
+    { immediate: true }
+);
 
 /* Helpers (all names kept the same) */
 function getImage(p) {
     return p._embedded?.["wp:featuredmedia"]?.[0]?.source_url || "https://placehold.co/600x400";
 }
+
 function getAuthor(p) {
     return p._embedded?.author?.[0]?.name || "Unknown Author";
 }
+
 function getCategory(p) {
     return p._embedded?.["wp:term"]?.[0]?.[0]?.name || "Uncategorized";
 }
+
 function getCategoryId(p) {
     return p._embedded?.["wp:term"]?.[0]?.[0]?.id || null;
 }
+
 function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString("en-US", {
         year: "numeric",

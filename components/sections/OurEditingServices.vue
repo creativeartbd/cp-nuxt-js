@@ -46,12 +46,12 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <!-- use getImages(tab) helper so it's always an array -->
-                                    <div
-                                        class="ods-mini-wrapper"
-                                        v-for="(image, imageIndex) in getImages(tab)"
-                                        :key="imageIndex"
-                                    >
-                                        <div class="ods-mini-img">
+                                    <div class="ods-mini-wrapper">
+                                        <div
+                                            class="ods-mini-img"
+                                            v-for="(image, imageIndex) in getImages(tab)"
+                                            :key="imageIndex"
+                                        >
                                             <img
                                                 :src="image.image"
                                                 @click="handleImageClick(image, image.choose_a_service)"
@@ -116,12 +116,6 @@
                                     </div>
 
                                     <div class="before-after-bottom">
-                                        <!-- <template v-if="data.discover_button_text && data.discover_button_text_url">
-                                            <NuxtLink :to="data.discover_button_text_url">{{
-                                                data.discover_button_text
-                                            }}</NuxtLink>
-                                        </template> -->
-
                                         <template v-if="currentServiceLink">
                                             <NuxtLink :to="'services/' + currentServiceLink">{{
                                                 data.discover_button_text
@@ -267,7 +261,7 @@ export default {
     },
 };
 </script>
-<style scoped>
+<style>
 .loading-indicator {
     position: absolute;
     top: 50%;
@@ -305,7 +299,7 @@ export default {
     margin-bottom: 10px;
     object-fit: cover;
     width: 100%;
-    height: 156px;
+    height: auto;
     cursor: pointer;
 }
 
@@ -343,7 +337,7 @@ export default {
 .coloured-slider {
     --divider-color: rgba(255, 255, 255, 1);
     --default-handle-color: rgba(255, 255, 255, 1);
-    --divider-width: 10px !important;
+    --divider-width: 4px !important;
     position: relative;
     border-width: 10px;
     outline: 0;
@@ -390,10 +384,9 @@ export default {
 }
 
 .ods-mini-wrapper {
-    width: 156px;
-    margin-right: 15px;
-    padding: 0;
-    display: inline-block;
+    display: flex;
+    column-gap: 15px;
+    flex-wrap: wrap;
 }
 
 .alert {
@@ -452,72 +445,5 @@ export default {
 /* Hide labels when dragging for a better user experience */
 .hide-overlay .comparison-label {
     opacity: 0 !important;
-}
-
-/* Responsive adjustments only */
-@media (max-width: 991.98px) {
-    .editing-services {
-        padding-top: 80px;
-        padding-bottom: 40px;
-    }
-
-    .editing-services .ods-mini-img img {
-        height: 120px;
-    }
-
-    .ods-mini-wrapper {
-        width: 140px;
-    }
-}
-
-@media (max-width: 767.98px) {
-    .editing-services {
-        padding-top: 60px;
-        padding-bottom: 30px;
-    }
-
-    .editing-services .ods-mini-img img {
-        height: 100px;
-    }
-
-    .ods-mini-wrapper {
-        width: 130px;
-        margin-right: 10px;
-    }
-
-    .before-after-message {
-        padding: 20px;
-        font-size: 14px;
-    }
-
-    .before-after-bottom {
-        flex-direction: column;
-        gap: 10px;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .editing-services {
-        padding-top: 50px;
-        padding-bottom: 30px;
-    }
-
-    .editing-services .ods-mini-img img {
-        height: 80px;
-    }
-
-    .ods-mini-wrapper {
-        width: 120px;
-        margin-right: 8px;
-    }
-
-    .editing-services .ods-mini-img h6 {
-        font-size: 12px;
-    }
-
-    .bf-circle {
-        width: 35px;
-        height: 35px;
-    }
 }
 </style>

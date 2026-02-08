@@ -19,6 +19,7 @@
                             >
                                 <ImgComparisonSlider
                                     class="coloured-slider"
+                                    :class="{ 'slider-example-relative-size': data.disable_before_after === 'yes' }"
                                     @input="handleMove"
                                     @mousedown="startDrag"
                                     @touchstart="startDrag"
@@ -28,12 +29,20 @@
                                 >
                                     <!-- eslint-disable -->
                                     <figure slot="first" class="before">
-                                        <img slot="first" :src="example.before_image" alt="Before image" />
+                                        <img
+                                            slot="first"
+                                            :src="example.before_image.sizes[imageKey]"
+                                            alt="Before image"
+                                        />
                                     </figure>
                                     <figure slot="second" class="after">
-                                        <img slot="second" :src="example.after_image" alt="After image" />
+                                        <img
+                                            slot="second"
+                                            :src="example.after_image.sizes[imageKey]"
+                                            alt="After image"
+                                        />
                                     </figure>
-                                    <div slot="handle">
+                                    <div slot="handle" v-if="data.disable_before_after === 'no'">
                                         <div class="bf-circle">
                                             <i class="bi bi-caret-left-fill"></i>
                                             <i class="bi bi-caret-right-fill"></i>
@@ -43,8 +52,12 @@
                                 </ImgComparisonSlider>
 
                                 <!-- NEW: Overlay Labels positioned outside the slider -->
-                                <div class="comparison-label before-label">Before</div>
-                                <div class="comparison-label after-label">After</div>
+                                <div class="comparison-label before-label" v-if="data.disable_before_after === 'no'">
+                                    Before
+                                </div>
+                                <div class="comparison-label after-label" v-if="data.disable_before_after === 'no'">
+                                    After
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -66,6 +79,7 @@ export default {
         return {
             dragTimeout: null,
             isDragging: false,
+            imageKey: "medium_large",
         };
     },
     methods: {
@@ -92,6 +106,11 @@ export default {
 </script>
 
 <style scoped>
+.slider-example-relative-size {
+    --divider-width: 0px;
+    --divider-color: #ffa658;
+    --default-handle-opacity: 0;
+}
 /* --- General Layout & Section Styling --- */
 .visual-examples {
     background-color: #effdff;
@@ -105,14 +124,8 @@ export default {
 }
 
 /* --- Grid Layout --- */
-.grid-wrapper {
-    display: grid;
-    grid-gap: 15px;
-    grid-auto-rows: 280px;
-    grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
-    grid-auto-flow: dense;
-}
 
+/* Grid span helpers (unchanged) */
 .grid-wrapper .wide {
     grid-column: span 2;
 }
@@ -126,34 +139,32 @@ export default {
     grid-row: span 2;
 }
 
-/* --- Grid Item & Slider Styling --- */
+/* --- Grid Item --- */
 .grid-wrapper > div {
-    position: relative; /* Crucial for positioning the new overlay labels */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    position: relative;
+    width: 100%;
     height: 100%;
+    min-width: 0;
+    overflow: hidden;
     border-radius: 5px;
+    display: flex;
+    align-items: stretch;
 }
 
+/* --- Slider (ONLY size the component) --- */
 .grid-wrapper .coloured-slider {
+    display: block;
     width: 100%;
     height: 100%;
     outline: none;
 }
 
-.grid-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+/* --- DO NOT style images or figures ---
+   Images are already normalized by WordPress
+   Slider handles positioning internally
+*/
 
-figure {
-    margin: 0;
-}
-
-/* --- Slider Handle Styling --- */
+/* --- Slider Handle --- */
 .bf-circle {
     border: 3px solid #fff;
     border-radius: 50%;
@@ -172,9 +183,7 @@ figure {
     color: #fff;
 }
 
-/* --- Overlay & NEW Label Styling --- */
-
-/* Overlay layer that appears on hover */
+/* --- Overlay Layer --- */
 .grid-wrapper > div::after {
     content: "";
     position: absolute;
@@ -186,24 +195,23 @@ figure {
     pointer-events: none;
 }
 
-/* --- FINAL FIX: Identical, Centered Overlay Labels --- */
+/* --- Overlay Labels --- */
 .comparison-label {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.25);
     color: #fff;
-    padding: 7px 15px; /* Consistent padding for same size */
+    padding: 7px 15px;
     border-radius: 4px;
     opacity: 0;
     transition: opacity 0.3s ease;
-    z-index: 9999; /* Above everything */
+    z-index: 6;
     pointer-events: none;
     font-size: 14px;
-    white-space: nowrap; /* Prevents text from wrapping */
+    white-space: nowrap;
 }
 
-/* Specific positioning for each label */
 .before-label {
     left: 20px;
 }
@@ -212,17 +220,19 @@ figure {
     right: 20px;
 }
 
-/* --- Hover & Drag State Effects --- */
-
-/* Show overlay and labels on hover */
+/* --- Hover Effects --- */
 .grid-wrapper > div:hover::after,
 .grid-wrapper > div:hover .comparison-label {
     opacity: 1;
 }
 
-/* Hide overlay and labels when dragging */
+/* --- Drag State --- */
 .hide-overlay::after,
 .hide-overlay .comparison-label {
     opacity: 0 !important;
+}
+
+figure img {
+    width: 100%;
 }
 </style>

@@ -22,7 +22,7 @@
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
                             v-if="componentMap[content.acf_fc_layout]"
-                            :service="siteSettings?.all_fields?.select_services || []"
+                            :service="siteSettings?.value?.all_fields?.select_services || []"
                         />
 
                         <!-- Fallback for unknown sections -->
@@ -64,9 +64,7 @@ import CallToAction from "~/components/layout/CallToAction.vue";
 const { $api } = useNuxtApp();
 
 // Import and use the shared composables
-const { siteSettings, fetchSettings, pageDataCache, fetchPageData } = useSiteSettings();
-
-// --- State (no more 'loading' ref or 'error' ref) ---
+const { siteSettings } = useSiteSettings();
 
 // Component mapping (using markRaw is good practice)
 const componentMap = markRaw({
@@ -85,8 +83,8 @@ const componentMap = markRaw({
 // This fetches the 'home' page data on the server for super-fast loads.
 const { data: asyncData, error: asyncError } = await useAsyncData("page-home", async () => {
     try {
-        // Fetch the homepage data using our composable
-        const pageData = await fetchPageData("home");
+        // Direct API call - useAsyncData caches this automatically
+        const pageData = await $api.getPage("home");
 
         // Set SEO meta tags
         if (pageData?.seo) {
@@ -104,10 +102,11 @@ const { data: asyncData, error: asyncError } = await useAsyncData("page-home", a
         }
         return pageData;
     } catch (err) {
-        // Throw a generic error for the homepage
+        console.error("HOMEPAGE FETCH ERROR:", err);
+
         throw createError({
-            statusCode: 500,
-            statusMessage: "Failed to load homepage content.",
+            statusCode: err?.response?.status || 500,
+            statusMessage: err?.response?._data || err?.message || "Failed to load homepage content.",
         });
     }
 });
@@ -117,7 +116,6 @@ const data = computed(() => asyncData.value);
 const error = computed(() => asyncError.value);
 
 // --- Fetch main site settings in the background ---
-fetchSettings();
 </script>
 
 <style scoped>

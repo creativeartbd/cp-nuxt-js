@@ -1,4 +1,4 @@
-<!-- components/TheFooter.vue -->
+<!-- components/TheFooter2.vue -->
 <template>
     <!-- Loading state -->
     <div v-if="!footerSections || !footerSections.length" class="footer-skeleton">Loading footer...</div>
@@ -45,7 +45,7 @@
                         <div v-if="item.acf_fc_layout === 'footer_link'" class="footer-link" :key="`link-${itemIndex}`">
                             <ul class="list-unstyled">
                                 <li v-for="(link, i) in item.footer_page_link" :key="i">
-                                    <NuxtLink :to="$api.getPostUrl(link)">
+                                    <NuxtLink :to="getPostUrl(link)">
                                         {{ link.post_title }}
                                     </NuxtLink>
                                 </li>
@@ -70,7 +70,7 @@
 
                     <ul v-if="fb.select_page && fb.select_page.length" class="footer-bottom-link">
                         <li v-for="(page, pageIndex) in fb.select_page" :key="pageIndex">
-                            <NuxtLink :to="$api.getPostUrl(page)">{{ page.post_title }}</NuxtLink>
+                            <NuxtLink :to="getPostUrl(page)">{{ page.post_title }}</NuxtLink>
                         </li>
                     </ul>
                 </div>
@@ -80,35 +80,61 @@
 </template>
 
 <script setup>
-// Import our new composable
-import { useSiteSettings } from "~/composables/useSiteSettings";
+import { computed } from "vue";
 
-// Get the API instance
-const { $api } = useNuxtApp();
-
-// Use the composable to get the shared, reactive state
 const { siteSettings } = useSiteSettings();
 
-// Computed properties are now simple and safe
-// They derive from the shared `siteSettings` state
-const footerSections = computed(() => siteSettings.value?.all_fields?.footer_top_section || []);
-const footerBottom = computed(() => siteSettings.value?.all_fields?.footer_bottom || []);
+console.log("site settings is");
+console.log(siteSettings.value);
 
+// ✅ FIXED: Get footer data from siteSettings
+const footerSections = computed(() => {
+    return siteSettings.value?.all_fields?.footer_top_section || [];
+});
+
+const footerBottom = computed(() => {
+    return siteSettings.value?.all_fields?.footer_bottom || [];
+});
+
+// ✅ FIXED: Desktop grid style
 const desktopGridStyle = computed(() => {
-    const count = footerSections.value.length;
-    if (!count) return {};
+    const columns = siteSettings.value?.all_fields?.footer_grid_column_desktop || 4;
     return {
-        gridTemplateColumns: footerSections.value.map((_, i) => (i === 0 ? "1.5fr" : "1fr")).join(" "),
+        gridTemplateColumns: `repeat(${columns}, 1fr)`,
     };
 });
 
+// ✅ FIXED: Footer bottom grid style
 const footerBottomGridStyle = computed(() => {
-    const count = footerBottom.value.length;
-    if (!count) return {};
+    const columns = siteSettings.value?.all_fields?.footer_bottom_grid_column || 3;
     return {
-        gridTemplateColumns: Array(count).fill("1fr").join(" "),
+        gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        display: "grid",
+        gap: "1.25rem",
+        padding: "20px 0",
+        alignItems: "center",
     };
 });
+
+// ✅ ADDED: Helper function to convert post object to URL
+const getPostUrl = (post) => {
+    if (!post) return "/";
+
+    // If post has a URL property, use it
+    if (post.url) return post.url;
+
+    // If post has post_name (slug), construct URL
+    if (post.post_name) {
+        return `/v2/${post.post_name}`;
+    }
+
+    // If post has ID, construct URL (fallback)
+    if (post.ID) {
+        return `/v2/page/${post.ID}`;
+    }
+
+    return "/";
+};
 </script>
 
 <style scoped>
@@ -192,69 +218,46 @@ const footerBottomGridStyle = computed(() => {
 }
 
 /* Footer Bottom Grid */
-.footer-bottom-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: space-between;
+.footer-bottom-bg {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
 }
-.footer-bottom-item {
-    min-width: 0;
-    display: flex;
+
+.footer-bottom-grid {
+    display: grid;
+    gap: 1.25rem;
+    padding: 20px 0;
     align-items: center;
 }
+
 .footer-bottom-item img {
     width: 150px;
     margin-left: 10px;
 }
+
 .footer-bottom-link {
     display: flex;
     column-gap: 15px;
     align-items: center;
     margin-bottom: 0;
+    padding: 0;
 }
+
 .footer-bottom-link li {
     list-style: none;
 }
+
+.footer-bottom-link a {
+    text-decoration: none;
+    color: #555;
+    transition: 0.3s;
+}
+
+.footer-bottom-link a:hover {
+    color: #06bcd4;
+}
+
 .footer-logo {
     margin-bottom: 20px;
-}
-
-/* Responsive Media Queries */
-@media (max-width: 575.98px) {
-    .footer-grid {
-        grid-template-columns: 1fr !important;
-        padding: 60px 0;
-    }
-    .footer-bottom-grid .footer-bottom-item {
-        flex-basis: 100%;
-    }
-}
-
-@media (min-width: 576px) and (max-width: 767.98px) {
-    .footer-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-    .footer-bottom-grid .footer-bottom-item {
-        flex-basis: calc(50% - 0.5rem);
-    }
-}
-
-@media (min-width: 768px) and (max-width: 991.98px) {
-    .footer-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-    }
-    .footer-bottom-grid .footer-bottom-item {
-        flex-basis: calc(33.333% - 0.666rem);
-    }
-}
-
-@media (min-width: 992px) {
-    .footer-grid {
-        /* JS Dynamic Grid */
-    }
-    .footer-bottom-grid {
-        display: flex;
-    }
 }
 </style>

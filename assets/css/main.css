@@ -107,11 +107,6 @@ b, strong {
     border-color: black;
 }
 
-
-/* .navbar-collapse.show {
-
-} */
-
 .divide-separator{
     /* background: rgb(0,188,212);
 background: linear-gradient(90deg, rgba(0,188,212,1) 0%, rgba(255,255,255,1) 0%, rgba(0,188,212,1) 52%, rgba(255,255,255,1) 100%); */
@@ -253,6 +248,8 @@ input {
     width: 100%;
     position: relative;
     z-index: 2;
+    padding :0;
+    margin-top : 0px;
 }
 
 .header .navbar {
@@ -363,10 +360,6 @@ img {
 
 .editing-services ul li .nav-link {
     border : none;
-}
-
-.happy-clients-details .swiper-pagination {
-    text-align : right;
 }
 
 .dropdown-menu {
@@ -570,21 +563,12 @@ h6 {
 }
 
 @media ( max-width: 992px) { 
-
-    .fixed-top-scroll {
-        padding : 10px 0;
-    }
-
     .dropdown-container {
         display: block;
     }
 
     .home-slider {
         margin-top : 0;
-    }
-
-    .header {
-        padding : 10px 0;
     }
 }
 

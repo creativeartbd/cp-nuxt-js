@@ -69,12 +69,6 @@ export default {
     text-align: center;
 }
 
-.section-main-image img {
-    width: 80%;
-    max-width: 100%;
-    height: auto;
-}
-
 .how-it-works .section-title {
     margin-bottom: 50px;
 }
@@ -150,113 +144,5 @@ export default {
     background-color: #f89847;
     border: 8px solid #fff;
     box-shadow: 0px 6px 12px 0px rgb(248 153 70);
-}
-
-/* Responsive Design */
-@media (max-width: 991.98px) {
-    .how-it-works {
-        padding-top: 80px;
-        padding-bottom: 80px;
-    }
-
-    .how-it-works .section-title {
-        margin-bottom: 40px;
-    }
-
-    .steps-container {
-        margin-bottom: 3rem;
-    }
-
-    .section-main-image img {
-        width: 70%;
-    }
-}
-
-@media (max-width: 767.98px) {
-    .how-it-works {
-        padding-top: 60px;
-        padding-bottom: 60px;
-    }
-
-    .how-it-works .section-title {
-        margin-bottom: 30px;
-    }
-
-    .how-it-works .section-title h2 {
-        font-size: 1.8rem;
-    }
-
-    .how-it-works-list {
-        margin-bottom: 40px;
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-    }
-
-    .how-it-works-number {
-        margin-right: 0;
-        margin-bottom: 15px;
-    }
-
-    .how-it-works-info {
-        width: 100%;
-        text-align: center;
-    }
-
-    .how-it-works-info h3 {
-        font-size: 1.3rem;
-    }
-
-    .section-main-image img {
-        width: 85%;
-    }
-
-    .steps-container {
-        margin-bottom: 2.5rem;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .how-it-works {
-        padding-top: 50px;
-        padding-bottom: 50px;
-    }
-
-    .how-it-works .section-title h2 {
-        font-size: 1.5rem;
-    }
-
-    .how-it-works .section-title p {
-        font-size: 0.95rem;
-    }
-
-    .how-it-works-list {
-        margin-bottom: 35px;
-    }
-
-    .how-it-works-number {
-        width: 60px;
-        height: 60px;
-        font-size: 20px;
-        border: 6px solid #fff;
-        margin-bottom: 12px;
-    }
-
-    .how-it-works-info h3 {
-        font-size: 1.2rem;
-        margin-bottom: 8px;
-    }
-
-    .how-it-works-info p {
-        font-size: 0.9rem;
-    }
-
-    .section-main-image img {
-        width: 95%;
-    }
-
-    .steps-container {
-        margin-bottom: 2rem;
-    }
 }
 </style>

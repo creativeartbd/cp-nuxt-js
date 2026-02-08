@@ -19,7 +19,7 @@
                 </div>
             </div>
             <div class="row" v-if="data.contact_methods">
-                <div class="col-md-3" v-for="(methods, index) in data.contact_methods" :key="index">
+                <div class="col-md-6 col-lg-3" v-for="(methods, index) in data.contact_methods" :key="index">
                     <template v-if="methods.contact_type === 'email'">
                         <a :href="'mailto:' + methods.address">
                             <div class="contact-box">
@@ -79,19 +79,6 @@ export default {
 };
 </script>
 <style scoped>
-.contact-box {
-    display: flex;
-    align-items: center;
-    margin-bottom: 40px;
-    background-color: #fbfbfb;
-    padding: 25px 10px 25px 0;
-    border-radius: 10px;
-    box-shadow: 1px 1px 1px #ddd;
-    margin-top: 100px;
-    transition: all ease-in 0.3s;
-    border-bottom: 2px solid #2ebcd4;
-}
-
 .contact-box:hover {
     cursor: pointer;
     transform: scale(1.06);
@@ -107,6 +94,7 @@ export default {
 
 .contact-details p {
     margin-bottom: 0;
+    word-break: break-all;
 }
 
 .contact-box h6 {
@@ -120,21 +108,5 @@ export default {
     border-radius: 50%;
     padding: 10px;
     box-shadow: 1px 1px 1px #06bcd4;
-}
-
-@media (max-width: 768px) {
-    .contact-box {
-        margin-top: 15px;
-        margin-bottom: 15px;
-    }
-
-    .get-started-form {
-        margin-top: 50px;
-        margin-bottom: 50px;
-    }
-
-    .contact-info {
-        margin-right: 15px;
-    }
 }
 </style>

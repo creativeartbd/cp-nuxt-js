@@ -1,9 +1,5 @@
 <template>
     <div class="blog-page">
-        <!-- 
-          Using <ClientOnly> to bypass server-side rendering issues.
-          The top loading bar will handle the loading feedback.
-        -->
         <ClientOnly>
             <!-- Error State -->
             <div v-if="error" class="container py-5 text-center">
@@ -16,9 +12,9 @@
                 <!-- Header -->
                 <div class="container">
                     <div class="blog-header">
-                        <h2>{{ siteSettings?.all_fields?.blog_title }}</h2>
+                        <h2>{{ siteSettings?.all_fields?.blog_title || "Our Blog" }}</h2>
                         <p>
-                            {{ siteSettings?.all_fields?.blog_sub_title }}
+                            {{ siteSettings?.all_fields?.blog_sub_title || "Latest articles and insights" }}
                         </p>
 
                         <!-- Search -->
@@ -123,28 +119,21 @@
                 <div v-else class="container py-5 text-center">
                     <p class="alert alert-warning w-100">No blog posts found.</p>
                 </div>
-
-                <!-- Call to Action -->
-                <CallToAction
-                    v-if="blogPageData.sections[0].section_content[0].acf_fc_layout === 'call_to_action'"
-                    :data="blogPageData.sections[0].section_content[0]"
-                />
             </div>
         </ClientOnly>
     </div>
 </template>
 
 <script setup>
-const route = useRoute();
-import CallToAction from "~/components/layout/CallToAction.vue";
-import { ref, computed } from "vue";
+import { ref } from "vue";
 
+const route = useRoute();
 const { $api } = useNuxtApp();
 
 // Import and use the shared composable
-const { siteSettings, fetchSettings, pageDataCache, fetchPageData } = useSiteSettings();
+const { siteSettings } = useSiteSettings();
 
-// --- State (no more 'loading' ref) ---
+// --- State ---
 const error = ref(null);
 
 const posts = ref([]);
@@ -156,13 +145,8 @@ const totalPages = ref(1);
 const search = ref(route.query.search || "");
 const activeCategory = ref(null);
 
-const blogPageData = computed(() => pageDataCache.value["blog"]);
-const slug = computed(() => route.params.slug);
-console.log("route.params:", route.params);
-
-// --- Data Fetching with onMounted inside ClientOnly ---
-onMounted(async () => {
-    console.log("onMounted: Starting data fetch...");
+// --- Main Data Fetching with useAsyncData ---
+const { data: asyncData, error: asyncError } = await useAsyncData("page-blog", async () => {
     try {
         const initialSearch = route.query.search;
 
@@ -174,86 +158,131 @@ onMounted(async () => {
             }),
             $api.getStickyPost(),
             $api.getCategories(),
-            fetchPageData("blog"),
         ]);
 
-        console.log("API Response:", { postsResponse, sticky, cats });
+        // Set SEO meta tags for blog page
+        useHead({
+            title: "Blog - Cutout Partner",
+            meta: [
+                {
+                    name: "description",
+                    content: "Read our latest articles on photo editing, tips, and industry insights.",
+                },
+            ],
+        });
 
-        // --- Manually update the refs ---
-        posts.value = Array.isArray(postsResponse) ? postsResponse : postsResponse.posts || [];
-        totalPages.value = postsResponse.totalPages || 1;
-        page.value = 1;
-        search.value = initialSearch || "";
-
-        featuredPost.value = sticky
-            ? {
-                  id: sticky.id,
-                  slug: sticky.slug,
-                  title: sticky.title.rendered,
-                  image: sticky._embedded?.["wp:featuredmedia"]?.[0]?.source_url || null,
-                  category: sticky._embedded?.["wp:term"]?.[0]?.[0]?.name || "",
-                  excerpt: sticky.excerpt,
-              }
-            : null;
-
-        categories.value = cats;
-
-        if (featuredPost.value) {
-            posts.value = posts.value.filter((p) => p.id !== featuredPost.value.id);
-        }
-
-        console.log("onMounted: Data fetch successful.");
+        return {
+            posts: Array.isArray(postsResponse) ? postsResponse : postsResponse.posts || [],
+            totalPages: postsResponse.totalPages || 1,
+            sticky,
+            categories: cats,
+        };
     } catch (err) {
-        console.error("onMounted: An error occurred during data fetch.", err);
-        error.value = err.message || "Failed to load blog";
+        console.error("Failed to load blog data:", err);
+        throw createError({
+            statusCode: 500,
+            statusMessage: "Failed to load blog.",
+        });
     }
 });
 
-// --- Fetch settings in the background ---
-fetchSettings();
+// --- Populate refs from asyncData ---
+watch(
+    asyncData,
+    (newData) => {
+        if (newData) {
+            posts.value = newData.posts;
+            totalPages.value = newData.totalPages;
+            categories.value = newData.categories;
+            search.value = route.query.search || "";
 
-// --- Client-side functions (no more loading.value updates) ---
+            featuredPost.value = newData.sticky
+                ? {
+                      id: newData.sticky.id,
+                      slug: newData.sticky.slug,
+                      title: newData.sticky.title.rendered,
+                      image: newData.sticky._embedded?.["wp:featuredmedia"]?.[0]?.source_url || null,
+                      category: newData.sticky._embedded?.["wp:term"]?.[0]?.[0]?.name || "",
+                      excerpt: newData.sticky.excerpt,
+                  }
+                : null;
+
+            if (featuredPost.value) {
+                posts.value = posts.value.filter((p) => p.id !== featuredPost.value.id);
+            }
+        }
+    },
+    { immediate: true }
+);
+
+// --- Handle errors ---
+watch(
+    asyncError,
+    (newError) => {
+        if (newError) {
+            error.value = newError.message || "Failed to load blog";
+        }
+    },
+    { immediate: true }
+);
+
+// --- Client-side functions ---
 async function changePage(newPage) {
     if (newPage < 1 || newPage > totalPages.value) return;
 
-    const response = await $api.getBlogPostsLight({
-        page: newPage,
-        per_page: 9,
-        category: activeCategory.value,
-        search: search.value || undefined,
-    });
+    try {
+        const response = await $api.getBlogPostsLight({
+            page: newPage,
+            per_page: 9,
+            category: activeCategory.value,
+            search: search.value || undefined,
+        });
 
-    posts.value = Array.isArray(response) ? response : response.posts || [];
-    totalPages.value = response.totalPages || 1;
-    page.value = newPage;
+        posts.value = Array.isArray(response) ? response : response.posts || [];
+        totalPages.value = response.totalPages || 1;
+        page.value = newPage;
+    } catch (err) {
+        console.error("Failed to change page:", err);
+        error.value = "Failed to load posts";
+    }
 }
 
 async function filterByCategory(catId) {
-    activeCategory.value = catId;
-    page.value = 1;
+    try {
+        activeCategory.value = catId;
+        page.value = 1;
 
-    const response = await $api.getBlogPostsLight({
-        category: catId,
-        per_page: 9,
-    });
+        const response = await $api.getBlogPostsLight({
+            category: catId,
+            per_page: 9,
+        });
 
-    posts.value = Array.isArray(response) ? response : response.posts || [];
-    totalPages.value = response.totalPages || 1;
+        posts.value = Array.isArray(response) ? response : response.posts || [];
+        totalPages.value = response.totalPages || 1;
+    } catch (err) {
+        console.error("Failed to filter by category:", err);
+        error.value = "Failed to filter posts";
+    }
 }
 
 async function searchPosts() {
     if (!search.value.trim()) return;
 
-    page.value = 1;
-    activeCategory.value = null;
+    try {
+        page.value = 1;
+        activeCategory.value = null;
 
-    const response = await $api.getBlogPostsLight({
-        search: search.value,
-        per_page: 9,
-    });
+        const response = await $api.getBlogPostsLight({
+            search: search.value,
+            per_page: 9,
+        });
 
-    posts.value = Array.isArray(response) ? response : response.posts || [];
-    totalPages.value = response.totalPages || 1;
+        posts.value = Array.isArray(response) ? response : response.posts || [];
+        totalPages.value = response.totalPages || 1;
+    } catch (err) {
+        console.error("Failed to search posts:", err);
+        error.value = "Failed to search posts";
+    }
 }
 </script>
 

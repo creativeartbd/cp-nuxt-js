@@ -13,7 +13,9 @@
 
         <!-- Content from WordPress -->
         <div v-else-if="data && data.sections && data.sections.length > 0" class="wp-content">
+            <!-- FIXED: Removed .value from siteSettings -->
             <TheHeaderBannerVue :data="data" :page-banner="siteSettings?.all_fields?.upload_page_banner" />
+
             <!-- Loop through all sections -->
             <template v-for="(section, index) in data.sections" :key="index">
                 <div v-if="section.section_content && Array.isArray(section.section_content)" class="section-wrapper">
@@ -23,7 +25,7 @@
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
                             v-if="componentMap[content.acf_fc_layout]"
-                            :service="siteSettings?.value?.all_fields?.select_services || []"
+                            :service="siteSettings?.all_fields?.select_services || []"
                         />
 
                         <!-- Fallback for unknown sections -->
@@ -74,8 +76,8 @@ import TextContent from "~/components/sections/TextContent.vue";
 const route = useRoute();
 const { $api } = useNuxtApp();
 
-// Import and use the shared composables
-const { siteSettings, fetchSettings, pageDataCache, fetchPageData } = useSiteSettings();
+// Import and use the shared composable - NO .value needed in template!
+const { siteSettings } = useSiteSettings();
 
 // Component mapping (using markRaw is good practice)
 const componentMap = markRaw({
@@ -97,59 +99,60 @@ const componentMap = markRaw({
     text_content: TextContent,
 });
 
-// Get the slug from the route
 const slug = computed(() => route.params.slug);
 
-// --- Main Data Fetching with useAsyncData ---
-// This fetches data on the server and client, and reacts to slug changes.
-const { data: asyncData, error: asyncError } = await useAsyncData(`page-${slug.value}`, async () => {
-    if (!slug.value) return null; // Don't fetch if there's no slug
+const { data: asyncData, error: asyncError } = await useAsyncData(
+    `page-${slug.value}`,
+    async () => {
+        if (!slug.value) return null;
 
-    try {
-        // Fetch the page data using our composable
-        const pageData = await fetchPageData(slug.value);
+        try {
+            const pageData = await $api.getPage(slug.value);
 
-        // Set SEO meta tags
-        if (pageData?.seo) {
-            useHead({
-                title: pageData.seo.title || pageData.page?.title || "Cutout Partner",
-                meta: [
-                    { name: "description", content: pageData.seo.description || "Professional photo editing services" },
-                    {
-                        property: "og:title",
-                        content: pageData.seo.og_title || pageData.seo.title || pageData.page?.title,
-                    },
-                    { property: "og:description", content: pageData.seo.og_description || pageData.seo.description },
-                    { property: "og:image", content: pageData.seo.og_image },
-                    { name: "robots", content: pageData.seo?.noindex ? "noindex" : "index,follow" },
-                ],
-                link: [{ rel: "canonical", href: pageData.seo?.canonical_url }],
-            });
-        }
-        return pageData;
-    } catch (err) {
-        // If the page is not found, throw a proper Nuxt error
-        if (err.response?.status === 404) {
+            if (pageData?.seo) {
+                useHead({
+                    title: pageData.seo.title || pageData.page?.title || "Cutout Partner",
+                    meta: [
+                        {
+                            name: "description",
+                            content: pageData.seo.description || "Professional photo editing services",
+                        },
+                        {
+                            property: "og:title",
+                            content: pageData.seo.og_title || pageData.seo.title,
+                        },
+                        {
+                            property: "og:description",
+                            content: pageData.seo.og_description || pageData.seo.description,
+                        },
+                        { property: "og:image", content: pageData.seo.og_image },
+                    ],
+                });
+            }
+
+            return pageData;
+        } catch (err) {
             throw createError({
                 statusCode: 404,
-                statusMessage: "This page does not exist.",
+                statusMessage: "Page not found",
             });
         }
-        // For other errors, throw a generic error
-        throw createError({
-            statusCode: 500,
-            statusMessage: "Failed to load page.",
-        });
+    },
+    {
+        watch: [slug],
     }
-});
+);
 
-// --- Create reactive refs for the template ---
-// This makes the data from useAsyncData easy to use in the template
+// Create reactive refs for the template
 const data = computed(() => asyncData.value);
 const error = computed(() => asyncError.value);
 
-// --- Fetch main site settings in the background ---
-fetchSettings();
+// Debug logging
+onMounted(() => {
+    console.log("🔍 [slug].vue Debug:");
+    console.log("  Site Settings:", siteSettings.value);
+    console.log("  Page Data:", data.value);
+});
 </script>
 
 <style scoped>

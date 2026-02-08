@@ -1,4 +1,4 @@
-// nuxt.config.ts - Fixed with minimal changes
+// nuxt.config.ts
 export default defineNuxtConfig({
     compatibilityDate: "2025-07-23",
     devServer: {
@@ -17,10 +17,20 @@ export default defineNuxtConfig({
         "swiper/css/pagination",
     ],
 
-    // Runtime config
+    imports: {
+        // Disable the problematic auto-imports
+        dirs: [],
+    },
+
+    // Runtime config - FIXED
     runtimeConfig: {
+        // Server-side only
+        wpBaseUrl: process.env.WORDPRESS_API_URL || "https://cutoutpartner-api.com/wp-json",
+
+        // Public (client & server)
         public: {
             wordpressApiUrl: process.env.WORDPRESS_API_URL || "https://cutoutpartner-api.com/wp-json",
+            wpBaseUrl: process.env.WORDPRESS_API_URL || "https://cutoutpartner-api.com/wp-json",
             siteUrl: process.env.SITE_URL || "https://cutoutpartner-api.com",
             googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || "",
         },
@@ -50,7 +60,7 @@ export default defineNuxtConfig({
                 { name: "twitter:card", content: "summary_large_image" },
             ],
             link: [
-                { rel: "icon", type: "image/jpeg", href: "/assets/images/favicon-white.png" },
+                { rel: "icon", type: "image/jpeg", href: "/v2/assets/images/favicon-white.png" },
                 { rel: "preconnect", href: "https://cutoutpartner-api.com" },
                 { rel: "preconnect", href: "https://fonts.googleapis.com" },
                 { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
@@ -83,21 +93,20 @@ export default defineNuxtConfig({
         typeCheck: false,
     },
 
-    // Nitro configuration - FIXED
+    // Nitro configuration
     nitro: {
         compressPublicAssets: true,
-        preset: "static", // Added explicit preset for generate command
         experimental: {
             wasm: true,
         },
     },
 
-    // Build configuration - ADDED to fix the build error
+    // Build configuration
     build: {
         transpile: [],
     },
 
-    // Vite configuration - ADDED to fix bundling issues
+    // Vite configuration
     vite: {
         build: {
             rollupOptions: {
@@ -111,13 +120,9 @@ export default defineNuxtConfig({
         },
     },
 
-    // Development proxy - kept but commented out for production
-    devProxy: {
-        "/wp-content": {
-            target: "https://cutoutpartner-api.com/wp-content",
-            changeOrigin: true,
-        },
+    loadingIndicator: {
+        name: "chasing-dots",
+        color: "#07b8d0",
+        background: "white",
     },
-
-    loadingIndicator: { name: "chasing-dots", color: "#07b8d0", background: "white" },
 });

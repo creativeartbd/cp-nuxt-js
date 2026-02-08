@@ -8,9 +8,9 @@
                     <div class="divide-separator divide-separator-3 divide-center"></div>
                 </div>
                 <div class="col-md-12">
-                    <div class="d-flex align-items-start sample-work">
+                    <div class="sample-work">
                         <div
-                            class="nav flex-column nav-pills me-3"
+                            class="nav flex-column nav-pills"
                             id="v-pills-tab"
                             role="tablist"
                             aria-orientation="vertical"
@@ -56,7 +56,7 @@
                             >
                                 <div class="row">
                                     <div
-                                        class="col-sm-6 col-md-4"
+                                        class="col-12 col-sm-12 col-md-6 col-lg-4"
                                         v-for="(image, index) in frontImages.slice(0, displayedFrontImagesCount)"
                                         :key="index"
                                     >
@@ -78,7 +78,7 @@
                             >
                                 <div class="row">
                                     <div
-                                        class="col-sm-6 col-md-4"
+                                        class="col-12 col-sm-6 col-md-6"
                                         v-for="(image, imgIndex) in tab.images"
                                         :key="imgIndex"
                                     >
@@ -125,7 +125,7 @@
                 <i class="bi bi-x-octagon"></i>
             </div>
 
-            <!-- Loading spinner with shorter timeout -->
+            <!-- Loading spinner -->
             <div class="d-flex justify-content-center align-items-center loading-container" v-if="!isImgLoaded">
                 <div class="spinner-grow" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -150,7 +150,8 @@
 const props = defineProps(["data"]);
 
 // --- COMPOSABLES ---
-const { siteSettings, fetchSettings } = useSiteSettings();
+// FIXED: Don't destructure fetchSettings - it doesn't exist
+const { siteSettings } = useSiteSettings();
 
 // --- STATE ---
 const activeTab = ref("All");
@@ -161,6 +162,17 @@ const isPopupVisible = ref(false);
 const isImgLoaded = ref(false);
 const preloadedImages = ref(new Set());
 const loadingTimeout = ref(null);
+
+// --- COMPUTED PROPERTIES ---
+// FIXED: Removed .value - siteSettings is auto-unwrapped in templates
+const displayedFrontImagesCount = computed(() => {
+    // Provide fallback value
+    return siteSettings.value?.all_fields?.number_of_images_to_be_shown_on_all_tab || 6;
+});
+
+const shouldShowLoadMoreButton = computed(() => {
+    return frontImages.value && displayedFrontImagesCount.value < frontImages.value.length;
+});
 
 // --- METHODS ---
 const markAsPreloaded = (imageKey) => {
@@ -225,10 +237,6 @@ const setActiveTab = (tabTitle) => {
     activeTab.value = tabTitle;
 };
 
-const loadMoreImages = () => {
-    displayedFrontImagesCount.value += 2;
-};
-
 const preloadAdjacentImages = (currentIndex) => {
     const imagesToPreload = [];
     if (currentIndex > 0) imagesToPreload.push(allImages.value[currentIndex - 1]);
@@ -244,7 +252,7 @@ const preloadAdjacentImages = (currentIndex) => {
     });
 };
 
-// --- FIX: Define handleKeydown at the top level ---
+// Keyboard navigation
 const handleKeydown = (e) => {
     if (!isPopupVisible.value) return;
     if (e.key === "ArrowLeft") handlePrev(popupImgSrc.value.index);
@@ -252,31 +260,11 @@ const handleKeydown = (e) => {
     else if (e.key === "Escape") closePopup();
 };
 
-// --- COMPUTED PROPERTIES ---
-const displayedFrontImagesCount = computed(() => {
-    return siteSettings.value?.all_fields?.number_of_images_to_be_shown_on_all_tab || 2;
-});
-
-const shouldShowLoadMoreButton = computed(() => {
-    return frontImages.value && displayedFrontImagesCount.value < frontImages.value.length;
-});
-
 // --- WATCHERS ---
 watch(popupImgSrc, (newVal) => {
     if (newVal && isPopupVisible.value) {
         preloadAdjacentImages(newVal.index);
     }
-});
-
-// --- LIFECYCLE ---
-onMounted(() => {
-    fetchSettings();
-    document.addEventListener("keydown", handleKeydown);
-});
-
-onUnmounted(() => {
-    document.removeEventListener("keydown", handleKeydown);
-    if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
 });
 
 // Watch for changes in the `data` prop to process images
@@ -305,10 +293,25 @@ watch(
     },
     { immediate: true }
 );
+
+// --- LIFECYCLE ---
+onMounted(() => {
+    document.addEventListener("keydown", handleKeydown);
+
+    // Debug logging
+    console.log("🔍 OurSample.vue Debug:");
+    console.log("  Site Settings:", siteSettings.value);
+    console.log("  Display Count:", displayedFrontImagesCount.value);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("keydown", handleKeydown);
+    if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
+});
 </script>
 
-<style>
-/* All your original styles are kept and unchanged */
+<style scoped>
+/* All your original styles */
 .sample-page {
     background-color: #ddd;
 }
@@ -323,10 +326,6 @@ watch(
     border: 1px solid #06bcd4;
     border-radius: 0;
     background: #fff;
-}
-.sample-work .nav button {
-    width: 250px;
-    margin-bottom: 10px;
 }
 .sample-work .nav button:hover {
     background-color: #2ebcd4;
@@ -421,10 +420,17 @@ watch(
     font-size: 30px;
     cursor: pointer;
 }
+.arrows i.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
 .image-popup .spinner-grow {
     width: 3rem;
     height: 3rem;
     color: #00bcd4;
+}
+.loading-container {
+    min-height: 300px;
 }
 .image-title {
     position: absolute;
@@ -433,66 +439,5 @@ watch(
     display: flex;
     justify-content: space-between;
     width: 100%;
-}
-
-@media (max-width: 768px) {
-    .sample-work {
-        flex-direction: column;
-    }
-    .sample-work .nav {
-        margin-bottom: 20px;
-        margin-right: 0 !important;
-    }
-    .sample-work .nav button {
-        width: 100%;
-    }
-    .single-sample {
-        min-width: auto;
-    }
-    .image-popup {
-        min-width: 90vw;
-        min-height: 300px;
-        padding: 15px;
-    }
-    .arrows i {
-        font-size: 28px;
-    }
-}
-@media (max-width: 576px) {
-    .image-popup {
-        min-width: 95vw;
-        padding: 10px;
-    }
-    .arrows i {
-        font-size: 24px;
-    }
-    .arrows {
-        padding: 10px;
-    }
-}
-.loading-container {
-    min-height: 200px;
-}
-.image-container {
-    text-align: center;
-}
-.arrows i.disabled {
-    color: #666;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-.arrows i:hover:not(.disabled) {
-    color: #00bcd4;
-}
-.btn-primary {
-    background-color: #00bcd4;
-    border-color: #00bcd4;
-    color: #fff;
-    padding: 10px 30px;
-    margin-top: 20px;
-}
-.btn-primary:hover {
-    background-color: #0097a7;
-    border-color: #0097a7;
 }
 </style>

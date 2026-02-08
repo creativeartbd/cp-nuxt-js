@@ -40,6 +40,7 @@ export default {
 
 .call-in-action-btn {
     margin-top: 30px;
+    margin-bottom: 20px;
     border: none;
     border-radius: 25px;
     /* background-color: #00364b; */
@@ -55,17 +56,6 @@ export default {
     background-color: #ff9a9a;
     color: #fff;
     text-decoration: none;
-}
-
-.call-in-action {
-    padding: 70px;
-    /* background-color: #2ebcd4;
-    background-image: url("https://themeim.com/wp/cliper/wp-content/uploads/2021/11/3334703.png"); */
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background: linear-gradient(107deg, rgba(0, 188, 212, 1) 0%, rgba(8, 154, 174, 1) 53%, rgb(255 130 130) 47%);
 }
 
 .action-title {
@@ -91,98 +81,5 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     flex-direction: column;
-}
-
-/* Responsive Design */
-@media (max-width: 991.98px) {
-    .call-in-action {
-        padding: 60px 30px;
-    }
-
-    .action-title {
-        text-align: center;
-        margin-bottom: 2rem;
-        height: auto;
-    }
-
-    .action-content {
-        text-align: center;
-        height: auto;
-    }
-
-    .action-content p {
-        margin-bottom: 1.5rem;
-    }
-}
-
-@media (max-width: 767.98px) {
-    .call-in-action {
-        text-align: center;
-        padding: 50px 15px;
-        background-attachment: scroll;
-    }
-
-    .call-in-action h2 {
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-    }
-
-    .action-title {
-        margin-bottom: 1.5rem;
-    }
-
-    .action-content p {
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .call-in-action-btn {
-        padding: 12px 40px;
-        font-size: 0.95rem;
-        width: auto;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .call-in-action {
-        padding: 40px 15px;
-    }
-
-    .call-in-action h2 {
-        font-size: 1.5rem;
-        line-height: 1.3;
-    }
-
-    .action-content p {
-        font-size: 0.9rem;
-        line-height: 1.5;
-        margin-bottom: 1.25rem;
-    }
-
-    .call-in-action-btn {
-        padding: 10px 30px;
-        font-size: 0.9rem;
-        width: fit-content;
-        margin: 0 auto;
-    }
-}
-
-@media (max-width: 480px) {
-    .call-in-action {
-        padding: 35px 10px;
-    }
-
-    .call-in-action h2 {
-        font-size: 1.3rem;
-    }
-
-    .action-content p {
-        font-size: 0.85rem;
-    }
-
-    .call-in-action-btn {
-        padding: 8px 25px;
-        font-size: 0.85rem;
-    }
 }
 </style>

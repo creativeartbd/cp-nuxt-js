@@ -42,9 +42,9 @@
                             v-for="(pricing, pricing_index) in data.tabs"
                             :key="pricing_index"
                         >
-                            <div class="row">
+                            <div class="row align-items-stretch g-3">
                                 <div
-                                    class="col-md-6 col-lg-3"
+                                    class="col-sm-6 col-md-6 col-lg-3"
                                     v-for="(innerPricing, innerIndex) in pricing.prices"
                                     :key="innerIndex"
                                     v-if="pricing.prices && Array.isArray(pricing.prices)"
@@ -146,15 +146,6 @@ export default {
     color: #00bcd4;
 }
 
-.pricing-table .price-table {
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 50px;
-    transition: all 0.5s ease-in;
-    border: 1px solid #e3e3e3;
-    width: 100%;
-}
-
 .pricing-table .price-table img {
     margin-bottom: 25px;
     width: 100%;
@@ -166,15 +157,6 @@ export default {
 
 .pricing-table .price-table .price-start-from p {
     margin-bottom: 0;
-}
-
-.pricing-table .order-now {
-    display: inline-block;
-    margin-top: 10px;
-    width: 100%;
-    background-color: transparent;
-    border: 0;
-    color: #fff;
 }
 
 .pricing-table .price-table:hover {

@@ -1,14 +1,14 @@
 <template>
     <div class="benefit-with-us" :style="{ backgroundColor: data.background_color }">
         <div class="container" v-if="data">
-            <div class="row">
+            <div class="row gy-5">
                 <div class="col-12 text-center section-title">
                     <h2 v-if="data.title">{{ data.title }}</h2>
                     <p v-if="data.sub_title">{{ data.sub_title }}</p>
                     <div class="divide-separator divide-center"></div>
                 </div>
             </div>
-            <div class="row" v-if="data.services">
+            <div class="row gy-5" v-if="data.services">
                 <div class="col-md-4 text-center" v-for="(data, index) in data.services" :key="index">
                     <img :src="data.image" alt="" />
                     <h3 class="mt-0">{{ data.title }}</h3>

@@ -14,7 +14,7 @@
                             :slides-per-view="1"
                             :space-between="50"
                             :autoplay="{
-                                delay: 2500,
+                                delay: 3500,
                             }"
                             @swiper="onSwiper"
                             @slideChange="onSlideChange"

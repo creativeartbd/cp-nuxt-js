@@ -11,7 +11,7 @@
                 </div>
             </div>
             <div class="row" v-if="data.steps">
-                <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-4" v-for="(box, index) in data.steps" :key="index">
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-4" v-for="(box, index) in data.steps" :key="index">
                     <div class="deliver-item">
                         <h3 v-if="box.title">{{ box.title }}</h3>
                         <h5 v-if="box.sub_title">{{ box.sub_title }}</h5>
@@ -44,19 +44,6 @@ export default {
     margin-bottom: 70px;
 }
 
-.deliver-item {
-    text-align: center;
-    background: #fff;
-    padding: 45px 20px;
-    max-height: 245px;
-    display: block;
-    position: relative;
-    border-radius: 5px;
-    /* box-shadow: 0 2px 4px rgb(121 215 229 / 43%), 0 3px 6px rgba(0, 0, 0, 0.06); */
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
-    border-left: 5px solid #39c6da;
-}
-
 .deliver-item h3 {
     font-size: 30px;
     font-weight: normal;
@@ -68,87 +55,5 @@ export default {
     margin-bottom: 20px;
     font-size: 16px;
     color: #00364b;
-}
-
-/* Tablet */
-@media (max-width: 991.98px) {
-    .we-can-deliver {
-        padding-top: 80px;
-        padding-bottom: 80px;
-    }
-
-    .we-can-deliver .section-title {
-        margin-bottom: 60px;
-    }
-
-    .deliver-item {
-        margin-bottom: 20px;
-    }
-}
-
-/* Mobile */
-@media (max-width: 767.98px) {
-    .we-can-deliver {
-        padding-top: 60px;
-        padding-bottom: 60px;
-    }
-
-    .we-can-deliver .section-title {
-        margin-bottom: 50px;
-    }
-
-    .deliver-item {
-        padding: 35px 15px;
-        max-height: none;
-        margin-bottom: 20px;
-    }
-
-    .deliver-item h3 {
-        font-size: 32px;
-    }
-
-    .deliver-item h5 {
-        font-size: 15px;
-    }
-}
-
-/* Small Mobile */
-@media (max-width: 575.98px) {
-    .we-can-deliver {
-        padding-top: 50px;
-        padding-bottom: 50px;
-    }
-
-    .we-can-deliver .section-title {
-        margin-bottom: 40px;
-    }
-
-    .deliver-item {
-        padding: 30px 12px;
-    }
-
-    .deliver-item h3 {
-        font-size: 28px;
-    }
-
-    .deliver-item h5 {
-        font-size: 14px;
-    }
-}
-
-/* Extra Small Mobile */
-@media (max-width: 375px) {
-    .we-can-deliver {
-        padding-top: 40px;
-        padding-bottom: 40px;
-    }
-
-    .deliver-item h3 {
-        font-size: 24px;
-    }
-
-    .deliver-item h5 {
-        font-size: 13px;
-    }
 }
 </style>

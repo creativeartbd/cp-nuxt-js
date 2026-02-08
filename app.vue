@@ -1,30 +1,29 @@
-<!-- app.vue - Root application component -->
 <template>
     <div id="app">
-        <!-- Loading bar -->
+        <!-- Loading bar will show automatically on navigation -->
         <TheLoadingBar />
 
-        <!-- Global Navigation - loads once and stays mounted -->
         <TheNavigation />
 
-        <!-- Page content -->
         <main class="main-content">
-            <!-- 
-              Wrap NuxtPage in ClientOnly to prevent hydration mismatches.
-              This ensures that the server and client render the same thing.
-            -->
-            <ClientOnly>
-                <NuxtPage />
-            </ClientOnly>
+            <NuxtPage />
         </main>
 
-        <!-- Optional: Global Footer -->
         <TheFooter2 />
     </div>
 </template>
 
 <script setup>
-// Global SEO defaults
+const { fetchSiteSettings } = useSiteSettings();
+const { fetchMenu } = useMainMenu();
+
+onMounted(async () => {
+    await Promise.all([
+        fetchSiteSettings(),
+        fetchMenu("primary"), // ← This loads the menu!
+    ]);
+});
+
 useHead({
     titleTemplate: "%s - Cutout Partner",
     meta: [{ charset: "utf-8" }, { name: "viewport", content: "width=device-width, initial-scale=1" }],
@@ -33,7 +32,8 @@ useHead({
 
 <style>
 @import "~/assets/css/main.css";
-/* Global styles that apply to the entire app */
+@import "~/assets/css/response.css";
+
 #app {
     min-height: 100vh;
     display: flex;

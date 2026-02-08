@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import TheNavigation from "~/components/TheNavigation.client.vue";
+import TheNavigation from "~/components/TheNavigation.vue";
 // rest of your script
 </script>
 <style scoped>
