@@ -51,8 +51,8 @@
                         </button>
                     </div>
                     <small class="file-info"
-                        >If the size is more than 25 MB, share your image via cloud (Google Drive, Dropshare or
-                        WeTransfer)</small
+                        >If the size is more than 25 MB, share your image via cloud (Dropbox, WeTransfer or Google
+                        Drive)</small
                     >
                 </div>
                 <div class="mt-3">

@@ -112,11 +112,74 @@
                     </div>
                 </div>
             </div>
+            <div v-if="blogPageData && blogPageData.sections && blogPageData.sections.length > 0" class="wp-content">
+                <!-- Loop through all sections -->
+                <template v-for="(section, index) in blogPageData.sections" :key="index">
+                    <div
+                        v-if="section.section_content && Array.isArray(section.section_content)"
+                        class="section-wrapper"
+                    >
+                        <div v-for="(content, contentIndex) in section.section_content" :key="contentIndex">
+                            <component
+                                :is="componentMap[content.acf_fc_layout]"
+                                :data="content"
+                                v-if="componentMap[content.acf_fc_layout]"
+                                :service="siteSettings?.all_fields?.select_services || []"
+                            />
+
+                            <!-- Fallback for unknown sections -->
+                            <div v-else class="unknown-section">
+                                <div class="container">
+                                    <h2>Unknown Section: {{ content.acf_fc_layout }}</h2>
+                                    <p>Component not found for this layout type.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </ClientOnly>
     </div>
 </template>
 
 <script setup>
+// Import all section components
+import HomeSlider from "~/components/sections/HomeSlider.vue";
+import WeArePassionate from "~/components/sections/WeArePassionate.vue";
+import OurEditingServices from "~/components/sections/OurEditingServices.vue";
+import BenefitsOfPartnering from "~/components/sections/BenefitsOfPartnering.vue";
+import ClientsTestimonial from "~/components/sections/ClientsTestimonial.vue";
+import TryOurEditingServices from "~/components/sections/TryOurEditingServices.vue";
+import HowItWorks from "~/components/sections/HowItWorks.vue";
+import FAQ from "~/components/sections/Faq.vue";
+import CallToAction from "~/components/layout/CallToAction.vue";
+import WhoWeAre from "~/components/sections/WhoWeAre.vue";
+import QualityAssurance from "~/components/sections/QualityAssurance.vue";
+import WeHaveAccomplished from "~/components/sections/WeHaveAccomplished.vue";
+import OurSample from "~/components/sections/OurSample.vue";
+import OurPricing from "~/components/sections/OurPricing.vue";
+import ContactPage from "~/components/sections/ContactPage.vue";
+import TextContent from "~/components/sections/TextContent.vue";
+
+const componentMap = markRaw({
+    home_slider: HomeSlider,
+    we_are_passionate: WeArePassionate,
+    our_editing_services: OurEditingServices,
+    benefits_of_partnering: BenefitsOfPartnering,
+    clients_testimonial: ClientsTestimonial,
+    try_our_editing_services: TryOurEditingServices,
+    how_it_works: HowItWorks,
+    faq: FAQ,
+    call_to_action: CallToAction,
+    who_we_are: WhoWeAre,
+    quality_assurance: QualityAssurance,
+    we_ve_accomplished: WeHaveAccomplished,
+    our_sample: OurSample,
+    our_pricing: OurPricing,
+    contact_page: ContactPage,
+    text_content: TextContent,
+});
+
 import { ref, computed } from "vue";
 
 const { $api } = useNuxtApp();
@@ -131,7 +194,7 @@ const post = ref(null);
 const categories = ref([]);
 const relatedPosts = ref([]);
 const search = ref("");
-
+const blogPageData = ref(null);
 const slug = computed(() => route.params.slug);
 
 // --- Main Data Fetching with useAsyncData ---
@@ -141,8 +204,12 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
         if (!slug.value) return null;
 
         try {
-            // Load critical data FIRST (parallel)
-            const [singlePost, allCategories] = await Promise.all([$api.getPost(slug.value), $api.getCategories()]);
+            // 👇 UPDATED: Also fetch blog page data
+            const [singlePost, allCategories, blogPage] = await Promise.all([
+                $api.getPost(slug.value),
+                $api.getCategories(),
+                $api.getPage("blog"), // 👈 NEW: Fetch blog page for ACF sections
+            ]);
 
             if (!singlePost) {
                 throw createError({
@@ -151,7 +218,7 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
                 });
             }
 
-            // Load related posts (non-blocking)
+            // Load related posts
             let related = [];
             const firstCategory = singlePost.categories?.[0];
             if (firstCategory) {
@@ -159,8 +226,6 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
                     category: firstCategory,
                     per_page: 3,
                 });
-
-                // Handle both array response and object with posts array
                 const postsArray = Array.isArray(res) ? res : res.posts || [];
                 related = postsArray.filter((p) => p.id !== singlePost.id);
             }
@@ -186,6 +251,7 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
                 post: singlePost,
                 categories: allCategories,
                 relatedPosts: related,
+                blogPage, // 👈 NEW
             };
         } catch (err) {
             if (err.statusCode === 404) {
@@ -201,7 +267,7 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
         }
     },
     {
-        watch: [slug], // Re-fetch when slug changes
+        watch: [slug],
     }
 );
 
@@ -213,6 +279,7 @@ watch(
             post.value = newData.post;
             categories.value = newData.categories;
             relatedPosts.value = newData.relatedPosts;
+            blogPageData.value = newData.blogPage; // 👈 NEW
         }
     },
     { immediate: true }

@@ -60,7 +60,7 @@
                                                 <NuxtLink
                                                     @click="handleImageClick(image, image.choose_a_service)"
                                                     v-if="image.choose_a_service"
-                                                    :to="'services/' + image.choose_a_service"
+                                                    :to="'/services/' + image.choose_a_service"
                                                 >
                                                     {{ image.title || `Image ${imageIndex + 1}` }}
                                                 </NuxtLink>
@@ -323,6 +323,13 @@ export default {
     cursor: pointer;
     /* background: #d5e7ff; */
     position: relative;
+    height: 495px;
+    overflow: hidden;
+}
+
+.before-after img {
+    height: 495px;
+    object-fit: contain;
 }
 
 .before-after-message {

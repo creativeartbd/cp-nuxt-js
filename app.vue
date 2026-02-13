@@ -6,7 +6,9 @@
         <TheNavigation />
 
         <main class="main-content">
-            <NuxtPage />
+            <NuxtLayout>
+                <NuxtPage />
+            </NuxtLayout>
         </main>
 
         <TheFooter2 />
@@ -14,15 +16,43 @@
 </template>
 
 <script setup>
-const { fetchSiteSettings } = useSiteSettings();
-const { fetchMenu } = useMainMenu();
+const { siteSettings } = useSiteSettings();
+const { setMenu } = useMainMenu();
 
-onMounted(async () => {
-    await Promise.all([
-        fetchSiteSettings(),
-        fetchMenu("primary"), // ← This loads the menu!
-    ]);
-});
+// Load global data ONCE on server-side for fast initial load
+await useAsyncData(
+    "global-data",
+    async () => {
+        try {
+            console.log("🚀 Loading global data...");
+
+            // Load menu and settings in parallel
+            const [menuData, settingsData] = await Promise.all([
+                $fetch("/api/menu?slug=primary"),
+                $fetch("/api/site-settings"),
+            ]);
+
+            // Set the data in composables
+            setMenu(menuData);
+            siteSettings.value = settingsData;
+
+            console.log("✅ Global data loaded!");
+            console.log("  Menu items:", menuData?.items?.length || 0);
+            console.log("  Site settings:", settingsData ? "loaded" : "null");
+
+            return { menu: menuData, settings: settingsData };
+        } catch (error) {
+            console.error("❌ Failed to load global data:", error);
+            // Don't throw - let the app render with defaults
+            return { menu: null, settings: null };
+        }
+    },
+    {
+        // This ensures data is fetched on server and cached for client
+        server: true,
+        lazy: false,
+    }
+);
 
 useHead({
     titleTemplate: "%s - Cutout Partner",
@@ -42,10 +72,9 @@ useHead({
 
 .main-content {
     flex: 1;
-    padding-top: 64px; /* Adjust based on your header height */
+    padding-top: 64px;
 }
 
-/* Remove this if you don't have a fixed header */
 body {
     margin: 0;
     padding: 0;

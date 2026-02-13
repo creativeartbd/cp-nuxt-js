@@ -120,11 +120,67 @@
                     <p class="alert alert-warning w-100">No blog posts found.</p>
                 </div>
             </div>
+
+            <div v-if="blogPageData && blogPageData.sections && blogPageData.sections.length > 0" class="wp-content">
+                <!-- Loop through all sections -->
+                <template v-for="(section, index) in blogPageData.sections" :key="index">
+                    <div
+                        v-if="section.section_content && Array.isArray(section.section_content)"
+                        class="section-wrapper"
+                    >
+                        <div v-for="(content, contentIndex) in section.section_content" :key="contentIndex">
+                            <component
+                                :is="componentMap[content.acf_fc_layout]"
+                                :data="content"
+                                v-if="componentMap[content.acf_fc_layout]"
+                                :service="siteSettings?.all_fields?.select_services || []"
+                            />
+                        </div>
+                    </div>
+                </template>
+            </div>
         </ClientOnly>
     </div>
 </template>
 
 <script setup>
+// Import all section components
+import HomeSlider from "~/components/sections/HomeSlider.vue";
+import WeArePassionate from "~/components/sections/WeArePassionate.vue";
+import OurEditingServices from "~/components/sections/OurEditingServices.vue";
+import BenefitsOfPartnering from "~/components/sections/BenefitsOfPartnering.vue";
+import ClientsTestimonial from "~/components/sections/ClientsTestimonial.vue";
+import TryOurEditingServices from "~/components/sections/TryOurEditingServices.vue";
+import HowItWorks from "~/components/sections/HowItWorks.vue";
+import FAQ from "~/components/sections/Faq.vue";
+import CallToAction from "~/components/layout/CallToAction.vue";
+import WhoWeAre from "~/components/sections/WhoWeAre.vue";
+import QualityAssurance from "~/components/sections/QualityAssurance.vue";
+import WeHaveAccomplished from "~/components/sections/WeHaveAccomplished.vue";
+import OurSample from "~/components/sections/OurSample.vue";
+import OurPricing from "~/components/sections/OurPricing.vue";
+import ContactPage from "~/components/sections/ContactPage.vue";
+import TextContent from "~/components/sections/TextContent.vue";
+
+const componentMap = markRaw({
+    home_slider: HomeSlider,
+    we_are_passionate: WeArePassionate,
+    our_editing_services: OurEditingServices,
+    benefits_of_partnering: BenefitsOfPartnering,
+    clients_testimonial: ClientsTestimonial,
+    try_our_editing_services: TryOurEditingServices,
+    how_it_works: HowItWorks,
+    faq: FAQ,
+    call_to_action: CallToAction,
+    who_we_are: WhoWeAre,
+    quality_assurance: QualityAssurance,
+    we_ve_accomplished: WeHaveAccomplished,
+    our_sample: OurSample,
+    our_pricing: OurPricing,
+    contact_page: ContactPage,
+    text_content: TextContent,
+});
+
 import { ref } from "vue";
 
 const route = useRoute();
@@ -145,22 +201,24 @@ const totalPages = ref(1);
 const search = ref(route.query.search || "");
 const activeCategory = ref(null);
 
+const blogPageData = ref(null);
+
 // --- Main Data Fetching with useAsyncData ---
 const { data: asyncData, error: asyncError } = await useAsyncData("page-blog", async () => {
     try {
         const initialSearch = route.query.search;
 
-        // Fetch initial posts and other data in parallel
-        const [postsResponse, sticky, cats] = await Promise.all([
+        // Fetch blog posts AND blog page data in parallel
+        const [postsResponse, sticky, cats, blogPage] = await Promise.all([
             $api.getBlogPostsLight({
                 per_page: 9,
                 search: initialSearch || undefined,
             }),
             $api.getStickyPost(),
             $api.getCategories(),
+            $api.getPage("blog"), // 👈 NEW: Fetch blog page for ACF sections
         ]);
 
-        // Set SEO meta tags for blog page
         useHead({
             title: "Blog - Cutout Partner",
             meta: [
@@ -176,6 +234,7 @@ const { data: asyncData, error: asyncError } = await useAsyncData("page-blog", a
             totalPages: postsResponse.totalPages || 1,
             sticky,
             categories: cats,
+            blogPage, // 👈 NEW: Return blog page data
         };
     } catch (err) {
         console.error("Failed to load blog data:", err);
@@ -195,6 +254,7 @@ watch(
             totalPages.value = newData.totalPages;
             categories.value = newData.categories;
             search.value = route.query.search || "";
+            blogPageData.value = newData.blogPage; // 👈 NEW
 
             featuredPost.value = newData.sticky
                 ? {

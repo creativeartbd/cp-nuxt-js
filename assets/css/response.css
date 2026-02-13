@@ -310,6 +310,9 @@
 
   /* Medium devices (tablets) */
 @media (min-width: 768px) {
+    .ods-mini-wrapper .ods-mini-img {
+        flex: 0 0 calc(33.33% - 15px);
+    }
     /* md styles */
     .navbar-brand {
         padding: 0;
@@ -381,7 +384,7 @@
         height: auto;
     }
     .ods-mini-wrapper .ods-mini-img {
-        flex: 0 0 calc(25% - 15px);
+        flex: 0 0 calc(20% - 15px);
     }
     .slider-container {
         height: 100vh;
@@ -398,9 +401,6 @@
     }
     .nav-tabs .nav-item {
         width : auto;
-    }
-    .ods-mini-wrapper .ods-mini-img {
-        flex: 0 0 calc(25% - 15px);
     }
     .section-main-image img {
         width: 80%;

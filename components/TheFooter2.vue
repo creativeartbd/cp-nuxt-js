@@ -60,7 +60,7 @@
     <!-- Footer Bottom Section -->
     <div class="container-fluid footer-bottom-bg">
         <div class="container">
-            <div class="footer-bottom-grid" :style="footerBottomGridStyle">
+            <div class="footer-bottom-grid">
                 <div class="footer-bottom-item" v-for="(fb, fbIndex) in footerBottom" :key="fbIndex">
                     <div v-if="fb.footer_bottom_content" v-html="fb.footer_bottom_content"></div>
 
@@ -106,7 +106,7 @@ const desktopGridStyle = computed(() => {
 
 // ✅ FIXED: Footer bottom grid style
 const footerBottomGridStyle = computed(() => {
-    const columns = siteSettings.value?.all_fields?.footer_bottom_grid_column || 3;
+    const columns = siteSettings.value?.all_fields?.footer_bottom_grid_column || 4;
     return {
         gridTemplateColumns: `repeat(${columns}, 1fr)`,
         display: "grid",
@@ -125,12 +125,12 @@ const getPostUrl = (post) => {
 
     // If post has post_name (slug), construct URL
     if (post.post_name) {
-        return `/v2/${post.post_name}`;
+        return `/${post.post_name}`;
     }
 
     // If post has ID, construct URL (fallback)
     if (post.ID) {
-        return `/v2/page/${post.ID}`;
+        return `/page/${post.ID}`;
     }
 
     return "/";
@@ -218,13 +218,9 @@ const getPostUrl = (post) => {
 }
 
 /* Footer Bottom Grid */
-.footer-bottom-bg {
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-}
 
 .footer-bottom-grid {
-    display: grid;
+    display: flex;
     gap: 1.25rem;
     padding: 20px 0;
     align-items: center;
@@ -249,7 +245,7 @@ const getPostUrl = (post) => {
 
 .footer-bottom-link a {
     text-decoration: none;
-    color: #555;
+    color: #898989;
     transition: 0.3s;
 }
 

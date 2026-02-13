@@ -78,7 +78,7 @@
                             >
                                 <div class="row">
                                     <div
-                                        class="col-12 col-sm-6 col-md-6"
+                                        class="col-12 col-sm-12 col-md-6 col-lg-4"
                                         v-for="(image, imgIndex) in tab.images"
                                         :key="imgIndex"
                                     >

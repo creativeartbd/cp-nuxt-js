@@ -80,14 +80,10 @@
                                             <i class="bi bi-chevron-down ms-1"></i>
                                         </span>
 
-                                        <!-- UNIVERSAL Dropdown - Works for ANY menu with children -->
-                                        <!-- Auto 2-column layout if more than 4 items, otherwise 1-column -->
+                                        <!-- UNIVERSAL Dropdown - Smart column layout -->
                                         <div
                                             class="dropdown-menu mega-dropdown-menu"
-                                            :class="{
-                                                'two-col': item.children.length > 4,
-                                                'one-col': item.children.length <= 4,
-                                            }"
+                                            :class="getDropdownClass(item.children.length)"
                                         >
                                             <div class="simple-mega-container">
                                                 <ul class="simple-mega-grid">
@@ -104,7 +100,7 @@
 
                                                 <!-- Optional "Explore All" link if parent has URL -->
                                                 <NuxtLink
-                                                    v-if="item.children.length > 4"
+                                                    v-if="item.children.length > 8"
                                                     :to="getMenuItemUrl(item)"
                                                     class="explore-all"
                                                 >
@@ -177,17 +173,17 @@ const isHomePage = computed(() => {
 
 // Logo URLs from site settings (with fallbacks)
 const homeLogo = computed(() => {
-    const logo = siteSettings.value?.all_fields?.home_logo || siteSettings.value?.all_fields?.site_logo;
+    const logo = siteSettings.value?.all_fields?.home_page_logo || siteSettings.value?.all_fields?.home_page_logo;
     return logo && logo.trim() !== "" ? logo : null;
 });
 
 const stickyLogo = computed(() => {
-    const logo = siteSettings.value?.all_fields?.sticky_logo || siteSettings.value?.all_fields?.site_logo;
+    const logo = siteSettings.value?.all_fields?.sticky_logo || siteSettings.value?.all_fields?.sticky_logo;
     return logo && logo.trim() !== "" ? logo : null;
 });
 
 const otherPagesLogo = computed(() => {
-    const logo = siteSettings.value?.all_fields?.other_pages_logo || siteSettings.value?.all_fields?.site_logo;
+    const logo = siteSettings.value?.all_fields?.other_pages_logo || siteSettings.value?.all_fields?.other_pages_logo;
     return logo && logo.trim() !== "" ? logo : null;
 });
 
@@ -232,6 +228,17 @@ const getMenuItemUrl = (item) => {
 // Check if menu item has a real URL (not just # or empty)
 const hasRealUrl = (item) => {
     return item.url && item.url !== "#" && item.url.trim() !== "";
+};
+
+// Smart column layout based on number of children
+const getDropdownClass = (childrenCount) => {
+    if (childrenCount <= 6) {
+        return "one-col"; // 1-3 items → 1 column
+    } else if (childrenCount <= 30) {
+        return "two-col"; // 4-8 items → 2 columns
+    } else {
+        return "three-col"; // 9+ items → 3 columns
+    }
 };
 
 // Check if link is active
@@ -386,7 +393,7 @@ img.logo {
     visibility: hidden;
     transform: translateY(-10px);
     transition: all 0.3s ease;
-    margin-top: 0;
+    margin-top: -2px;
     border-top: 3px solid #00bcd4;
     display: block !important;
     pointer-events: none;
@@ -464,7 +471,7 @@ img.logo {
 
 .simple-mega-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(285px, 1fr));
+    grid-template-columns: repeat(2, minmax(285px, 1fr)); /* Default: 2 columns */
     list-style: none;
     padding: 0;
     margin: 0;
@@ -493,13 +500,17 @@ img.logo {
     background-color: #e0fbff;
 }
 
-/* Auto layout based on number of items */
+/* Column layouts - automatic based on item count */
+.one-col .simple-mega-grid {
+    grid-template-columns: 1fr !important;
+}
+
 .two-col .simple-mega-grid {
     grid-template-columns: repeat(2, minmax(285px, 1fr)) !important;
 }
 
-.one-col .simple-mega-grid {
-    grid-template-columns: 1fr !important;
+.three-col .simple-mega-grid {
+    grid-template-columns: repeat(3, minmax(250px, 1fr)) !important;
 }
 
 /* Responsive */
