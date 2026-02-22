@@ -108,7 +108,7 @@ export default {
 <style scoped>
 .slider-example-relative-size {
     --divider-width: 0px;
-    --divider-color: #ffa658;
+    --divider-color: transparent;
     --default-handle-opacity: 0;
 }
 /* --- General Layout & Section Styling --- */

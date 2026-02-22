@@ -1,10 +1,26 @@
 @media (max-width: 576px) { 
+    .dropdown-menu {
+        display: none; /* Hide by default */
+        position: static;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .dropdown-menu.show {
+        display: block !important; /* Show when .show class is added */
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        pointer-events: auto;
+    }
     .btn-default { 
         padding : 13px 29px;
     }
     .header {
         padding : 13px 0;
         background-color: #fff;
+        /* overflow: scroll;
+        height: 100vh; */
     }
     .home-slider {
         height: auto;
@@ -154,12 +170,47 @@
 }
 /* Extra small devices (phones) */
 @media (min-width: 576px) {
+    .dropdown-menu {
+        display: none; /* Hide by default */
+        position: static;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .dropdown-menu.show {
+        display: block !important; /* Show when .show class is added */
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        pointer-events: auto;
+    }
+    .two-col .simple-mega-grid {
+        grid-template-columns: repeat(1, minmax(285px, 1fr)) !important;
+    }
+    
+    .three-col .simple-mega-grid {
+        grid-template-columns: repeat(3, minmax(250px, 1fr)) !important;
+    }
+    .simple-mega-grid li {
+        border-bottom: 1px solid #eeeeee;
+        border-left: 1px solid #eee;
+        margin-left: 20px;
+    }
+    
+    .main-content {
+        flex: 1;
+        padding-top: 0;
+    }
     .ods-mini-wrapper .ods-mini-img {
         flex: 0 0 calc(33.33% - 15px);
     }
     .header {
-        padding : 13px 0;
+        padding : 5px 0;
         background-color: #fff;
+        /* position: absolute;
+        top: 0;
+        width: 100%;
+        padding: 6px 0; */
     }
     .home-slider {
         height: auto;
@@ -225,7 +276,7 @@
         border-left: 5px solid #39c6da;
     }
     .banner-wrapper .banner-text {
-        width: 80%;
+        width: 100%;
     }
     .grid-wrapper {
         display: grid;
@@ -310,17 +361,20 @@
 
   /* Medium devices (tablets) */
 @media (min-width: 768px) {
+    .simple-mega-grid li {
+        border-bottom: 1px solid #eeeeee;
+        border-right: 1px solid #eee;
+    }
+    
+    .top-quality-services {
+        background-position: 75% 50%;
+    }
     .ods-mini-wrapper .ods-mini-img {
         flex: 0 0 calc(33.33% - 15px);
     }
     /* md styles */
     .navbar-brand {
         padding: 0;
-    }
-    .navbar-collapse {
-        /* height: 100vh; */
-        /* overflow: scroll;
-        margin-top: 13px; */
     }
     .dropdown-menu {
         margin-top: 0px;
@@ -335,7 +389,7 @@
         grid-template-columns: repeat(2, 1fr) !important;
     }
     .banner-wrapper .banner-text {
-        width: 75%;
+        width: 50%;
     }
     .grid-wrapper {
         display: grid;
@@ -374,15 +428,65 @@
         text-align: center;
         flex-direction: column;
     }
+    /* .header .collapse{
+        overflow: auto;
+        height: auto
+    } */
+
+    .dropdown-menu {
+        display: none; /* Hide by default */
+        position: static;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .dropdown-menu.show {
+        display: block !important; /* Show when .show class is added */
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        pointer-events: auto;
+    }
     
 }
 
   /* Large devices (laptops) */
 @media (min-width: 992px) {
-    .navbar-collapse {
+    .simple-mega-grid li {
+        margin-left: 0;
+    }
+    .two-col .simple-mega-grid {
+        grid-template-columns: repeat(2, minmax(285px, 1fr)) !important;
+    }
+    
+    .three-col .simple-mega-grid {
+        grid-template-columns: repeat(3, minmax(250px, 1fr)) !important;
+    }
+    .main-content {
+        flex: 1;
+        padding-top: 64px;
+    }
+    .header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 99999;
+        transition: all 0.3s ease;
+        height: auto;
+        background-color: transparent;
+        padding: 0;
+    }
+    .top-quality-services {
+        position: relative;
+        padding-top: 150px;
+        padding-bottom: 150px;
+        background-size: cover;
+        background-position: 50% 50%;
+    }
+    /* .navbar-collapse {
         margin-top: 0;
         height: auto;
-    }
+    } */
     .ods-mini-wrapper .ods-mini-img {
         flex: 0 0 calc(20% - 15px);
     }
@@ -391,10 +495,6 @@
         justify-content: center;
         align-items: center;
         display: flex;
-    }
-    .header {
-        padding : 0;
-        background-color: transparent;
     }
     .navbar-expand-lg .navbar-nav .nav-link {
         padding : 20px;

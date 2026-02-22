@@ -1,4 +1,4 @@
-export default defineCachedEventHandler(
+export default defineEventHandler(
     async () => {
         const config = useRuntimeConfig();
 
@@ -40,7 +40,7 @@ export default defineCachedEventHandler(
         }
     },
     {
-        maxAge: 60 * 15, // Cache for 15 minutes
+        maxAge: 0, // Cache for 15 minutes
         name: "site-settings",
     }
 );

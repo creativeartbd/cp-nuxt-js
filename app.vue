@@ -1,5 +1,15 @@
 <template>
     <div id="app">
+        <!-- Google Tag Manager (noscript) -->
+        <noscript v-if="gtmId">
+            <iframe
+                :src="`https://www.googletagmanager.com/ns.html?id=${gtmId}`"
+                height="0"
+                width="0"
+                style="display: none; visibility: hidden"
+            ></iframe>
+        </noscript>
+
         <!-- Loading bar will show automatically on navigation -->
         <TheLoadingBar />
 
@@ -18,6 +28,11 @@
 <script setup>
 const { siteSettings } = useSiteSettings();
 const { setMenu } = useMainMenu();
+
+// GTM ID for noscript fallback
+const gtmId = computed(() => {
+    return siteSettings.value?.all_fields?.google_tag_manager_id || "";
+});
 
 // Load global data ONCE on server-side for fast initial load
 await useAsyncData(
@@ -68,11 +83,6 @@ useHead({
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-}
-
-.main-content {
-    flex: 1;
-    padding-top: 64px;
 }
 
 body {

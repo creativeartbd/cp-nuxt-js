@@ -56,7 +56,7 @@
                             >
                                 <div class="row">
                                     <div
-                                        class="col-12 col-sm-12 col-md-6 col-lg-4"
+                                        class="col-12 col-sm-12 col-md-6 col-lg-6"
                                         v-for="(image, index) in frontImages.slice(0, displayedFrontImagesCount)"
                                         :key="index"
                                     >
@@ -78,7 +78,7 @@
                             >
                                 <div class="row">
                                     <div
-                                        class="col-12 col-sm-12 col-md-6 col-lg-4"
+                                        class="col-12 col-sm-12 col-md-6 col-lg-6"
                                         v-for="(image, imgIndex) in tab.images"
                                         :key="imgIndex"
                                     >

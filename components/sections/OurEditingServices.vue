@@ -49,11 +49,12 @@
                                     <div class="ods-mini-wrapper">
                                         <div
                                             class="ods-mini-img"
-                                            v-for="(image, imageIndex) in getImages(tab)"
+                                            v-for="(image, imageIndex) in loadedTabs.has(index) ? getImages(tab) : []"
                                             :key="imageIndex"
                                         >
                                             <img
                                                 :src="image.image"
+                                                loading="lazy"
                                                 @click="handleImageClick(image, image.choose_a_service)"
                                             />
                                             <h6>
@@ -158,6 +159,8 @@ export default {
             currentServiceLink: null,
             beforeImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-Before.jpg?w=800&ssl=1",
             afterImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-After.jpg?w=800&ssl=1",
+            loadedTabs: new Set(),
+            tabImagesState: {},
         };
     },
     computed: {
@@ -166,10 +169,71 @@ export default {
         },
     },
     mounted() {
-        this.preloadImages();
-        this.setInitialImage();
+        this.activateTab(0);
+        this.fixBootstrapTabs();
     },
     methods: {
+        fixBootstrapTabs() {
+            const tabEl = document.getElementById("myTab");
+            if (!tabEl) return;
+
+            tabEl.addEventListener("shown.bs.tab", (event) => {
+                const id = event.target.getAttribute("id"); // tab-2
+                const index = Number(id.split("-")[1]);
+
+                this.activateTab(index);
+
+                this.$nextTick(() => {
+                    window.dispatchEvent(new Event("resize"));
+                });
+            });
+        },
+        activateTab(index) {
+            this.activeTabIndex = index;
+
+            if (!this.loadedTabs.has(index)) {
+                const tab = this.data.tabs[index];
+                if (!tab) return;
+
+                const images = this.getImages(tab);
+                images.forEach((img) => {
+                    this.preload(img.image);
+                    this.preload(img.before_image);
+                    this.preload(img.after_image);
+                });
+
+                this.setInitialTabImage(index);
+                this.loadedTabs.add(index);
+            }
+
+            this.applyTabImage(index);
+        },
+        setInitialTabImage(index) {
+            const tab = this.data.tabs[index];
+            if (!tab) return;
+
+            const images = this.getImages(tab);
+            if (!images.length) return;
+
+            const firstWithBoth = images.find((i) => i.before_image && i.after_image);
+            const chosen = firstWithBoth || images[0];
+
+            this.tabImagesState[index] = {
+                before: chosen.before_image || chosen.image,
+                after: chosen.after_image || chosen.image,
+                link: chosen.choose_a_service,
+            };
+
+            this.applyTabImage(index);
+        },
+        applyTabImage(index) {
+            const state = this.tabImagesState[index];
+            if (!state) return;
+
+            this.beforeImg = state.before;
+            this.afterImg = state.after;
+            this.currentServiceLink = state.link;
+        },
         // normalize tab.tab_images into an array
         getImages(tab) {
             if (!tab) return [];
@@ -192,7 +256,7 @@ export default {
             this.dragTimeout = setTimeout(() => (this.isDragging = false), 150);
         },
 
-        preloadImages() {
+        preloadImage() {
             if (!this.hasValidTabs) return;
 
             // iterate tabs safely
@@ -212,27 +276,32 @@ export default {
             img.src = url;
         },
 
-        handleImageClick(image, serverLink) {
-            if (!image) return;
+        async handleImageClick(image, serverLink) {
+            const before = image.before_image || image.image;
+            const after = image.after_image || image.image;
 
-            this.isImageLoading = true;
+            await Promise.all([this.preload(before), this.preload(after)]);
 
-            if (image.before_image && image.after_image) {
-                this.beforeImg = image.before_image;
-                this.afterImg = image.after_image;
-            } else if (image.before_image) {
-                // fallback: if only one is present, use it for both to avoid blank slider
-                this.beforeImg = image.before_image;
-                this.afterImg = image.before_image;
-            } else if (image.after_image) {
-                this.beforeImg = image.after_image;
-                this.afterImg = image.after_image;
-            }
+            this.tabImagesState[this.activeTabIndex] = {
+                before,
+                after,
+                link: serverLink,
+            };
 
-            this.currentServiceLink = serverLink;
+            this.applyTabImage(this.activeTabIndex);
+        },
 
-            // small delay to let images start loading
-            setTimeout(() => (this.isImageLoading = false), 250);
+        preload(url) {
+            return new Promise((resolve, reject) => {
+                if (!url) return resolve();
+
+                const img = new Image();
+
+                img.onload = () => resolve(url);
+                img.onerror = () => resolve(url); // never block UI if image fails
+
+                img.src = url;
+            });
         },
 
         imageLoaded() {
@@ -317,11 +386,9 @@ export default {
     margin: 0;
 }
 
-.before-after {
-    /* box-shadow: 0px 13px 38px 0px rgba(59.000000000000014, 190, 255, 0.16); */
+/* .before-after {
     padding: 0;
     cursor: pointer;
-    /* background: #d5e7ff; */
     position: relative;
     height: 495px;
     overflow: hidden;
@@ -329,6 +396,19 @@ export default {
 
 .before-after img {
     height: 495px;
+    object-fit: contain;
+} */
+
+.before-after {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5; /* choose ratio close to your images */
+    overflow: hidden;
+}
+
+.before-after img {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
 }
 
@@ -452,5 +532,19 @@ export default {
 /* Hide labels when dragging for a better user experience */
 .hide-overlay .comparison-label {
     opacity: 0 !important;
+}
+
+.tab-pane {
+    transition: opacity 0.25s ease;
+}
+.tab-pane:not(.show) {
+    display: block !important;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+.tab-pane.show {
+    height: auto;
+    opacity: 1;
 }
 </style>

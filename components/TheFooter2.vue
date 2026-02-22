@@ -19,7 +19,6 @@
                         <div
                             v-if="item.acf_fc_layout === 'footer_content'"
                             class="footer-inner-content"
-                            style="white-space: pre-line"
                             :key="`content-${itemIndex}`"
                             v-html="item.footer_content"
                         ></div>
@@ -29,6 +28,7 @@
                             v-if="item.acf_fc_layout === 'footer_social'"
                             class="footer-social"
                             :key="`social-${itemIndex}`"
+                            :class="{ is_inline_style: item.is_inline_style === 'no' }"
                         >
                             <a
                                 v-for="(social, i) in item.footer_social"
@@ -37,7 +37,7 @@
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                <i :class="social.bootstrap_icon_class_name"></i>
+                                <i :class="social.bootstrap_icon_class_name"></i> {{ social.label }}
                             </a>
                         </div>
 
@@ -183,8 +183,25 @@ const getPostUrl = (post) => {
     margin-top: 20px;
 }
 
+.footer-social.is_inline_style {
+    flex-direction: column;
+    row-gap: 5px;
+}
+
+.footer-social.is_inline_style i {
+    font-size: 16px;
+}
+
+.footer-social.is_inline_style a {
+    font-size: 16px;
+    line-height: 170%;
+    display: flex;
+    column-gap: 10px;
+    word-break: break-all;
+}
+
 .footer-social a {
-    color: #171b26;
+    color: #555;
     font-size: 20px;
     transition: 0.3s;
 }

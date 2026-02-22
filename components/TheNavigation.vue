@@ -1,7 +1,7 @@
 <template>
     <div class="header" id="navbar">
         <div class="container">
-            <nav class="navbar navbar-expand-lg bsb-navbar bsb-navbar-hover bsb-navbar-caret">
+            <nav class="navbar navbar-expand-lg bsb-navbar bsb-navbar-hover bsb-navbar-caret cutout-navbar">
                 <div class="container-fluid">
                     <!-- Logo Section -->
                     <NuxtLink class="navbar-brand" to="/">
@@ -323,14 +323,6 @@ onUnmounted(() => {
     text-decoration: none;
 }
 
-.header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 99999;
-    transition: all 0.3s ease;
-}
-
 .fixed-top-scroll {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03), 0 3px 6px rgba(0, 0, 0, 0.06);
@@ -395,7 +387,7 @@ img.logo {
     transition: all 0.3s ease;
     margin-top: -2px;
     border-top: 3px solid #00bcd4;
-    display: block !important;
+    display: none;
     pointer-events: none;
     left: 0;
     top: 100%;
@@ -461,6 +453,7 @@ img.logo {
         visibility: visible;
         transform: translateY(0);
         pointer-events: auto;
+        margin-top: 0px;
     }
 }
 
@@ -475,11 +468,6 @@ img.logo {
     list-style: none;
     padding: 0;
     margin: 0;
-}
-
-.simple-mega-grid li {
-    border-bottom: 1px solid #eeeeee;
-    border-right: 1px solid #eee;
 }
 
 .simple-mega-grid li:last-child {
@@ -505,20 +493,8 @@ img.logo {
     grid-template-columns: 1fr !important;
 }
 
-.two-col .simple-mega-grid {
-    grid-template-columns: repeat(2, minmax(285px, 1fr)) !important;
-}
-
-.three-col .simple-mega-grid {
-    grid-template-columns: repeat(3, minmax(250px, 1fr)) !important;
-}
-
 /* Responsive */
 @media (max-width: 991px) {
-    .header {
-        background-color: #fff;
-    }
-
     .dropdown-menu {
         opacity: 1;
         visibility: visible;
@@ -532,5 +508,8 @@ img.logo {
     .simple-mega-grid {
         grid-template-columns: 1fr;
     }
+}
+.cutout-navbar {
+    padding: 0;
 }
 </style>

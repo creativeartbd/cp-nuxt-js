@@ -4,8 +4,6 @@
         v-if="data"
         :style="{
             backgroundImage: `url(${data.background_image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
         }"
     >
         <div class="container">
@@ -48,14 +46,6 @@ export default {
 
 .banner-wrapper .banner-image {
     width: 40%;
-}
-
-.top-quality-services {
-    position: relative;
-    padding-top: 150px;
-    padding-bottom: 150px;
-    /* background: rgb(0, 107, 212);
-    background-image: linear-gradient(90deg, #c3f6ff 0%, #dfddff 100%); */
 }
 
 .top-quality-services img {
