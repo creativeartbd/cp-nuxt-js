@@ -22,7 +22,7 @@
                             :is="componentMap[content.acf_fc_layout]"
                             :data="content"
                             v-if="componentMap[content.acf_fc_layout]"
-                            :service="siteSettings?.value?.all_fields?.select_services || []"
+                            :service="siteSettings?.all_fields?.select_services || []"
                         />
 
                         <!-- Fallback for unknown sections -->
