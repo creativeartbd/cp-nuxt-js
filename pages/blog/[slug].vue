@@ -16,7 +16,7 @@
                     <div class="container">
                         <div class="row px-5">
                             <div class="col-md-6">
-                                <img :src="getImage(post)" alt="" class="img-fluid rounded" fetchpriority="high" />
+                                <NuxtImg :src="getImage(post)" alt="" class="img-fluid rounded" fetchpriority="high" decoding="sync" format="webp" quality="85" width="600" height="400" sizes="sm:100vw md:50vw lg:600px" />
                             </div>
                             <div class="col-md-6 d-flex flex-column justify-content-center align-items-start">
                                 <h2 v-html="post.title.rendered"></h2>
@@ -93,7 +93,7 @@
                         <h4 class="text-center mt-5 mb-4">Related Posts</h4>
                         <div v-for="related in relatedPosts" :key="related.id" class="col-md-4">
                             <div class="related-post">
-                                <img :src="getImage(related)" alt="" class="img-fluid rounded" loading="lazy" />
+                                <NuxtImg :src="getImage(related)" alt="" class="img-fluid rounded" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="280" sizes="sm:100vw md:33vw lg:400px" />
                                 <div class="single-post-more-blog-taxonomy">
                                     <span>
                                         <NuxtLink :to="`/blog?category=${getCategoryId(related)}`">

@@ -72,7 +72,7 @@
                         <div v-for="post in posts" :key="post.id" class="col-md-4 mb-4">
                             <div class="thumb-post">
                                 <NuxtLink :to="`/blog/${post.slug}`">
-                                    <img :src="post.image" class="w-100 rounded mb-3" loading="lazy" />
+                                    <NuxtImg :src="post.image" class="w-100 rounded mb-3" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="280" sizes="sm:100vw md:33vw lg:400px" />
                                 </NuxtLink>
 
                                 <span class="category">{{ post.category }}</span>

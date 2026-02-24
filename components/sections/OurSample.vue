@@ -61,8 +61,8 @@
                                         :key="index"
                                     >
                                         <div class="single-sample" @click.prevent="handleImgClick(image)">
-                                            <img class="active-image" :src="image.before_image" alt="" />
-                                            <img class="hover-image" :src="image.after_image" alt="" />
+                                            <NuxtImg class="active-image" :src="image.before_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
+                                            <NuxtImg class="hover-image" :src="image.after_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
                                         </div>
                                     </div>
                                 </div>
@@ -83,8 +83,8 @@
                                         :key="imgIndex"
                                     >
                                         <div class="single-sample" @click.prevent="handleImgClick(image)">
-                                            <img class="active-image" :src="image.before_image" alt="" />
-                                            <img class="hover-image" :src="image.after_image" alt="" />
+                                            <NuxtImg class="active-image" :src="image.before_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
+                                            <NuxtImg class="hover-image" :src="image.after_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
                                         </div>
                                     </div>
                                 </div>

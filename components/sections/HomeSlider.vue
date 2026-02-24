@@ -24,7 +24,7 @@
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
-                            <img v-if="slider.slider_image" :src="slider.slider_image" fetchpriority="high" />
+                            <NuxtImg v-if="slider.slider_image" :src="slider.slider_image" fetchpriority="high" format="webp" quality="85" width="600" height="500" sizes="sm:100vw md:50vw lg:600px" />
                         </div>
                     </div>
                 </div>

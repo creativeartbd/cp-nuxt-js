@@ -61,9 +61,15 @@ export default defineNuxtConfig({
             ],
             link: [
                 { rel: "icon", type: "image/jpeg", href: "/v2/assets/images/favicon-white.png" },
+                // Preconnect for critical origins
                 { rel: "preconnect", href: "https://cutoutpartner-api.com" },
                 { rel: "preconnect", href: "https://fonts.googleapis.com" },
                 { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
+                // DNS prefetch for non-critical origins
+                { rel: "dns-prefetch", href: "https://cutoutpartner-api.com" },
+                { rel: "dns-prefetch", href: "https://cdn.jsdelivr.net" },
+                { rel: "dns-prefetch", href: "https://www.youtube.com" },
+                { rel: "dns-prefetch", href: "https://i.ytimg.com" },
                 {
                     rel: "stylesheet",
                     href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap",
@@ -81,7 +87,20 @@ export default defineNuxtConfig({
     },
 
     // Minimal modules that work
-    modules: ["@pinia/nuxt", "@vueuse/nuxt"],
+    modules: ["@pinia/nuxt", "@vueuse/nuxt", "@nuxt/image"],
+
+    image: {
+        domains: ["cutoutpartner-api.com"],
+        formats: ["webp", "jpeg"],
+        quality: 80,
+        screens: {
+            xs: 320,
+            sm: 640,
+            md: 768,
+            lg: 1024,
+            xl: 1280,
+        },
+    },
 
     // Development tools
     devtools: {
@@ -105,6 +124,77 @@ export default defineNuxtConfig({
     // Build configuration
     build: {
         transpile: [],
+    },
+
+    // PostCSS - PurgeCSS removes unused Bootstrap CSS in production (~80 KB savings)
+    postcss: {
+        plugins: {
+            "@fullhuman/postcss-purgecss":
+                process.env.NODE_ENV === "production"
+                    ? {
+                          content: [
+                              "./components/**/*.vue",
+                              "./pages/**/*.vue",
+                              "./layouts/**/*.vue",
+                              "./app.vue",
+                              "./plugins/**/*.{js,ts}",
+                              "./composables/**/*.{js,ts}",
+                          ],
+                          defaultExtractor: (content) =>
+                              content.match(/[\w-/:]+(?<!:)/g) || [],
+                          safelist: {
+                              // Exact class names added dynamically by Bootstrap JS / Vue
+                              standard: [
+                                  "show",
+                                  "hide",
+                                  "fade",
+                                  "active",
+                                  "disabled",
+                                  "open",
+                                  "collapsing",
+                                  "collapsed",
+                                  "in",
+                                  "was-validated",
+                                  "is-valid",
+                                  "is-invalid",
+                                  "nuxt-link-active",
+                                  "nuxt-link-exact-active",
+                                  "router-link-active",
+                                  "router-link-exact-active",
+                              ],
+                              // Pattern-based safelist for dynamic Bootstrap components
+                              deep: [
+                                  /^nav/,
+                                  /^navbar/,
+                                  /^dropdown/,
+                                  /^collapse/,
+                                  /^tab-/,
+                                  /^accordion/,
+                                  /^btn/,
+                                  /^modal/,
+                                  /^alert/,
+                                  /^badge/,
+                                  /^swiper/,
+                                  /^pagination/,
+                                  /^page-/,
+                                  /^spinner/,
+                                  /^offcanvas/,
+                                  /^tooltip/,
+                                  /^popover/,
+                                  /^form-/,
+                                  /^input-/,
+                                  /^bi-/,
+                                  // WordPress content classes (used inside v-html)
+                                  /^wp-/,
+                                  /^align/,
+                                  /^has-/,
+                                  /^is-/,
+                                  /^size-/,
+                              ],
+                          },
+                      }
+                    : false,
+        },
     },
 
     // Vite configuration

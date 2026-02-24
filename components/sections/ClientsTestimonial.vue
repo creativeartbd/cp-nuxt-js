@@ -27,7 +27,7 @@
                                     <p v-if="review.review_content">{{ review.review_content }}</p>
                                     <div class="said-by-wrapper">
                                         <div class="said-by-image" v-if="review.reviewer_image">
-                                            <img :src="review.reviewer_image" class="rounded-circle" alt="Reviewer" loading="lazy" />
+                                            <NuxtImg :src="review.reviewer_image" class="rounded-circle" alt="Reviewer" loading="lazy" decoding="async" format="webp" quality="80" width="60" height="60" />
                                         </div>
                                         <div class="said-by-info">
                                             <h6 v-if="review.review_by">{{ review.review_by }}</h6>

@@ -270,6 +270,15 @@ input {
 img {
     max-width: 100%;
     height: auto;
+    /* Prevent CLS: let browsers use width/height attributes to compute aspect-ratio */
+    aspect-ratio: attr(width) / attr(height);
+}
+
+/* Prevent CLS for blog post images from WordPress content */
+.blog-post img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 .swiper-pagination-bullet-active {
@@ -457,8 +466,9 @@ p {
     color: #797d88;
 }
 
-* {
-    transition: all 0.25s ease;
+a, button, .btn, .nav-link, .dropdown-item, .page-link,
+.footer-grid a, .footer-grid a i {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .footer-grid .footer-column .footer-content i:hover {
