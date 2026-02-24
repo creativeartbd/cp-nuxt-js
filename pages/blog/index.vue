@@ -199,7 +199,7 @@ const categories = ref([]);
 const page = ref(1);
 const totalPages = ref(1);
 const search = ref(route.query.search || "");
-const activeCategory = ref(null);
+const activeCategory = ref(route.query.category ? Number(route.query.category) : null);
 
 const blogPageData = ref(null);
 
@@ -207,12 +207,14 @@ const blogPageData = ref(null);
 const { data: asyncData, error: asyncError } = await useAsyncData("page-blog", async () => {
     try {
         const initialSearch = route.query.search;
+        const initialCategory = route.query.category ? Number(route.query.category) : undefined;
 
         // Fetch blog posts AND blog page data in parallel
         const [postsResponse, sticky, cats, blogPage] = await Promise.all([
             $api.getBlogPostsLight({
                 per_page: 9,
                 search: initialSearch || undefined,
+                category: initialCategory || undefined,
             }),
             $api.getStickyPost(),
             $api.getCategories(),
@@ -284,6 +286,22 @@ watch(
         }
     },
     { immediate: true }
+);
+
+// --- Watch for category query param changes (e.g. from single post page) ---
+watch(
+    () => route.query.category,
+    async (newCat) => {
+        if (newCat) {
+            await filterByCategory(Number(newCat));
+        } else {
+            activeCategory.value = null;
+            page.value = 1;
+            const response = await $api.getBlogPostsLight({ per_page: 9 });
+            posts.value = Array.isArray(response) ? response : response.posts || [];
+            totalPages.value = response.totalPages || 1;
+        }
+    }
 );
 
 // --- Client-side functions ---
