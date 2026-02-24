@@ -17,7 +17,7 @@
                             <h4 v-if="section.section_title" class="mb-3">{{ section.section_title }}</h4>
                             <div v-html="section.section_content" v-if="section.section_content"></div>
 
-                            <img v-if="section.section_image" :src="section.section_image" alt="" />
+                            <img v-if="section.section_image" :src="section.section_image" alt="" loading="lazy" />
                             <NuxtLink
                                 class="btn btn-default mt-2"
                                 :class="{ 'center-button': index === 0 || index === 2 }"

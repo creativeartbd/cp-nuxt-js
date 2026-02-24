@@ -185,7 +185,6 @@ const setImgLoad = () => {
 };
 
 const handleImageError = () => {
-    console.warn("Image failed to load");
     setImgLoad();
 };
 
@@ -298,10 +297,6 @@ watch(
 onMounted(() => {
     document.addEventListener("keydown", handleKeydown);
 
-    // Debug logging
-    console.log("🔍 OurSample.vue Debug:");
-    console.log("  Site Settings:", siteSettings.value);
-    console.log("  Display Count:", displayedFrontImagesCount.value);
 });
 
 onUnmounted(() => {

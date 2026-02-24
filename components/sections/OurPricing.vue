@@ -50,7 +50,7 @@
                                     v-if="pricing.prices && Array.isArray(pricing.prices)"
                                 >
                                     <div class="price-table">
-                                        <img v-if="innerPricing.price_image" :src="innerPricing.price_image" />
+                                        <img v-if="innerPricing.price_image" :src="innerPricing.price_image" loading="lazy" />
                                         <div
                                             v-if="innerPricing.price_content"
                                             v-html="innerPricing.price_content"

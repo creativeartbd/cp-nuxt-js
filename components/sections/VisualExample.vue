@@ -33,6 +33,7 @@
                                             slot="first"
                                             :src="example.before_image.sizes[imageKey]"
                                             alt="Before image"
+                                            loading="lazy"
                                         />
                                     </figure>
                                     <figure slot="second" class="after">
@@ -40,6 +41,7 @@
                                             slot="second"
                                             :src="example.after_image.sizes[imageKey]"
                                             alt="After image"
+                                            loading="lazy"
                                         />
                                     </figure>
                                     <div slot="handle" v-if="data.disable_before_after === 'no'">

@@ -39,8 +39,6 @@ await useAsyncData(
     "global-data",
     async () => {
         try {
-            console.log("🚀 Loading global data...");
-
             // Load menu and settings in parallel
             const [menuData, settingsData] = await Promise.all([
                 $fetch("/api/menu?slug=primary"),
@@ -51,13 +49,8 @@ await useAsyncData(
             setMenu(menuData);
             siteSettings.value = settingsData;
 
-            console.log("✅ Global data loaded!");
-            console.log("  Menu items:", menuData?.items?.length || 0);
-            console.log("  Site settings:", settingsData ? "loaded" : "null");
-
             return { menu: menuData, settings: settingsData };
         } catch (error) {
-            console.error("❌ Failed to load global data:", error);
             // Don't throw - let the app render with defaults
             return { menu: null, settings: null };
         }

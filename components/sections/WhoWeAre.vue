@@ -10,7 +10,7 @@
                 </div>
                 <div class="col-lg-4 col-md-4 col-sm-12">
                     <div class="d-flex justify-content-center align-items-center h-100" v-if="data.image">
-                        <img :src="data.image" :alt="data.title" width="150" />
+                        <img :src="data.image" :alt="data.title" width="150" loading="lazy" />
                     </div>
                 </div>
             </div>

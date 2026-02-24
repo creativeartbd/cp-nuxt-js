@@ -37,11 +37,11 @@
                             @mouseleave="stopDrag"
                         >
                             <figure slot="first" class="before">
-                                <img style="object-fit: cover; width: 100%" :src="data.before_image" />
+                                <img style="object-fit: cover; width: 100%" :src="data.before_image" loading="lazy" />
                             </figure>
 
                             <figure slot="second" class="after">
-                                <img style="object-fit: cover; width: 100%" :src="data.after_image" />
+                                <img style="object-fit: cover; width: 100%" :src="data.after_image" loading="lazy" />
                             </figure>
 
                             <div slot="handle">

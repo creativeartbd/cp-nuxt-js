@@ -84,10 +84,7 @@ import { computed } from "vue";
 
 const { siteSettings } = useSiteSettings();
 
-console.log("site settings is");
-console.log(siteSettings.value);
-
-// ✅ FIXED: Get footer data from siteSettings
+// Get footer data from siteSettings
 const footerSections = computed(() => {
     return siteSettings.value?.all_fields?.footer_top_section || [];
 });

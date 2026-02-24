@@ -25,7 +25,7 @@
                     v-if="data.feature_image"
                 >
                     <div class="section-main-image">
-                        <img :src="data.feature_image" alt="How it works illustration" />
+                        <img :src="data.feature_image" alt="How it works illustration" loading="lazy" />
                     </div>
                 </div>
             </div>

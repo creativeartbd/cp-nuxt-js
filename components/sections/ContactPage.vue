@@ -7,7 +7,7 @@
                         <h2 v-if="data.title">{{ data.title }}</h2>
                         <p v-if="data.sub_title">{{ data.sub_title }}</p>
                         <!-- <div class="divide-separator"></div> -->
-                        <img v-if="data.feature_image" :src="data.feature_image" alt="" class="mt-5" />
+                        <img v-if="data.feature_image" :src="data.feature_image" alt="" class="mt-5" loading="lazy" />
                     </div>
                 </div>
                 <div class="col-md-6">

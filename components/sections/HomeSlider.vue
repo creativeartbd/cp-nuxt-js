@@ -24,7 +24,7 @@
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
-                            <img v-if="slider.slider_image" :src="slider.slider_image" />
+                            <img v-if="slider.slider_image" :src="slider.slider_image" fetchpriority="high" />
                         </div>
                     </div>
                 </div>
@@ -49,9 +49,7 @@ export default {
         SwiperSlide,
     },
     setup() {
-        const onSwiper = (swiper) => {
-            console.log(swiper);
-        };
+        const onSwiper = () => {};
         const onSlideChange = (swiper) => {
             // Access the active slide and its styles
             const activeSlide = swiper.slides[swiper.activeIndex];

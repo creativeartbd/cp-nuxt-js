@@ -270,10 +270,7 @@ export default {
                 // Append files
                 this.uploadedFiles.forEach((file, index) => {
                     formDataToSend.append(`files[${index}]`, file);
-                    console.log(`Uploading file ${index}:`, file.name, file.size); // DEBUG
                 });
-
-                console.log("Total files to upload:", this.uploadedFiles.length); // DEBUG
 
                 // Send to WordPress REST API
                 const config = useRuntimeConfig();
@@ -287,7 +284,6 @@ export default {
                     "Thank you for reaching out! You’ve successfully submitted your request. We’ll get back to you as soon as we can.";
                 this.resetForm();
             } catch (error) {
-                console.error("Form submission error:", error);
                 this.errorMessage =
                     error.data?.message || "Failed to send message. Please try again or contact us directly.";
             } finally {

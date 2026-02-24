@@ -10,7 +10,7 @@
             </div>
             <div class="row gy-5" v-if="data.services">
                 <div class="col-md-4 text-center" v-for="(data, index) in data.services" :key="index">
-                    <img :src="data.image" alt="" />
+                    <img :src="data.image" alt="" loading="lazy" />
                     <h3 class="mt-0">{{ data.title }}</h3>
                     <div v-html="data.content"></div>
                 </div>

@@ -23,11 +23,11 @@
                         >
                             <swiper-slide v-for="(review, index) in data.reviews" :key="index">
                                 <div class="happy-client">
-                                    <img src="@/assets/images/quote.png" class="quote" alt="Quote" />
+                                    <img src="@/assets/images/quote.png" class="quote" alt="Quote" loading="lazy" />
                                     <p v-if="review.review_content">{{ review.review_content }}</p>
                                     <div class="said-by-wrapper">
                                         <div class="said-by-image" v-if="review.reviewer_image">
-                                            <img :src="review.reviewer_image" class="rounded-circle" alt="Reviewer" />
+                                            <img :src="review.reviewer_image" class="rounded-circle" alt="Reviewer" loading="lazy" />
                                         </div>
                                         <div class="said-by-info">
                                             <h6 v-if="review.review_by">{{ review.review_by }}</h6>
@@ -83,12 +83,8 @@ export default {
         SwiperSlide,
     },
     setup() {
-        const onSwiper = (swiper) => {
-            console.log(swiper);
-        };
-        const onSlideChange = () => {
-            console.log("slide change");
-        };
+        const onSwiper = () => {};
+        const onSlideChange = () => {};
         return {
             onSwiper,
             onSlideChange,

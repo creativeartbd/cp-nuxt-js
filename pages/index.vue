@@ -48,35 +48,27 @@
 </template>
 
 <script setup>
-import { markRaw, computed } from "vue";
+import { markRaw, computed, defineAsyncComponent } from "vue";
 
-// Import all section components
+// Above-fold: static import for instant render
 import HomeSlider from "~/components/sections/HomeSlider.vue";
-import WeArePassionate from "~/components/sections/WeArePassionate.vue";
-import OurEditingServices from "~/components/sections/OurEditingServices.vue";
-import BenefitsOfPartnering from "~/components/sections/BenefitsOfPartnering.vue";
-import ClientsTestimonial from "~/components/sections/ClientsTestimonial.vue";
-import TryOurEditingServices from "~/components/sections/TryOurEditingServices.vue";
-import HowItWorks from "~/components/sections/HowItWorks.vue";
-import FAQ from "~/components/sections/Faq.vue";
-import CallToAction from "~/components/layout/CallToAction.vue";
 
 const { $api } = useNuxtApp();
 
 // Import and use the shared composables
 const { siteSettings } = useSiteSettings();
 
-// Component mapping (using markRaw is good practice)
+// Below-fold: lazy-loaded for code splitting
 const componentMap = markRaw({
     home_slider: HomeSlider,
-    we_are_passionate: WeArePassionate,
-    our_editing_services: OurEditingServices,
-    benefits_of_partnering: BenefitsOfPartnering,
-    clients_testimonial: ClientsTestimonial,
-    try_our_editing_services: TryOurEditingServices,
-    how_it_works: HowItWorks,
-    faq: FAQ,
-    call_to_action: CallToAction,
+    we_are_passionate: defineAsyncComponent(() => import("~/components/sections/WeArePassionate.vue")),
+    our_editing_services: defineAsyncComponent(() => import("~/components/sections/OurEditingServices.vue")),
+    benefits_of_partnering: defineAsyncComponent(() => import("~/components/sections/BenefitsOfPartnering.vue")),
+    clients_testimonial: defineAsyncComponent(() => import("~/components/sections/ClientsTestimonial.vue")),
+    try_our_editing_services: defineAsyncComponent(() => import("~/components/sections/TryOurEditingServices.vue")),
+    how_it_works: defineAsyncComponent(() => import("~/components/sections/HowItWorks.vue")),
+    faq: defineAsyncComponent(() => import("~/components/sections/Faq.vue")),
+    call_to_action: defineAsyncComponent(() => import("~/components/layout/CallToAction.vue")),
 });
 
 // --- Main Data Fetching with useAsyncData ---

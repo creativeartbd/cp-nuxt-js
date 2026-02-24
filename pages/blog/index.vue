@@ -1,6 +1,5 @@
 <template>
     <div class="blog-page">
-        <ClientOnly>
             <!-- Error State -->
             <div v-if="error" class="container py-5 text-center">
                 <h3>Something went wrong</h3>
@@ -139,46 +138,29 @@
                     </div>
                 </template>
             </div>
-        </ClientOnly>
     </div>
 </template>
 
 <script setup>
-// Import all section components
-import HomeSlider from "~/components/sections/HomeSlider.vue";
-import WeArePassionate from "~/components/sections/WeArePassionate.vue";
-import OurEditingServices from "~/components/sections/OurEditingServices.vue";
-import BenefitsOfPartnering from "~/components/sections/BenefitsOfPartnering.vue";
-import ClientsTestimonial from "~/components/sections/ClientsTestimonial.vue";
-import TryOurEditingServices from "~/components/sections/TryOurEditingServices.vue";
-import HowItWorks from "~/components/sections/HowItWorks.vue";
-import FAQ from "~/components/sections/Faq.vue";
-import CallToAction from "~/components/layout/CallToAction.vue";
-import WhoWeAre from "~/components/sections/WhoWeAre.vue";
-import QualityAssurance from "~/components/sections/QualityAssurance.vue";
-import WeHaveAccomplished from "~/components/sections/WeHaveAccomplished.vue";
-import OurSample from "~/components/sections/OurSample.vue";
-import OurPricing from "~/components/sections/OurPricing.vue";
-import ContactPage from "~/components/sections/ContactPage.vue";
-import TextContent from "~/components/sections/TextContent.vue";
+import { defineAsyncComponent } from "vue";
 
 const componentMap = markRaw({
-    home_slider: HomeSlider,
-    we_are_passionate: WeArePassionate,
-    our_editing_services: OurEditingServices,
-    benefits_of_partnering: BenefitsOfPartnering,
-    clients_testimonial: ClientsTestimonial,
-    try_our_editing_services: TryOurEditingServices,
-    how_it_works: HowItWorks,
-    faq: FAQ,
-    call_to_action: CallToAction,
-    who_we_are: WhoWeAre,
-    quality_assurance: QualityAssurance,
-    we_ve_accomplished: WeHaveAccomplished,
-    our_sample: OurSample,
-    our_pricing: OurPricing,
-    contact_page: ContactPage,
-    text_content: TextContent,
+    home_slider: defineAsyncComponent(() => import("~/components/sections/HomeSlider.vue")),
+    we_are_passionate: defineAsyncComponent(() => import("~/components/sections/WeArePassionate.vue")),
+    our_editing_services: defineAsyncComponent(() => import("~/components/sections/OurEditingServices.vue")),
+    benefits_of_partnering: defineAsyncComponent(() => import("~/components/sections/BenefitsOfPartnering.vue")),
+    clients_testimonial: defineAsyncComponent(() => import("~/components/sections/ClientsTestimonial.vue")),
+    try_our_editing_services: defineAsyncComponent(() => import("~/components/sections/TryOurEditingServices.vue")),
+    how_it_works: defineAsyncComponent(() => import("~/components/sections/HowItWorks.vue")),
+    faq: defineAsyncComponent(() => import("~/components/sections/Faq.vue")),
+    call_to_action: defineAsyncComponent(() => import("~/components/layout/CallToAction.vue")),
+    who_we_are: defineAsyncComponent(() => import("~/components/sections/WhoWeAre.vue")),
+    quality_assurance: defineAsyncComponent(() => import("~/components/sections/QualityAssurance.vue")),
+    we_ve_accomplished: defineAsyncComponent(() => import("~/components/sections/WeHaveAccomplished.vue")),
+    our_sample: defineAsyncComponent(() => import("~/components/sections/OurSample.vue")),
+    our_pricing: defineAsyncComponent(() => import("~/components/sections/OurPricing.vue")),
+    contact_page: defineAsyncComponent(() => import("~/components/sections/ContactPage.vue")),
+    text_content: defineAsyncComponent(() => import("~/components/sections/TextContent.vue")),
 });
 
 import { ref } from "vue";

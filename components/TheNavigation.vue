@@ -274,31 +274,27 @@ const closeNavbar = () => {
     }
 };
 
-// Handle scroll for sticky header
+// Handle scroll for sticky header (throttled via requestAnimationFrame)
+let scrollTicking = false;
 const handleScroll = () => {
-    const navbar = document.getElementById("navbar");
-    if (window.scrollY > 50) {
-        isSticky.value = true;
-        navbar?.classList.add("fixed-top-scroll");
-    } else {
-        isSticky.value = false;
-        navbar?.classList.remove("fixed-top-scroll");
-    }
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+        const navbar = document.getElementById("navbar");
+        if (window.scrollY > 50) {
+            isSticky.value = true;
+            navbar?.classList.add("fixed-top-scroll");
+        } else {
+            isSticky.value = false;
+            navbar?.classList.remove("fixed-top-scroll");
+        }
+        scrollTicking = false;
+    });
 };
 
 // Lifecycle
 onMounted(() => {
-    window.addEventListener("scroll", handleScroll);
-
-    console.log("🔍 Navigation Debug:");
-    console.log("  Current route:", route.path);
-    console.log("  Home Logo:", homeLogo.value);
-    console.log("  Sticky Logo:", stickyLogo.value);
-    console.log("  Other Pages Logo:", otherPagesLogo.value);
-    console.log("  Raw Menu:", menu.value);
-    console.log("  Extracted Menu Items:", menuItems.value);
-    console.log("  Menu Length:", menuItems.value?.length);
-    console.log("  Is Loading:", isLoading.value);
+    window.addEventListener("scroll", handleScroll, { passive: true });
 });
 
 onUnmounted(() => {
