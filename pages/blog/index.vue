@@ -420,8 +420,9 @@ async function searchPosts() {
     background: #07b8d0;
     border-color: #07b8d0;
 }
-.blog-categories .list-inline-item .active {
-    background: #07b8d0;
-    border-color: #07b8d0;
+.blog-categories .list-inline-item button.active {
+    background-color: #07b8d0 !important;
+    border-color: #07b8d0 !important;
+    color: #fff !important;
 }
 </style>
