@@ -90,9 +90,11 @@ export default defineNuxtConfig({
     modules: ["@pinia/nuxt", "@vueuse/nuxt", "@nuxt/image"],
 
     image: {
+        // Use 'none' provider: images served directly from WordPress.
+        // IPX (server-side WebP conversion) requires sharp, which is
+        // architecture-specific and cannot be cross-compiled from macOS to Linux.
+        provider: "none",
         domains: ["cutoutpartner-api.com"],
-        formats: ["webp", "jpeg"],
-        quality: 80,
         screens: {
             xs: 320,
             sm: 640,
