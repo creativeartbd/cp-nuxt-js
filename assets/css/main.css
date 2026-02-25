@@ -270,15 +270,12 @@ input {
 img {
     max-width: 100%;
     height: auto;
-    /* Prevent CLS: let browsers use width/height attributes to compute aspect-ratio */
-    aspect-ratio: attr(width) / attr(height);
 }
 
-/* Prevent CLS for blog post images from WordPress content */
+/* Blog post images from WordPress v-html content */
 .blog-post img {
     max-width: 100%;
     height: auto;
-    display: block;
 }
 
 .swiper-pagination-bullet-active {
