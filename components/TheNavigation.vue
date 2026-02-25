@@ -217,6 +217,20 @@ const getMenuItemUrl = (item) => {
         url = url.replace(/^\/v2/, "");
     }
 
+    // Remove /services/ prefix for individual service pages (e.g. /services/my-service → /my-service)
+    // But leave /services/ itself untouched
+    const serviceSlugMatch = url.match(/^\/services\/(.+)/);
+    if (serviceSlugMatch) {
+        url = "/" + serviceSlugMatch[1];
+    }
+
+    // Remove /blog/ prefix for individual blog posts (e.g. /blog/my-post → /my-post)
+    // But leave /blog/ itself (the blog index) untouched
+    const blogSlugMatch = url.match(/^\/blog\/(.+)/);
+    if (blogSlugMatch) {
+        url = "/" + blogSlugMatch[1];
+    }
+
     // Ensure it starts with /
     if (!url.startsWith("/")) {
         url = "/" + url;

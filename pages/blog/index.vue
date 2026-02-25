@@ -39,7 +39,7 @@
                                 <h5>{{ featuredPost.category }}</h5>
                                 <h2>{{ featuredPost.title }}</h2>
                                 <p v-html="featuredPost.excerpt.rendered"></p>
-                                <NuxtLink :to="`/blog/${featuredPost.slug}`" class="btn btn-dark mt-3">
+                                <NuxtLink :to="`/${featuredPost.slug}`" class="btn btn-dark mt-3">
                                     Read More
                                 </NuxtLink>
                             </div>
@@ -67,18 +67,15 @@
 
                 <!-- Blog Grid -->
                 <div class="container mt-5" v-if="posts.length">
-                    <!-- Posts -->
                     <div class="row mt-4">
                         <div v-for="post in posts" :key="post.id" class="col-md-4 mb-4">
                             <div class="thumb-post">
-                                <NuxtLink :to="`/blog/${post.slug}`">
+                                <NuxtLink :to="`/${post.slug}`">
                                     <NuxtImg :src="post.image" class="w-100 rounded mb-3" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="280" sizes="sm:100vw md:33vw lg:400px" />
                                 </NuxtLink>
-
                                 <span class="category">{{ post.category }}</span>
-
                                 <h4 class="mt-2">
-                                    <NuxtLink :to="`/blog/${post.slug}`">
+                                    <NuxtLink :to="`/${post.slug}`">
                                         {{ post.title }}
                                     </NuxtLink>
                                 </h4>
@@ -92,7 +89,6 @@
                             <li class="page-item" :class="{ disabled: page === 1 }" @click="changePage(page - 1)">
                                 <a class="page-link">Previous</a>
                             </li>
-
                             <li
                                 v-for="n in totalPages"
                                 :key="n"
@@ -102,7 +98,6 @@
                             >
                                 <a class="page-link">{{ n }}</a>
                             </li>
-
                             <li
                                 class="page-item"
                                 :class="{ disabled: page === totalPages }"

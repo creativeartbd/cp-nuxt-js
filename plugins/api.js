@@ -44,6 +44,21 @@ export default defineNuxtPlugin(() => {
             }
         }
 
+        async getCategoryBySlug(slug) {
+            try {
+                const data = await $fetch("/wp/v2/categories", {
+                    baseURL: this.baseURL,
+                    params: { slug },
+                    retry: 2,
+                    timeout: 10000,
+                });
+                return data && data.length ? data[0] : null;
+            } catch (error) {
+                console.error("Error fetching category by slug:", error);
+                return null;
+            }
+        }
+
         async getStickyPost() {
             try {
                 const data = await $fetch("/wp/v2/posts", {
@@ -69,21 +84,17 @@ export default defineNuxtPlugin(() => {
             const postType = post.post_type || post.type;
             const slug = post.post_name || post.slug;
 
-            // If it's a standard 'post', we want the URL to be /blog/slug
             if (postType === "post") {
-                return `/blog/${slug}`;
-            }
-
-            // For any other custom post type (e.g., 'services'), use its name
-            // This will create a URL like /services/slug
-            if (postType === "page") {
                 return `/${slug}`;
-            } else {
-                return `/${postType}/${slug}`;
             }
 
-            // Fallback if post type is missing for some reason
-            return `/blog/${slug}`;
+            // Pages and service CPT are accessed at the root level: /slug
+            if (postType === "page" || postType === "service") {
+                return `/${slug}`;
+            }
+
+            // Any other custom post type: /posttype/slug
+            return `/${postType}/${slug}`;
         }
 
         async getBlogPostsLight(params = {}) {
