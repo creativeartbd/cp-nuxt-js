@@ -55,9 +55,12 @@ export default defineNuxtConfig({
                 // Open Graph
                 { property: "og:type", content: "website" },
                 { property: "og:title", content: "Cutout Partner - Professional Photo Editing Services" },
+                { property: "og:description", content: "Professional photo editing services with AI-powered background removal, retouching, and image enhancement." },
                 { property: "og:image", content: "https://cutoutpartner.com/og-image.jpg" },
                 // Twitter
                 { name: "twitter:card", content: "summary_large_image" },
+                { name: "twitter:title", content: "Cutout Partner - Professional Photo Editing Services" },
+                { name: "twitter:description", content: "Professional photo editing services with AI-powered background removal, retouching, and image enhancement." },
             ],
             link: [
                 { rel: "icon", type: "image/jpeg", href: "/v2/assets/images/favicon-white.png" },

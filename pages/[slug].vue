@@ -169,6 +169,7 @@ import TheHeaderBannerVue from "../components/TheHeaderBanner.vue";
 const route = useRoute();
 const { $api } = useNuxtApp();
 const { siteSettings } = useSiteSettings();
+const currentUrl = useRequestURL();
 
 const search = ref("");
 
@@ -195,6 +196,27 @@ const componentMap = markRaw({
     portrait_skin: defineAsyncComponent(() => import("~/components/sections/PortraitSkin.vue")),
 });
 
+// Helper functions (declared before useHead computed so they're available)
+function getImage(p) {
+    return p?._embedded?.["wp:featuredmedia"]?.[0]?.source_url || "https://placehold.co/600x400";
+}
+function getAuthor(p) {
+    return p?._embedded?.author?.[0]?.name || "Unknown Author";
+}
+function getCategory(p) {
+    return p?._embedded?.["wp:term"]?.[0]?.[0]?.name || "Uncategorized";
+}
+function getCategorySlug(p) {
+    return p?._embedded?.["wp:term"]?.[0]?.[0]?.slug || null;
+}
+function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+function searchPosts() {
+    if (!search.value.trim()) return;
+    navigateTo({ path: "/blog", query: { search: search.value } });
+}
+
 const slug = computed(() => route.params.slug);
 
 const { data: asyncData, error: asyncError } = await useAsyncData(
@@ -205,17 +227,6 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
         // 1. Try WordPress page
         try {
             const pageData = await $api.getPage(slug.value);
-            if (pageData?.seo) {
-                useHead({
-                    title: pageData.seo.title || pageData.page?.title || "Cutout Partner",
-                    meta: [
-                        { name: "description", content: pageData.seo.description || "Professional photo editing services" },
-                        { property: "og:title", content: pageData.seo.og_title || pageData.seo.title },
-                        { property: "og:description", content: pageData.seo.og_description || pageData.seo.description },
-                        { property: "og:image", content: pageData.seo.og_image },
-                    ],
-                });
-            }
             return { ...pageData, _type: "page" };
         } catch (pageErr) {
             if (pageErr?.statusCode !== 404) throw pageErr;
@@ -224,19 +235,6 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
         // 2. Try service post type
         try {
             const serviceData = await $api.getService(slug.value);
-            if (serviceData?.seo) {
-                useHead({
-                    title: serviceData.seo.title || serviceData.title?.rendered || "Service - Cutout Partner",
-                    meta: [
-                        { name: "description", content: serviceData.seo.description || "Professional photo editing service" },
-                        { property: "og:title", content: serviceData.seo.og_title || serviceData.seo.title || serviceData.title?.rendered },
-                        { property: "og:description", content: serviceData.seo.og_description || serviceData.seo.description },
-                        { property: "og:image", content: serviceData.seo.og_image },
-                        { name: "robots", content: serviceData.seo?.noindex ? "noindex" : "index,follow" },
-                    ],
-                    link: [{ rel: "canonical", href: serviceData.seo?.canonical_url }],
-                });
-            }
             return { ...serviceData, _type: "service" };
         } catch (serviceErr) {
             if (serviceErr?.statusCode !== 404) throw serviceErr;
@@ -262,16 +260,6 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
                 related = postsArray.filter((p) => p.id !== singlePost.id);
             }
 
-            useHead({
-                title: `${singlePost.title.rendered} | Blog`,
-                meta: [
-                    { name: "description", content: singlePost.excerpt?.rendered?.replace(/(<([^>]+)>)/gi, "") || "" },
-                    { property: "og:title", content: singlePost.title.rendered },
-                    { property: "og:description", content: singlePost.excerpt?.rendered?.replace(/(<([^>]+)>)/gi, "") || "" },
-                    { property: "og:image", content: getImage(singlePost) },
-                ],
-            });
-
             return { post: singlePost, categories: allCategories, relatedPosts: related, blogPage, _type: "post" };
         } catch {
             throw createError({ statusCode: 404, statusMessage: "Page not found" });
@@ -289,29 +277,77 @@ const postCategories = computed(() => data.value?._type === "post" ? data.value.
 const relatedPosts = computed(() => data.value?._type === "post" ? data.value.relatedPosts : []);
 const blogPageData = computed(() => data.value?._type === "post" ? data.value.blogPage : null);
 
-// Blog post helpers
-function getImage(p) {
-    return p._embedded?.["wp:featuredmedia"]?.[0]?.source_url || "https://placehold.co/600x400";
-}
-function getAuthor(p) {
-    return p._embedded?.author?.[0]?.name || "Unknown Author";
-}
-function getCategory(p) {
-    return p._embedded?.["wp:term"]?.[0]?.[0]?.name || "Uncategorized";
-}
-function getCategoryId(p) {
-    return p._embedded?.["wp:term"]?.[0]?.[0]?.id || null;
-}
-function getCategorySlug(p) {
-    return p._embedded?.["wp:term"]?.[0]?.[0]?.slug || null;
-}
-function formatDate(dateStr) {
-    return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-}
-function searchPosts() {
-    if (!search.value.trim()) return;
-    navigateTo({ path: "/blog", query: { search: search.value } });
-}
+// Reactive SEO — called in setup context so it works correctly server-side
+useHead(computed(() => {
+    const d = data.value;
+    if (!d) return {};
+
+    if (d._type === "post" && d.post) {
+        const excerpt = d.post.excerpt?.rendered?.replace(/(<([^>]+)>)/gi, "").trim() || "";
+        const image = getImage(d.post);
+        return {
+            // titleTemplate applies: "Post Title - Cutout Partner"
+            title: d.post.title.rendered,
+            meta: [
+                { name: "description", content: excerpt },
+                { property: "og:title", content: d.post.title.rendered },
+                { property: "og:description", content: excerpt },
+                { property: "og:image", content: image },
+                { property: "og:url", content: currentUrl.href },
+                { property: "og:type", content: "article" },
+                { name: "twitter:title", content: d.post.title.rendered },
+                { name: "twitter:description", content: excerpt },
+                { name: "twitter:image", content: image },
+                { name: "robots", content: "index,follow" },
+            ],
+            link: [{ rel: "canonical", href: currentUrl.href }],
+        };
+    }
+
+    if (d._type === "page" && d.seo) {
+        return {
+            // Yoast provides full title (already includes site name) — disable template
+            title: d.seo.title || d.page?.title || "Cutout Partner",
+            titleTemplate: false,
+            meta: [
+                { name: "description", content: d.seo.description || "" },
+                { property: "og:title", content: d.seo.og_title || d.seo.title },
+                { property: "og:description", content: d.seo.og_description || d.seo.description },
+                { property: "og:image", content: d.seo.og_image },
+                { property: "og:url", content: currentUrl.href },
+                { property: "og:type", content: "website" },
+                { name: "twitter:title", content: d.seo.og_title || d.seo.title },
+                { name: "twitter:description", content: d.seo.og_description || d.seo.description },
+                { name: "twitter:image", content: d.seo.og_image },
+                { name: "robots", content: d.seo?.noindex ? "noindex" : "index,follow" },
+            ],
+            link: [{ rel: "canonical", href: d.seo?.canonical_url || currentUrl.href }],
+        };
+    }
+
+    if (d._type === "service" && d.seo) {
+        return {
+            // Yoast provides full title (already includes site name) — disable template
+            title: d.seo.title || d.title?.rendered || "Service - Cutout Partner",
+            titleTemplate: false,
+            meta: [
+                { name: "description", content: d.seo.description || "" },
+                { property: "og:title", content: d.seo.og_title || d.seo.title || d.title?.rendered },
+                { property: "og:description", content: d.seo.og_description || d.seo.description },
+                { property: "og:image", content: d.seo.og_image },
+                { property: "og:url", content: currentUrl.href },
+                { property: "og:type", content: "website" },
+                { name: "twitter:title", content: d.seo.og_title || d.seo.title || d.title?.rendered },
+                { name: "twitter:description", content: d.seo.og_description || d.seo.description },
+                { name: "twitter:image", content: d.seo.og_image },
+                { name: "robots", content: d.seo?.noindex ? "noindex" : "index,follow" },
+            ],
+            link: [{ rel: "canonical", href: d.seo?.canonical_url || currentUrl.href }],
+        };
+    }
+
+    return {};
+}));
 </script>
 
 <style scoped>

@@ -142,6 +142,7 @@ import { ref, computed, defineAsyncComponent, markRaw } from "vue";
 const route = useRoute();
 const { $api } = useNuxtApp();
 const { siteSettings } = useSiteSettings();
+const currentUrl = useRequestURL();
 
 const slug = computed(() => route.params.slug);
 
@@ -178,13 +179,6 @@ const { data: asyncData, error: asyncError } = await useAsyncData(
 
         const response = await $api.getBlogPostsLight({ category: cat.id, per_page: 9 });
 
-        useHead({
-            title: `${cat.name} - Blog | Cutout Partner`,
-            meta: [
-                { name: "description", content: `Browse all posts in the ${cat.name} category.` },
-            ],
-        });
-
         return {
             category: cat,
             allCategories: cats,
@@ -217,6 +211,28 @@ watch(
     },
     { immediate: true }
 );
+
+// Reactive SEO — set in setup context so it works correctly server-side
+useHead(computed(() => {
+    const cat = category.value;
+    if (!cat) return {};
+    return {
+        // titleTemplate applies: "Category - Blog - Cutout Partner"
+        title: `${cat.name} - Blog`,
+        meta: [
+            { name: "description", content: `Browse all posts in the ${cat.name} category.` },
+            { property: "og:title", content: `${cat.name} - Blog | Cutout Partner` },
+            { property: "og:description", content: `Browse all posts in the ${cat.name} category.` },
+            { property: "og:image", content: "https://cutoutpartner.com/og-image.jpg" },
+            { property: "og:url", content: currentUrl.href },
+            { property: "og:type", content: "website" },
+            { name: "twitter:title", content: `${cat.name} - Blog | Cutout Partner` },
+            { name: "twitter:description", content: `Browse all posts in the ${cat.name} category.` },
+            { name: "robots", content: "index,follow" },
+        ],
+        link: [{ rel: "canonical", href: currentUrl.href }],
+    };
+}));
 
 async function changePage(newPage) {
     if (newPage < 1 || newPage > totalPages.value) return;

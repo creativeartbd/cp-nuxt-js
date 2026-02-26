@@ -54,6 +54,7 @@ import { markRaw, computed, defineAsyncComponent } from "vue";
 import HomeSlider from "~/components/sections/HomeSlider.vue";
 
 const { $api } = useNuxtApp();
+const currentUrl = useRequestURL();
 
 // Import and use the shared composables
 const { siteSettings } = useSiteSettings();
@@ -75,23 +76,7 @@ const componentMap = markRaw({
 // This fetches the 'home' page data on the server for super-fast loads.
 const { data: asyncData, error: asyncError } = await useAsyncData("page-home", async () => {
     try {
-        // Direct API call - useAsyncData caches this automatically
         const pageData = await $api.getPage("home");
-
-        // Set SEO meta tags
-        if (pageData?.seo) {
-            useHead({
-                title: pageData.seo.title || "Cutout Partner - Professional Photo Editing Services",
-                meta: [
-                    {
-                        name: "description",
-                        content:
-                            pageData.seo.description ||
-                            "Professional photo editing services with AI-powered background removal, retouching, and image enhancement.",
-                    },
-                ],
-            });
-        }
         return pageData;
     } catch (err) {
         console.error("HOMEPAGE FETCH ERROR:", err);
@@ -106,6 +91,29 @@ const { data: asyncData, error: asyncError } = await useAsyncData("page-home", a
 // --- Create reactive refs for the template ---
 const data = computed(() => asyncData.value);
 const error = computed(() => asyncError.value);
+
+// Reactive SEO — Yoast provides full title, so disable titleTemplate
+useHead(computed(() => {
+    const seo = data.value?.seo;
+    if (!seo) return {};
+    return {
+        title: seo.title || "Cutout Partner - Professional Photo Editing Services",
+        titleTemplate: false,
+        meta: [
+            { name: "description", content: seo.description || "Professional photo editing services with AI-powered background removal, retouching, and image enhancement." },
+            { property: "og:title", content: seo.og_title || seo.title || "Cutout Partner - Professional Photo Editing Services" },
+            { property: "og:description", content: seo.og_description || seo.description || "Professional photo editing services." },
+            { property: "og:image", content: seo.og_image || "https://cutoutpartner.com/og-image.jpg" },
+            { property: "og:url", content: currentUrl.href },
+            { property: "og:type", content: "website" },
+            { name: "twitter:title", content: seo.og_title || seo.title || "Cutout Partner" },
+            { name: "twitter:description", content: seo.og_description || seo.description || "" },
+            { name: "twitter:image", content: seo.og_image || "https://cutoutpartner.com/og-image.jpg" },
+            { name: "robots", content: seo?.noindex ? "noindex" : "index,follow" },
+        ],
+        link: [{ rel: "canonical", href: seo?.canonical_url || currentUrl.href }],
+    };
+}));
 
 // --- Fetch main site settings in the background ---
 </script>

@@ -137,7 +137,7 @@
 </template>
 
 <script setup>
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 
 const componentMap = markRaw({
     home_slider: defineAsyncComponent(() => import("~/components/sections/HomeSlider.vue")),
@@ -162,9 +162,8 @@ import { ref } from "vue";
 
 const route = useRoute();
 const { $api } = useNuxtApp();
-
-// Import and use the shared composable
 const { siteSettings } = useSiteSettings();
+const currentUrl = useRequestURL();
 
 // --- State ---
 const error = ref(null);
@@ -195,25 +194,15 @@ const { data: asyncData, error: asyncError } = await useAsyncData("page-blog", a
             }),
             $api.getStickyPost(),
             $api.getCategories(),
-            $api.getPage("blog"), // 👈 NEW: Fetch blog page for ACF sections
+            $api.getPage("blog"),
         ]);
-
-        useHead({
-            title: "Blog - Cutout Partner",
-            meta: [
-                {
-                    name: "description",
-                    content: "Read our latest articles on photo editing, tips, and industry insights.",
-                },
-            ],
-        });
 
         return {
             posts: Array.isArray(postsResponse) ? postsResponse : postsResponse.posts || [],
             totalPages: postsResponse.totalPages || 1,
             sticky,
             categories: cats,
-            blogPage, // 👈 NEW: Return blog page data
+            blogPage,
         };
     } catch (err) {
         console.error("Failed to load blog data:", err);
@@ -222,6 +211,23 @@ const { data: asyncData, error: asyncError } = await useAsyncData("page-blog", a
             statusMessage: "Failed to load blog.",
         });
     }
+});
+
+useHead({
+    // titleTemplate applies: "Blog - Cutout Partner"
+    title: "Blog",
+    meta: [
+        { name: "description", content: "Read our latest articles on photo editing, tips, and industry insights." },
+        { property: "og:title", content: "Blog - Cutout Partner" },
+        { property: "og:description", content: "Read our latest articles on photo editing, tips, and industry insights." },
+        { property: "og:image", content: "https://cutoutpartner.com/og-image.jpg" },
+        { property: "og:url", content: currentUrl.href },
+        { property: "og:type", content: "website" },
+        { name: "twitter:title", content: "Blog - Cutout Partner" },
+        { name: "twitter:description", content: "Read our latest articles on photo editing, tips, and industry insights." },
+        { name: "robots", content: "index,follow" },
+    ],
+    link: [{ rel: "canonical", href: currentUrl.href }],
 });
 
 // --- Populate refs from asyncData ---
