@@ -80,9 +80,10 @@
                         required
                     >
                         <option disabled value="">Select a service</option>
-                        <option v-for="(item, index) in service" :key="index" :value="item.value">
+                        <option v-for="(item, index) in service" :key="index" :value="item.label">
                             {{ item.label }}
                         </option>
+                        <option value="Others">Others</option>
                     </select>
                     <div v-if="errors.service" class="invalid-feedback">{{ errors.service }}</div>
                 </div>
