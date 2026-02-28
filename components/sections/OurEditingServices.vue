@@ -420,13 +420,11 @@ export default {
 .before-after {
     position: relative;
     width: 100%;
-    aspect-ratio: 4 / 5; /* choose ratio close to your images */
-    overflow: hidden;
 }
 
 .before-after img {
     width: 100%;
-    height: 100%;
+    height: auto;
     object-fit: contain;
 }
 
