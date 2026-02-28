@@ -334,22 +334,34 @@ onUnmounted(() => {
     cursor: pointer;
     margin-bottom: 25px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+    position: relative;
+    overflow: hidden;
 }
 .divide-separator-3 {
     border: 1px solid #5becff;
 }
 .single-sample img {
     width: 100%;
-}
-.single-sample .hover-image {
-    display: none;
-    transition: all ease-in 0.1s;
-}
-.single-sample:hover .hover-image {
     display: block;
 }
+.single-sample .active-image {
+    transition: opacity 0.2s ease;
+}
+.single-sample .hover-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.single-sample:hover .hover-image {
+    opacity: 1;
+}
 .single-sample:hover .active-image {
-    display: none;
+    opacity: 0;
 }
 .overlay {
     position: fixed;
