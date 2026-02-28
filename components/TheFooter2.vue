@@ -30,15 +30,19 @@
                             :key="`social-${itemIndex}`"
                             :class="{ is_inline_style: item.is_inline_style === 'no' }"
                         >
-                            <a
-                                v-for="(social, i) in item.footer_social"
-                                :key="i"
-                                :href="social.location"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <i :class="social.bootstrap_icon_class_name"></i> {{ social.label }}
-                            </a>
+                            <template v-for="(social, i) in item.footer_social" :key="i">
+                                <a
+                                    v-if="social.location"
+                                    :href="social.location"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <i :class="social.bootstrap_icon_class_name"></i> {{ social.label }}
+                                </a>
+                                <span v-else>
+                                    <i :class="social.bootstrap_icon_class_name"></i> {{ social.label }}
+                                </span>
+                            </template>
                         </div>
 
                         <!-- Links -->
@@ -187,6 +191,7 @@ const getPostUrl = (post) => {
 
 .footer-social.is_inline_style i {
     font-size: 16px;
+    color: #07b8d0;
 }
 
 .footer-social.is_inline_style a {
