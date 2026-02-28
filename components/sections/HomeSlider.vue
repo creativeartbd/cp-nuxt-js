@@ -23,8 +23,8 @@
                                 </NuxtLink>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-12">
-                            <NuxtImg v-if="slider.slider_image" :src="slider.slider_image" fetchpriority="high" format="webp" quality="85" width="600" height="500" sizes="sm:100vw md:50vw lg:600px" />
+                        <div class="col-lg-6 col-md-12 slider-image-col">
+                            <NuxtImg v-if="slider.slider_image" class="slider-img" :src="slider.slider_image" fetchpriority="high" format="webp" quality="85" width="600" height="500" sizes="sm:100vw md:50vw lg:600px" />
                         </div>
                     </div>
                 </div>
@@ -71,6 +71,10 @@ export default {
 </script>
 
 <style scoped>
+.home-slider {
+    overflow: hidden;
+}
+
 .slider-content h2 {
     line-height: 1.2;
     margin-bottom: 30px;
@@ -84,17 +88,28 @@ export default {
     line-height: 150%;
 }
 
-.swiper-wrapper {
-    height: 100vh;
+/* Reserve space before Swiper JS initializes to prevent layout shift */
+:deep(.swiper),
+:deep(.swiper-wrapper),
+:deep(.swiper-slide) {
+    height: auto;
 }
 
-.swiper-wrapper img {
+/* Image column — fixed height to anchor the layout */
+.slider-image-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+}
+
+/* Constrain the image — width 100% of column, height capped so it never overflows */
+.slider-img {
     width: 100%;
     height: auto;
-    object-fit: cover;
-    object-position: center;
-    /* position: absolute; */
-    z-index: -1;
+    max-height: 500px;
+    object-fit: contain;
+    display: block;
 }
 
 /* CSS */
