@@ -183,7 +183,7 @@ export default defineNuxtPlugin(() => {
                 const data = await $fetch(`/cutout/v1/page/${slug}`, {
                     baseURL: this.baseURL,
                     retry: 3,
-                    timeout: 10000,
+                    timeout: 15000,
                 });
                 return data;
             } catch (error) {

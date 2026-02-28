@@ -5,9 +5,6 @@
             <div class="container">
                 <h1>Welcome to Cutout Partner</h1>
                 <p>Professional photo editing services with AI-powered background removal and retouching.</p>
-                <p>
-                    <small>{{ error }}</small>
-                </p>
             </div>
         </div>
 
