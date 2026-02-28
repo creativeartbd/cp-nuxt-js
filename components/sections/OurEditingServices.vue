@@ -61,7 +61,7 @@
                                                 <NuxtLink
                                                     @click="handleImageClick(image, image.choose_a_service)"
                                                     v-if="image.choose_a_service"
-                                                    :to="'/services/' + image.choose_a_service"
+                                                    :to="'/' + image.choose_a_service"
                                                 >
                                                     {{ image.title || `Image ${imageIndex + 1}` }}
                                                 </NuxtLink>
@@ -118,7 +118,7 @@
 
                                     <div class="before-after-bottom">
                                         <template v-if="currentServiceLink">
-                                            <NuxtLink :to="'services/' + currentServiceLink">{{
+                                            <NuxtLink :to="'/' + currentServiceLink">{{
                                                 data.discover_button_text
                                             }}</NuxtLink>
                                         </template>
