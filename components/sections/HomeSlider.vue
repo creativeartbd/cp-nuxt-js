@@ -104,7 +104,7 @@ export default {
 }
 
 /* Constrain the image — width 100% of column, height capped so it never overflows */
-.slider-img {
+:deep(.swiper-slide img) {
     width: 100%;
     height: auto;
     max-height: 500px;
