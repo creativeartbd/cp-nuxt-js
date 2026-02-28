@@ -344,9 +344,6 @@ onUnmounted(() => {
     width: 100%;
     display: block;
 }
-.single-sample .active-image {
-    transition: opacity 0.2s ease;
-}
 .single-sample .hover-image {
     position: absolute;
     top: 0;
@@ -359,9 +356,6 @@ onUnmounted(() => {
 }
 .single-sample:hover .hover-image {
     opacity: 1;
-}
-.single-sample:hover .active-image {
-    opacity: 0;
 }
 .overlay {
     position: fixed;
