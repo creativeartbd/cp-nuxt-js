@@ -250,14 +250,13 @@ input {
 .home-slider {
     position: relative;
     margin-top: -64px;
-    height: 100vh;
     background: #effdfe;
     /* background: linear-gradient(282deg,rgba(0, 188, 212, 1) 0%, rgba(15, 124, 140, 1) 100%); */
 }
 
 .home-slider .swiper-slide img {
-    height: 100vh;
-    object-fit: cover;
+    height: auto;
+    object-fit: contain;
 }
 
 .home-slider-content {
