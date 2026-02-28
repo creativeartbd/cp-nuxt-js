@@ -157,11 +157,29 @@ export default {
             isLoading: false,
             isImageLoading: false,
             currentServiceLink: null,
-            beforeImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-Before.jpg?w=800&ssl=1",
-            afterImg: "https://i0.wp.com/cutoutpartner.com/wp-content/uploads/2021/04/IMG_3313-After.jpg?w=800&ssl=1",
+            beforeImg: null,
+            afterImg: null,
             loadedTabs: new Set(),
             tabImagesState: {},
         };
+    },
+    created() {
+        // Set initial before/after images from first tab's data on both server and client,
+        // so SSR renders the correct image and avoids the placeholder flash on mount.
+        if (!this.hasValidTabs) return;
+        const firstTab = this.data.tabs[0];
+        const images = this.getImages(firstTab);
+        if (!images.length) return;
+        const chosen = images.find((i) => i.before_image && i.after_image) || images[0];
+        this.beforeImg = chosen.before_image || chosen.image || null;
+        this.afterImg = chosen.after_image || chosen.image || null;
+        this.currentServiceLink = chosen.choose_a_service || null;
+        this.tabImagesState[0] = {
+            before: this.beforeImg,
+            after: this.afterImg,
+            link: this.currentServiceLink,
+        };
+        this.loadedTabs.add(0);
     },
     computed: {
         hasValidTabs() {
