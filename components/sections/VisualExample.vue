@@ -123,6 +123,7 @@ export default {
 .visual-examples-wrapper {
     max-width: 1140px;
     margin: 0 auto;
+    padding-bottom: 15px;
 }
 
 /* --- Grid Layout --- */
@@ -145,7 +146,6 @@ export default {
 .grid-wrapper > div {
     position: relative;
     width: 100%;
-    height: 100%;
     min-width: 0;
     overflow: hidden;
     border-radius: 5px;
@@ -165,6 +165,16 @@ export default {
    Images are already normalized by WordPress
    Slider handles positioning internally
 */
+
+figure {
+    margin: 0;
+}
+
+figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
 
 /* --- Slider Handle --- */
 .bf-circle {
@@ -232,9 +242,5 @@ export default {
 .hide-overlay::after,
 .hide-overlay .comparison-label {
     opacity: 0 !important;
-}
-
-figure img {
-    width: 100%;
 }
 </style>

@@ -444,6 +444,7 @@ export default {
     position: relative;
     border-width: 10px;
     outline: 0;
+    height: auto !important;
 }
 
 .divider:after {
