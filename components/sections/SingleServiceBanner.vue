@@ -84,4 +84,10 @@ p {
 .top-quality-services .button-group a {
     margin-right: 10px;
 }
+
+@media (max-width: 991px) {
+    .top-quality-services {
+        background-image: none !important;
+    }
+}
 </style>
