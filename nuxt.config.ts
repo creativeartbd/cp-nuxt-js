@@ -15,6 +15,7 @@ export default defineNuxtConfig({
         "swiper/css",
         "swiper/css/navigation",
         "swiper/css/pagination",
+        "swiper/css/effect-fade",
     ],
 
     imports: {
@@ -134,13 +135,6 @@ export default defineNuxtConfig({
         },
     },
 
-    experimental: {
-        defaults: {
-            nuxtLink: {
-                prefetchOn: { interaction: true, visibility: false },
-            },
-        },
-    },
 
     // Build configuration
     build: {
