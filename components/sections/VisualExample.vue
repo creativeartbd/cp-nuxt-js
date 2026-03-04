@@ -104,7 +104,7 @@ export default {
             }, 150);
         },
         getImgSrc(image, cssClass) {
-            const key = cssClass === "same-size" ? "comparison-grid" : "full";
+            const key = cssClass === "same-size" ? "comparison-grid" : "medium";
             return (image && image.sizes && image.sizes[key]) || (image && image.url) || "";
         },
     },
