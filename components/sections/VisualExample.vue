@@ -81,7 +81,7 @@ export default {
         return {
             dragTimeout: null,
             isDragging: false,
-            imageKey: "medium_large",
+            imageKey: "full",
         };
     },
     methods: {
