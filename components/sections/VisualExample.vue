@@ -31,7 +31,7 @@
                                     <figure slot="first" class="before">
                                         <img
                                             slot="first"
-                                            :src="example.before_image.sizes[imageKey]"
+                                            :src="example.before_image.sizes[imageKey] || example.before_image.url"
                                             alt="Before image"
                                             loading="lazy"
                                         />
@@ -39,7 +39,7 @@
                                     <figure slot="second" class="after">
                                         <img
                                             slot="second"
-                                            :src="example.after_image.sizes[imageKey]"
+                                            :src="example.after_image.sizes[imageKey] || example.after_image.url"
                                             alt="After image"
                                             loading="lazy"
                                         />
