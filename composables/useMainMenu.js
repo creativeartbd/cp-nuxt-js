@@ -11,7 +11,6 @@ export const useMainMenu = () => {
         isLoading.value = true;
         try {
             const data = await $fetch(`/api/menu?slug=${slug}`);
-            console.log("📋 Menu API Response:", data);
 
             // Store the raw response
             menuData.value = data;

@@ -74,8 +74,10 @@ export default defineNuxtConfig({
                 { rel: "dns-prefetch", href: "https://www.youtube.com" },
                 { rel: "dns-prefetch", href: "https://i.ytimg.com" },
                 {
-                    rel: "stylesheet",
+                    rel: "preload",
+                    as: "style",
                     href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap",
+                    onload: "this.rel='stylesheet'",
                 },
             ],
             script: [
@@ -90,7 +92,7 @@ export default defineNuxtConfig({
     },
 
     // Minimal modules that work
-    modules: ["@pinia/nuxt", "@vueuse/nuxt", "@nuxt/image"],
+    modules: ["@pinia/nuxt", "@nuxt/image"],
 
     image: {
         // Use 'none' provider: images served directly from WordPress.
@@ -207,13 +209,14 @@ export default defineNuxtConfig({
         build: {
             rollupOptions: {
                 output: {
-                    manualChunks: undefined,
+                    manualChunks(id) {
+                        if (id.includes('/node_modules/swiper/')) return 'swiper';
+                        if (id.includes('/node_modules/@img-comparison-slider/')) return 'img-comparison-slider';
+                    },
                 },
             },
         },
-        optimizeDeps: {
-            include: ["bootstrap", "swiper"],
-        },
+        optimizeDeps: {},
     },
 
     loadingIndicator: {

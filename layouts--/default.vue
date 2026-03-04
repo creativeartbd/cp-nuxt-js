@@ -23,13 +23,10 @@ const { fetchMenu } = useMainMenu();
 
 // Load global data on app mount
 onMounted(async () => {
-    console.log("🚀 App mounted - Loading global data...");
-
     try {
         await Promise.all([fetchSiteSettings(), fetchMenu("primary")]);
-        console.log("✅ Global data loaded successfully!");
     } catch (error) {
-        console.error("❌ Failed to load global data:", error);
+        // silently fail — nav/footer will render without data
     }
 });
 
