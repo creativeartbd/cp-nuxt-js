@@ -47,7 +47,17 @@ export default {
     },
     setup() {
         const onSwiper = () => {};
-        const onSlideChange = () => {};
+        const onSlideChange = (swiper) => {
+            // Access the active slide and its styles
+            const activeSlide = swiper.slides[swiper.activeIndex];
+
+            // Dynamically change the background image
+            activeSlide.style.setProperty(
+                "background-image",
+                "url('../../../assets/images/slider-01.jpg')",
+                "important"
+            );
+        };
         return {
             onSwiper,
             onSlideChange,
