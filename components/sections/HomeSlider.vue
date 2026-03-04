@@ -38,9 +38,6 @@
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { Autoplay, EffectFade } from "swiper/modules";
 
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/effect-fade";
 
 export default {
     props: ["data"],

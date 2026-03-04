@@ -93,6 +93,18 @@ const error = computed(() => asyncError.value);
 useHead(computed(() => {
     const seo = data.value?.seo;
     if (!seo) return {};
+
+    // Preload hero (LCP) image — first slider image
+    const heroImage = data.value?.sections
+        ?.flatMap(s => s.section_content || [])
+        ?.find(c => c.acf_fc_layout === "home_slider")
+        ?.sliders?.[0]?.slider_image;
+
+    const links = [{ rel: "canonical", href: seo?.canonical_url || currentUrl.href }];
+    if (heroImage) {
+        links.push({ rel: "preload", as: "image", href: heroImage, fetchpriority: "high" });
+    }
+
     return {
         title: seo.title || "Cutout Partner - Professional Photo Editing Services",
         titleTemplate: false,
@@ -108,7 +120,7 @@ useHead(computed(() => {
             { name: "twitter:image", content: seo.og_image || "https://cutoutpartner.com/og-image.jpg" },
             { name: "robots", content: seo?.noindex ? "noindex" : "index,follow" },
         ],
-        link: [{ rel: "canonical", href: seo?.canonical_url || currentUrl.href }],
+        link: links,
     };
 }));
 

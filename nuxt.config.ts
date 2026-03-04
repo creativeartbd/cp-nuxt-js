@@ -126,6 +126,20 @@ export default defineNuxtConfig({
         experimental: {
             wasm: true,
         },
+        routeRules: {
+            // Cache rendered HTML pages for 5 minutes (stale-while-revalidate)
+            "/v2/**": { headers: { "cache-control": "public, max-age=300, stale-while-revalidate=600" } },
+            // Long-lived cache for static assets
+            "/v2/_nuxt/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+        },
+    },
+
+    experimental: {
+        defaults: {
+            nuxtLink: {
+                prefetchOn: { interaction: true, visibility: false },
+            },
+        },
     },
 
     // Build configuration
