@@ -24,16 +24,15 @@
                     <button
                         class="navbar-toggler"
                         type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent"
+                        @click="isMenuOpen = !isMenuOpen"
                         aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
+                        :aria-expanded="isMenuOpen.toString()"
                         aria-label="Toggle navigation"
                     >
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <div :class="['collapse', 'navbar-collapse', { show: isMenuOpen }]" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                             <!-- Loading State -->
                             <li v-if="isLoading" class="nav-item">
@@ -164,6 +163,7 @@ const { menu, isLoading } = useMainMenu();
 
 // Sticky header state
 const isSticky = ref(false);
+const isMenuOpen = ref(false);
 const currentDropdown = ref(null);
 
 // Check if on homepage
@@ -281,11 +281,7 @@ const hideDropdown = () => {
 
 // Close navbar (for mobile)
 const closeNavbar = () => {
-    const navbar = document.getElementById("navbarSupportedContent");
-    if (navbar && navbar.classList.contains("show")) {
-        const bsCollapse = new window.bootstrap.Collapse(navbar);
-        bsCollapse.hide();
-    }
+    isMenuOpen.value = false;
 };
 
 // Handle scroll for sticky header (throttled via requestAnimationFrame)

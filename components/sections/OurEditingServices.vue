@@ -19,14 +19,13 @@
                         <li class="nav-item" role="presentation" v-for="(tab, index) in data.tabs" :key="index">
                             <button
                                 class="nav-link"
-                                :class="{ active: index === 0 }"
+                                :class="{ active: index === activeTabIndex }"
                                 :id="`tab-${index}`"
-                                data-bs-toggle="tab"
-                                :data-bs-target="`#content-${index}`"
                                 type="button"
                                 role="tab"
                                 :aria-controls="`content-${index}`"
-                                :aria-selected="index === 0"
+                                :aria-selected="index === activeTabIndex"
+                                @click="activateTab(index)"
                             >
                                 {{ tab.tab_name }}
                             </button>
@@ -36,7 +35,7 @@
                     <div class="tab-content" id="myTabContent">
                         <div
                             class="tab-pane fade"
-                            :class="{ 'show active': index === 0 }"
+                            :class="{ 'show active': index === activeTabIndex }"
                             :id="`content-${index}`"
                             role="tabpanel"
                             :aria-labelledby="`tab-${index}`"
@@ -161,6 +160,7 @@ export default {
             afterImg: null,
             loadedTabs: new Set(),
             tabImagesState: {},
+            activeTabIndex: 0,
         };
     },
     created() {
@@ -188,24 +188,8 @@ export default {
     },
     mounted() {
         this.activateTab(0);
-        this.fixBootstrapTabs();
     },
     methods: {
-        fixBootstrapTabs() {
-            const tabEl = document.getElementById("myTab");
-            if (!tabEl) return;
-
-            tabEl.addEventListener("shown.bs.tab", (event) => {
-                const id = event.target.getAttribute("id"); // tab-2
-                const index = Number(id.split("-")[1]);
-
-                this.activateTab(index);
-
-                this.$nextTick(() => {
-                    window.dispatchEvent(new Event("resize"));
-                });
-            });
-        },
         activateTab(index) {
             this.activeTabIndex = index;
 
