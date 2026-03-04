@@ -31,7 +31,7 @@
                                     <figure slot="first" class="before">
                                         <img
                                             slot="first"
-                                            :src="example.before_image.sizes[imageKey] || example.before_image.url"
+                                            :src="getImgSrc(example.before_image, example.css_class_name)"
                                             alt="Before image"
                                             loading="lazy"
                                         />
@@ -39,7 +39,7 @@
                                     <figure slot="second" class="after">
                                         <img
                                             slot="second"
-                                            :src="example.after_image.sizes[imageKey] || example.after_image.url"
+                                            :src="getImgSrc(example.after_image, example.css_class_name)"
                                             alt="After image"
                                             loading="lazy"
                                         />
@@ -102,6 +102,10 @@ export default {
             this.dragTimeout = setTimeout(() => {
                 this.isDragging = false;
             }, 150);
+        },
+        getImgSrc(image, cssClass) {
+            const key = cssClass === "same-size" ? "comparison-grid" : "full";
+            return (image && image.sizes && image.sizes[key]) || (image && image.url) || "";
         },
     },
 };
