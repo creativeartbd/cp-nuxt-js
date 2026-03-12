@@ -2,7 +2,7 @@
     <div class="text-content" :style="{ backgroundColor: data.background_color }">
         <div class="container">
             <div class="row">
-                <div class="col-md-12 p-5" v-if="data.text_content" v-html="data.text_content"></div>
+                <div class="col-md-12 p-5" v-if="data.text_content" v-html="processedContent"></div>
             </div>
         </div>
     </div>
@@ -15,6 +15,13 @@ export default {
         data: {
             type: Object,
             required: true,
+        },
+    },
+    computed: {
+        processedContent() {
+            if (!this.data?.text_content) return "";
+            // Rewrite absolute internal links so they stay on the current domain
+            return this.data.text_content.replace(/https?:\/\/cutoutpartner-api\.com\/v2\//g, "/");
         },
     },
 };

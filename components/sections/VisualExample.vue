@@ -104,6 +104,10 @@ export default {
             }, 150);
         },
         getImgSrc(image, cssClass) {
+            const isTall = cssClass && (cssClass.includes("tall") || cssClass.includes("big"));
+            if (isTall) {
+                return (image && image.url) || "";
+            }
             const key = cssClass === "same-size" ? "comparison-grid" : "medium";
             return (image && image.sizes && image.sizes[key]) || (image && image.url) || "";
         },
@@ -174,10 +178,24 @@ figure {
     margin: 0;
 }
 
-figure img {
-    width: 100%;
-    height: auto;
-    display: block;
+/* --- 576–767px: fix blank space caused by grid-auto-rows: 290px --- */
+@media (min-width: 576px) and (max-width: 767px) {
+    figure {
+        height: 290px;
+        overflow: hidden;
+    }
+
+    figure img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+    }
+
+    .grid-wrapper .tall figure,
+    .grid-wrapper .big figure {
+        height: 595px; /* 290px × 2 rows + 15px gap */
+    }
 }
 
 /* --- Slider Handle --- */

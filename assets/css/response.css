@@ -170,6 +170,19 @@
 }
 /* Extra small devices (phones) */
 @media (min-width: 576px) {
+    /* .grid-wrapper {
+        grid-auto-rows: 290px;
+    } */
+    /* .grid-wrapper .tall img {
+        height: 596px;
+    } */
+
+    figure img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
     .dropdown-menu {
         display: none; /* Hide by default */
         position: static;
@@ -214,7 +227,7 @@
     }
     .home-slider {
         height: auto;
-        padding : 50px;
+        padding : 0;
     }
     .navbar-expand-lg .navbar-nav .nav-link {
         padding : 10px 0;
@@ -282,7 +295,6 @@
         display: grid;
         grid-gap: 15px;
         grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
-        grid-auto-rows: 280px;
         grid-auto-flow: dense;
     }
     .portrait-skin .button-group {
@@ -356,18 +368,23 @@
         box-shadow: 1px 1px 1px #ddd;
         transition: all ease-in 0.3s;
         border-bottom: 2px solid #2ebcd4;
+        min-height: 210px;
     }
 }
 
   /* Medium devices (tablets) */
 @media (min-width: 768px) {
+    /* .grid-wrapper .tall img {
+        height: 100%;
+    } */
     .simple-mega-grid li {
         border-bottom: 1px solid #eeeeee;
         border-right: 1px solid #eee;
     }
     
     .top-quality-services {
-        background-position: 75% 50%;
+        /* background-position: 82% 50%; */
+        background-image: none;
     }
     .ods-mini-wrapper .ods-mini-img {
         flex: 0 0 calc(33.33% - 15px);
@@ -389,7 +406,7 @@
         grid-template-columns: repeat(2, 1fr) !important;
     }
     .banner-wrapper .banner-text {
-        width: 50%;
+        width: 100%;
     }
     .grid-wrapper {
         display: grid;
@@ -427,6 +444,7 @@
         border-bottom: 2px solid #2ebcd4;
         text-align: center;
         flex-direction: column;
+        min-height: 210px;
     }
     /* .header .collapse{
         overflow: auto;
@@ -481,7 +499,7 @@
         padding-top: 150px;
         padding-bottom: 150px;
         background-size: cover;
-        background-position: 50% 50%;
+        background-position: 75% 50%;
     }
     /* .navbar-collapse {
         margin-top: 0;
@@ -574,6 +592,9 @@
         background-color: transparent;
         border: 0;
         color: #fff;
+    }
+    .contact-box {
+        min-height: 210px;
     }
 }
 @media (min-width: 1200px) { 
