@@ -32,14 +32,14 @@ export default defineNuxtConfig({
         public: {
             wordpressApiUrl: process.env.WORDPRESS_API_URL || "https://cutoutpartner-api.com/wp-json",
             wpBaseUrl: process.env.WORDPRESS_API_URL || "https://cutoutpartner-api.com/wp-json",
-            siteUrl: process.env.SITE_URL || "https://cutoutpartner-api.com",
+            siteUrl: process.env.SITE_URL || "https://cutoutpartner.com",
             googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || "",
         },
     },
 
     // App head configuration
     app: {
-        baseURL: "/v2/",
+        baseURL: "/",
         head: {
             title: "Cutout Partner - Professional Photo Editing Services",
             htmlAttrs: {
