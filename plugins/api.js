@@ -180,14 +180,9 @@ export default defineNuxtPlugin(() => {
 
         async getPage(slug) {
             try {
-                const data = await $fetch(`/cutout/v1/page/${slug}`, {
-                    baseURL: this.baseURL,
-                    retry: 3,
-                    timeout: 15000,
-                });
-                return data;
+                // Use Nitro cached route — 10-min cache, no CORS issues, works on both server and client
+                return await $fetch(`/api/page/${slug}`);
             } catch (error) {
-                console.error("Error fetching page:", error);
                 throw createError({
                     statusCode: error?.response?.status || 500,
                     statusMessage: `Failed to fetch page: ${slug}`,
@@ -198,14 +193,9 @@ export default defineNuxtPlugin(() => {
         // NEW: Get service by slug
         async getService(slug) {
             try {
-                const data = await $fetch(`/cutout/v1/service/${slug}`, {
-                    baseURL: this.baseURL,
-                    retry: 3,
-                    timeout: 10000,
-                });
-                return data;
+                // Use Nitro cached route — 10-min cache, no CORS issues, works on both server and client
+                return await $fetch(`/api/services/${slug}`);
             } catch (error) {
-                console.error("Error fetching service:", error);
                 throw createError({
                     statusCode: error?.response?.status || 500,
                     statusMessage: `Failed to fetch service: ${slug}`,

@@ -22,7 +22,7 @@
                             <div class="single-post-taxonomy">
                                 <p>{{ getAuthor(post) }}</p>
                                 <p>{{ formatDate(post.date) }}</p>
-                                <p>{{ post.views || 0 }} views</p>
+                                <p>{{ viewCount }} views</p>
                             </div>
                         </div>
                     </div>
@@ -163,15 +163,17 @@
 </template>
 
 <script setup>
-import { markRaw, computed, ref, defineAsyncComponent } from "vue";
+import { markRaw, computed, ref, defineAsyncComponent, onMounted, watchEffect } from "vue";
 import TheHeaderBannerVue from "../components/TheHeaderBanner.vue";
 
 const route = useRoute();
 const { $api } = useNuxtApp();
 const { siteSettings } = useSiteSettings();
 const currentUrl = useRequestURL();
+const config = useRuntimeConfig();
 
 const search = ref("");
+const viewCount = ref(0);
 
 const componentMap = markRaw({
     home_slider: defineAsyncComponent(() => import("~/components/sections/HomeSlider.vue")),
@@ -273,6 +275,22 @@ const error = computed(() => asyncError.value);
 
 // Blog post computed refs
 const post = computed(() => data.value?._type === "post" ? data.value.post : null);
+
+// Initialise viewCount from SSR data, then increment on client mount
+watchEffect(() => {
+    if (post.value?.views != null) viewCount.value = post.value.views;
+});
+
+onMounted(() => {
+    if (post.value?.id) {
+        $fetch(`/cutout/v1/post/${post.value.id}/view`, {
+            baseURL: config.public.wordpressApiUrl,
+            method: "POST",
+        }).then((res) => {
+            if (res?.views != null) viewCount.value = res.views;
+        }).catch(() => {});
+    }
+});
 const postCategories = computed(() => data.value?._type === "post" ? data.value.categories : []);
 const relatedPosts = computed(() => data.value?._type === "post" ? data.value.relatedPosts : []);
 const blogPageData = computed(() => data.value?._type === "post" ? data.value.blogPage : null);

@@ -64,7 +64,7 @@ export default defineNuxtConfig({
                 { name: "twitter:description", content: "Professional photo editing services with AI-powered background removal, retouching, and image enhancement." },
             ],
             link: [
-                { rel: "icon", type: "image/jpeg", href: "/v2/assets/images/favicon-white.png" },
+                { rel: "icon", type: "image/png", href: "/assets/images/favicon-white.png" },
                 // Preconnect for critical origins
                 { rel: "preconnect", href: "https://cutoutpartner-api.com" },
                 { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -117,6 +117,13 @@ export default defineNuxtConfig({
     typescript: {
         strict: false,
         typeCheck: false,
+    },
+
+    // Cache rendered HTML pages for 5 minutes (ISR via Nitro)
+    // First visitor gets fresh SSR; subsequent visitors get cached HTML instantly
+    routeRules: {
+        "/": { isr: 300 },
+        "/**": { isr: 300 },
     },
 
     // Nitro configuration
