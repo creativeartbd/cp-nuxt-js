@@ -198,6 +198,19 @@ const componentMap = markRaw({
     portrait_skin: defineAsyncComponent(() => import("~/components/sections/PortraitSkin.vue")),
 });
 
+// Sanitize Yoast canonical URLs: fix domain and path for pages/services
+function sanitizeCanonical(yoastUrl) {
+    if (!yoastUrl) return currentUrl.href;
+    let url = yoastUrl
+        // Replace WordPress API domain with the frontend domain
+        .replace(/https?:\/\/cutoutpartner-api\.com/, "https://cutoutpartner.com")
+        // Services in WP use /services/slug but Nuxt serves them at /slug
+        .replace(/^(https:\/\/cutoutpartner\.com)\/services\//, "$1/");
+    // Ensure trailing slash
+    if (!url.endsWith("/")) url += "/";
+    return url;
+}
+
 // Helper functions (declared before useHead computed so they're available)
 function getImage(p) {
     return p?._embedded?.["wp:featuredmedia"]?.[0]?.source_url || "https://placehold.co/600x400";
@@ -318,7 +331,7 @@ useHead(computed(() => {
                 { name: "twitter:image", content: image },
                 { name: "robots", content: "index,follow" },
             ],
-            link: [{ rel: "canonical", href: currentUrl.href }],
+            link: [{ rel: "canonical", href: currentUrl.href.endsWith("/") ? currentUrl.href : currentUrl.href + "/" }],
         };
     }
 
@@ -339,7 +352,7 @@ useHead(computed(() => {
                 { name: "twitter:image", content: d.seo.og_image },
                 { name: "robots", content: d.seo?.noindex ? "noindex" : "index,follow" },
             ],
-            link: [{ rel: "canonical", href: d.seo?.canonical_url || currentUrl.href }],
+            link: [{ rel: "canonical", href: sanitizeCanonical(d.seo?.canonical_url) }],
         };
     }
 
@@ -360,7 +373,7 @@ useHead(computed(() => {
                 { name: "twitter:image", content: d.seo.og_image },
                 { name: "robots", content: d.seo?.noindex ? "noindex" : "index,follow" },
             ],
-            link: [{ rel: "canonical", href: d.seo?.canonical_url || currentUrl.href }],
+            link: [{ rel: "canonical", href: sanitizeCanonical(d.seo?.canonical_url) }],
         };
     }
 
