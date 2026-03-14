@@ -46,6 +46,7 @@ export default defineNuxtConfig({
                 lang: "en",
             },
             meta: [
+                { name: "dmca-site-verification", content: "T0hXV1Q4SWovZEwwV1FNSUE4MHBNa21tci81ZXppRnZsWWY1VklPMkJObz01" },
                 { charset: "utf-8" },
                 { name: "viewport", content: "width=device-width, initial-scale=1" },
                 {
