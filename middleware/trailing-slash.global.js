@@ -1,8 +1,7 @@
-// Redirect /slug/ → /slug to avoid duplicate content (canonical is no trailing slash)
+// Redirect /slug → /slug/ to match already-indexed URLs with trailing slash
 export default defineNuxtRouteMiddleware((to) => {
-    if (to.path !== "/" && to.path.endsWith("/")) {
-        const newPath = to.path.slice(0, -1);
+    if (to.path !== "/" && !to.path.endsWith("/")) {
         const query = Object.keys(to.query).length ? to.query : undefined;
-        return navigateTo({ path: newPath, query }, { redirectCode: 301 });
+        return navigateTo({ path: to.path + "/", query }, { redirectCode: 301 });
     }
 });
