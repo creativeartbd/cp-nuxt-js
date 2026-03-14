@@ -94,6 +94,12 @@ onMounted(async () => {
         } else {
             footerSettings.value = siteSettings.value.all_fields;
         }
+        await nextTick();
+        // Open DMCA links in a new tab (injected via v-html from WordPress)
+        document.querySelectorAll('.footer a[href*="dmca.com"]').forEach((el) => {
+            el.setAttribute("target", "_blank");
+            el.setAttribute("rel", "noopener noreferrer");
+        });
     } catch (error) {
         console.error("Site settings load error:", error);
     }
