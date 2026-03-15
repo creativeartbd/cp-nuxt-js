@@ -61,7 +61,8 @@
                                         :key="index"
                                     >
                                         <div class="single-sample" @click.prevent="handleImgClick(image)">
-                                            <NuxtImg class="active-image" :src="image.before_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
+                                            <div class="img-skeleton" v-show="!loadedImages.has(image.key + '-b')"></div>
+                                            <NuxtImg class="active-image" :src="image.before_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" @load="loadedImages.add(image.key + '-b')" />
                                             <NuxtImg class="hover-image" :src="image.after_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
                                         </div>
                                     </div>
@@ -83,7 +84,8 @@
                                         :key="imgIndex"
                                     >
                                         <div class="single-sample" @click.prevent="handleImgClick(image)">
-                                            <NuxtImg class="active-image" :src="image.before_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
+                                            <div class="img-skeleton" v-show="!loadedImages.has(image.key + '-b')"></div>
+                                            <NuxtImg class="active-image" :src="image.before_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" @load="loadedImages.add(image.key + '-b')" />
                                             <NuxtImg class="hover-image" :src="image.after_image" alt="" loading="lazy" decoding="async" format="webp" quality="80" width="400" height="300" />
                                         </div>
                                     </div>
@@ -93,17 +95,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Preload images (hidden) -->
-        <div style="display: none">
-            <img
-                v-for="image in allImages"
-                :key="'preload-' + image.key"
-                :src="image.popup_image"
-                @load="markAsPreloaded(image.key)"
-                @error="markAsPreloaded(image.key)"
-            />
         </div>
 
         <!-- When the single image is clicked -->
@@ -146,6 +137,8 @@
 </template>
 
 <script setup>
+import { reactive } from "vue";
+
 // --- PROPS ---
 const props = defineProps(["data"]);
 
@@ -162,6 +155,7 @@ const isPopupVisible = ref(false);
 const isImgLoaded = ref(false);
 const preloadedImages = ref(new Set());
 const loadingTimeout = ref(null);
+const loadedImages = reactive(new Set());
 
 // --- COMPUTED PROPERTIES ---
 // FIXED: Removed .value - siteSettings is auto-unwrapped in templates
@@ -440,5 +434,17 @@ onUnmounted(() => {
     display: flex;
     justify-content: space-between;
     width: 100%;
+}
+.img-skeleton {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(90deg, #e0e0e0 25%, #efefef 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s infinite linear;
+}
+@keyframes skeleton-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 </style>

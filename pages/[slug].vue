@@ -77,11 +77,13 @@
                     <div class="col-md-12">
                         <h5 class="mt-4">Share this post</h5>
                         <div class="single-post-social">
-                            <i class="bi bi-facebook"></i>
-                            <i class="bi bi-linkedin"></i>
-                            <i class="bi bi-pinterest"></i>
-                            <i class="bi bi-twitter"></i>
+                            <a :href="shareUrls.facebook" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook"><i class="bi bi-facebook"></i></a>
+                            <a :href="shareUrls.linkedin" target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn"><i class="bi bi-linkedin"></i></a>
+                            <a :href="shareUrls.pinterest" target="_blank" rel="noopener noreferrer" aria-label="Share on Pinterest"><i class="bi bi-pinterest"></i></a>
+                            <a :href="shareUrls.twitter" target="_blank" rel="noopener noreferrer" aria-label="Share on X (Twitter)"><i class="bi bi-twitter-x"></i></a>
+                            <a href="#" @click.prevent="copyForInstagram" :title="instagramCopied ? 'Link copied!' : 'Copy link to share on Instagram'" aria-label="Copy link for Instagram"><i class="bi bi-instagram"></i></a>
                         </div>
+                        <p v-if="instagramCopied" class="instagram-copy-msg">Link copied! Open Instagram and paste it in your story or bio.</p>
                     </div>
                 </div>
             </div>
@@ -305,6 +307,28 @@ onMounted(() => {
     }
 });
 const postCategories = computed(() => data.value?._type === "post" ? data.value.categories : []);
+
+// Social share URLs
+const shareUrls = computed(() => {
+    const url = encodeURIComponent(currentUrl.href);
+    const title = encodeURIComponent(post.value?.title?.rendered || "");
+    const image = encodeURIComponent(getImage(post.value));
+    return {
+        facebook:  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+        linkedin:  `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+        pinterest: `https://pinterest.com/pin/create/button/?url=${url}&media=${image}&description=${title}`,
+        twitter:   `https://twitter.com/intent/tweet?url=${url}&text=${title}`,
+    };
+});
+
+// Instagram doesn't support URL-based sharing — copy link to clipboard instead
+const instagramCopied = ref(false);
+function copyForInstagram() {
+    navigator.clipboard?.writeText(currentUrl.href).then(() => {
+        instagramCopied.value = true;
+        setTimeout(() => { instagramCopied.value = false; }, 3000);
+    });
+}
 const relatedPosts = computed(() => data.value?._type === "post" ? data.value.relatedPosts : []);
 const blogPageData = computed(() => data.value?._type === "post" ? data.value.blogPage : null);
 
@@ -403,13 +427,24 @@ useHead(computed(() => {
     padding-bottom: 20px;
     padding-top: 15px;
 }
+.single-post-social a {
+    text-decoration: none;
+    line-height: 1;
+}
 .single-post-social i {
     font-size: 30px;
     color: #06bcd4;
+    transition: color 0.2s ease;
 }
-.single-post-social i:hover {
-    color: hwb(0 25% 75%);
+.single-post-social a:hover i {
+    color: #333;
     cursor: pointer;
+}
+.instagram-copy-msg {
+    font-size: 13px;
+    color: #555;
+    margin-top: -10px;
+    margin-bottom: 10px;
 }
 .single-page-search {
     margin-bottom: 30px;

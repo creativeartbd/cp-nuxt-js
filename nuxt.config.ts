@@ -124,6 +124,23 @@ export default defineNuxtConfig({
     // First visitor gets fresh SSR; subsequent visitors get cached HTML instantly
     routeRules: {
         "/": { isr: 300 },
+        // 301 SEO redirects (old URLs → new canonical URLs)
+        "/clipping-path-service/": { redirect: { to: "/best-clipping-path-service-provider/", statusCode: 301 } },
+        "/ecommerce-photo-editing/": { redirect: { to: "/ecommerce-image-editing-services/", statusCode: 301 } },
+        "/neck-joint-service/": { redirect: { to: "/invisible-ghost-mannequin-services/", statusCode: 301 } },
+        "/product-retouching-service/": { redirect: { to: "/product-photo-editing-services/", statusCode: 301 } },
+        "/background-removal-service/": { redirect: { to: "/background-removal-services/", statusCode: 301 } },
+        "/shadow-making-service/": { redirect: { to: "/shadow-creation-service/", statusCode: 301 } },
+        "/color-correction-service/": { redirect: { to: "/color-correction-services/", statusCode: 301 } },
+        "/headshot-retouching-service/": { redirect: { to: "/headshot-retouching-services/", statusCode: 301 } },
+        "/beauty-retouch-service/": { redirect: { to: "/beauty-retouching-services/", statusCode: 301 } },
+        "/newborn-baby-retouch/": { redirect: { to: "/newborn-photo-editing-services/", statusCode: 301 } },
+        "/wedding-photo-retouch/": { redirect: { to: "/wedding-photo-editing-services/", statusCode: 301 } },
+        "/multi-path-service/": { redirect: { to: "/multiple-clipping-path-service/", statusCode: 301 } },
+        "/jewelry-retouching-service/": { redirect: { to: "/jewelry-photo-editing-service/", statusCode: 301 } },
+        "/photo-restoration-service/": { redirect: { to: "/photo-restoration-services/", statusCode: 301 } },
+        "/real-estate-photo-editing/": { redirect: { to: "/real-estate-photo-editing-services/", statusCode: 301 } },
+        "/upload/": { redirect: { to: "/order/", statusCode: 301 } },
         "/**": { isr: 300 },
     },
 

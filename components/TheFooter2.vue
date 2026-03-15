@@ -66,7 +66,7 @@
         <div class="container">
             <div class="footer-bottom-grid">
                 <div class="footer-bottom-item" v-for="(fb, fbIndex) in footerBottom" :key="fbIndex">
-                    <div v-if="fb.footer_bottom_content" v-html="fb.footer_bottom_content"></div>
+                    <div v-if="fb.footer_bottom_content" v-html="patchDmca(fb.footer_bottom_content)"></div>
 
                     <template v-if="fb.payment_icons" v-for="(icon, iconsIndex) in fb.payment_icons" :key="iconsIndex">
                         <img v-if="icon.upload_svg_icon" :src="icon.upload_svg_icon" :alt="icon.title" />
@@ -116,6 +116,15 @@ const footerBottomGridStyle = computed(() => {
         alignItems: "center",
     };
 });
+
+// Inject target="_blank" on DMCA links directly in the HTML string
+const patchDmca = (html) => {
+    if (!html) return html;
+    return html.replace(
+        /(<a\b)([^>]*href="[^"]*dmca\.com[^"]*"[^>]*)(>)/gi,
+        '$1$2 target="_blank" rel="noopener noreferrer"$3'
+    );
+};
 
 // ✅ ADDED: Helper function to convert post object to URL
 const getPostUrl = (post) => {

@@ -31,7 +31,7 @@
                                         v-for="(footer_menu, footer_menu_index) in link.link_content"
                                         :key="footer_menu_index"
                                     >
-                                        <router-link v-if="footer_menu.link_location" :to="footer_menu.link_location">{{
+                                        <router-link v-if="footer_menu.link_location" :to="toRelative(footer_menu.link_location)">{{
                                             footer_menu.link_text
                                         }}</router-link>
                                     </li>
@@ -50,7 +50,7 @@
                                 <div
                                     class="footer-bottom-left"
                                     v-if="footerSettings.footer_group.footer_bottom_left_text"
-                                    v-html="footerSettings.footer_group.footer_bottom_left_text"
+                                    v-html="dmcaHtml"
                                 ></div>
 
                                 <div class="footer-social" v-if="footerSettings.footer_group.footer_social">
@@ -84,6 +84,30 @@ const { $api } = useNuxtApp();
 const footerSettings = ref(null);
 const siteSettings = useState("siteSettings", () => null);
 
+// Convert absolute same-domain URLs to relative paths so they go through
+// vue-router (enabling the trailing-slash plugin and SPA navigation).
+function toRelative(url) {
+    if (!url) return url;
+    try {
+        const u = new URL(url);
+        if (u.hostname === "cutoutpartner.com") {
+            return u.pathname + u.search + u.hash;
+        }
+    } catch {}
+    return url;
+}
+
+// Inject target="_blank" on DMCA links directly in the HTML string so the
+// DMCABadgeHelper.min.js script cannot strip it after DOM patching.
+const dmcaHtml = computed(() => {
+    const raw = footerSettings.value?.footer_group?.footer_bottom_left_text;
+    if (!raw) return "";
+    return raw.replace(
+        /(<a\b)([^>]*href="[^"]*dmca\.com[^"]*"[^>]*)(>)/gi,
+        '$1$2 target="_blank" rel="noopener noreferrer"$3'
+    );
+});
+
 onMounted(async () => {
     try {
         // Load only if not loaded before
@@ -94,12 +118,6 @@ onMounted(async () => {
         } else {
             footerSettings.value = siteSettings.value.all_fields;
         }
-        await nextTick();
-        // Open DMCA links in a new tab (injected via v-html from WordPress)
-        document.querySelectorAll('.footer a[href*="dmca.com"]').forEach((el) => {
-            el.setAttribute("target", "_blank");
-            el.setAttribute("rel", "noopener noreferrer");
-        });
     } catch (error) {
         console.error("Site settings load error:", error);
     }

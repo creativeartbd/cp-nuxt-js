@@ -327,14 +327,12 @@ async function filterByCategory(catId) {
 }
 
 async function searchPosts() {
-    if (!search.value.trim()) return;
-
     try {
         page.value = 1;
         activeCategory.value = null;
 
         const response = await $api.getBlogPostsLight({
-            search: search.value,
+            search: search.value.trim() || undefined,
             per_page: 9,
         });
 
