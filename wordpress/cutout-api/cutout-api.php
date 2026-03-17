@@ -232,10 +232,11 @@ add_action('acf/init', 'cutout_register_options_pages');
 function cutout_register_options_pages() {
     if (!function_exists('acf_add_options_page')) return;
 
-    acf_add_options_page([
+    acf_add_options_sub_page([
         'page_title'  => 'Theme General Settings',
         'menu_title'  => 'Theme General Settings',
         'menu_slug'   => 'general-settings',
+        'parent_slug' => 'theme-option',
         'capability'  => 'manage_options',
         'icon_url'    => 'dashicons-admin-settings',
         'position'    => 2,
