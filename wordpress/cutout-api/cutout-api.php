@@ -222,3 +222,25 @@ function cutout_get_single_post($request) {
         'date'     => $post->post_date,
     ]);
 }
+
+/* ======================================================
+   ACF OPTIONS PAGE REGISTRATION (was in functions.php)
+   ====================================================== */
+
+add_action('acf/init', 'cutout_register_options_pages');
+
+function cutout_register_options_pages() {
+    if (!function_exists('acf_add_options_page')) return;
+
+    acf_add_options_page([
+        'page_title'  => 'Theme General Settings',
+        'menu_title'  => 'Theme General Settings',
+        'menu_slug'   => 'general-settings',
+        'capability'  => 'manage_options',
+        'icon_url'    => 'dashicons-admin-settings',
+        'position'    => 2,
+        'redirect'    => false,
+        'post_id'     => 'options',
+        'autoload'    => true,
+    ]);
+}
