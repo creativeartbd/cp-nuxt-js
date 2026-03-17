@@ -10,6 +10,9 @@
             ></iframe>
         </noscript>
 
+        <!-- Full-screen loader: 3 seconds on every page (change DELAY in AppLoader.vue) -->
+        <AppLoader />
+
         <!-- Loading bar will show automatically on navigation -->
         <TheLoadingBar />
 
