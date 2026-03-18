@@ -39,13 +39,24 @@ function cutout_register_rest_routes() {
     ]);
 }
 
+function cutout_fix_select_services($services) {
+    if (!is_array($services)) return $services;
+    return array_map(function($item) {
+        if (is_array($item) && isset($item["value"], $item["label"]) && (string)$item["label"] === (string)$item["value"]) {
+            $post = get_post((int)$item["value"]);
+            if ($post) $item["label"] = $post->post_title;
+        }
+        return $item;
+    }, $services);
+}
+
 function cutout_get_settings() {
     $fields = function_exists('get_fields') ? (get_fields('option') ?: []) : [];
     return rest_ensure_response([
         'site_name'        => get_bloginfo('name'),
         'site_description' => get_bloginfo('description'),
         'site_url'         => get_site_url(),
-        'all_fields'       => $fields,
+        'all_fields'       => array_merge($fields, ['select_services' => cutout_fix_select_services($fields['select_services'] ?? [])]),
     ]);
 }
 
