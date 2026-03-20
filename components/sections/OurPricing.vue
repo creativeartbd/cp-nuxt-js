@@ -56,11 +56,11 @@
                                             v-html="innerPricing.price_content"
                                             class="pricing-table-list"
                                         ></div>
-                                        <router-link
+                                        <NuxtLink
                                             v-if="innerPricing.button_label && innerPricing.button_url"
-                                            :to="innerPricing.button_url"
+                                            :to="toRelative(innerPricing.button_url)"
                                             class="btn btn-default order-now"
-                                            >{{ innerPricing.button_label }}</router-link
+                                            >{{ innerPricing.button_label }}</NuxtLink
                                         >
                                     </div>
                                 </div>
@@ -85,6 +85,10 @@ export default {
         };
     },
     methods: {
+        toRelative(url) {
+            if (!url) return "/";
+            return url.replace(/^https?:\/\/cutoutpartner\.com/, "") || "/";
+        },
         setActiveTab(tabTitle) {
             this.activeTab = tabTitle;
         },

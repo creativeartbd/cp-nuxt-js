@@ -16,14 +16,14 @@
                         {{ data.sub_title.sub_title_content }}
                     </p>
                     <div class="button-group" v-if="data.buttons.length">
-                        <router-link
+                        <NuxtLink
                             v-for="(button, index) in data.buttons"
                             :key="index"
-                            :to="button.button_url ? button.button_url : null"
+                            :to="toRelative(button.button_url)"
                             class="btn btn-default"
                         >
                             {{ button.button_name }}
-                        </router-link>
+                        </NuxtLink>
                     </div>
                 </div>
             </div>
@@ -34,6 +34,12 @@
 <script>
 export default {
     props: ["data"],
+    methods: {
+        toRelative(url) {
+            if (!url) return "/";
+            return url.replace(/^https?:\/\/cutoutpartner\.com/, "") || "/";
+        },
+    },
 };
 </script>
 
