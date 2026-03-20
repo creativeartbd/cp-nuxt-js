@@ -141,6 +141,7 @@ export default defineNuxtConfig({
         "/photo-restoration-service/": { redirect: { to: "/photo-restoration-services/", statusCode: 301 } },
         "/real-estate-photo-editing/": { redirect: { to: "/real-estate-photo-editing-services/", statusCode: 301 } },
         "/upload/": { redirect: { to: "/order/", statusCode: 301 } },
+        "/contact-us/": { redirect: { to: "/contact/", statusCode: 301 } },
         "/**": { isr: 300 },
     },
 
