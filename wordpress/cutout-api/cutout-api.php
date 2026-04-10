@@ -235,6 +235,97 @@ function cutout_get_single_post($request) {
 }
 
 /* ======================================================
+   CONTACT FORM ENDPOINT
+   ====================================================== */
+
+add_action('rest_api_init', 'cutout_register_contact_routes');
+
+function cutout_register_contact_routes() {
+    register_rest_route('cutout/v1', '/contact-form', [
+        'methods'             => 'POST',
+        'callback'            => 'cutout_handle_contact_form',
+        'permission_callback' => '__return_true',
+    ]);
+}
+
+function cutout_handle_contact_form($request) {
+    $name       = sanitize_text_field($request->get_param('name') ?: '');
+    $email      = sanitize_email($request->get_param('email') ?: '');
+    $phone      = sanitize_text_field($request->get_param('phone') ?: '');
+    $website    = esc_url_raw($request->get_param('website') ?: '');
+    $service    = sanitize_text_field($request->get_param('service') ?: '');
+    $message    = sanitize_textarea_field($request->get_param('message') ?: '');
+    $cloud_link = esc_url_raw($request->get_param('cloudLink') ?: '');
+
+    if (empty($name) || empty($email) || empty($message)) {
+        return new WP_Error('validation_error', 'Name, email, and message are required.', ['status' => 400]);
+    }
+
+    if (!is_email($email)) {
+        return new WP_Error('invalid_email', 'Please provide a valid email address.', ['status' => 400]);
+    }
+
+    // Recipient: use ACF contact_email field or fall back to WP admin email
+    $fields = function_exists('get_fields') ? (get_fields('option') ?: []) : [];
+    $to     = !empty($fields['contact_email']) ? $fields['contact_email'] : get_option('admin_email');
+
+    $subject = "New Contact Form Submission from {$name}";
+
+    $body  = "<h2>New Contact Form Submission</h2><table cellpadding='8'>";
+    $body .= "<tr><td><strong>Name:</strong></td><td>{$name}</td></tr>";
+    $body .= "<tr><td><strong>Email:</strong></td><td>{$email}</td></tr>";
+    if ($phone)      $body .= "<tr><td><strong>Phone:</strong></td><td>{$phone}</td></tr>";
+    if ($website)    $body .= "<tr><td><strong>Website:</strong></td><td>{$website}</td></tr>";
+    if ($service)    $body .= "<tr><td><strong>Service:</strong></td><td>{$service}</td></tr>";
+    $body .= "<tr><td><strong>Message:</strong></td><td>" . nl2br(esc_html($message)) . "</td></tr>";
+    if ($cloud_link) $body .= "<tr><td><strong>Cloud Link:</strong></td><td><a href='" . esc_url($cloud_link) . "'>" . esc_html($cloud_link) . "</a></td></tr>";
+    $body .= "</table>";
+
+    $headers = [
+        'Content-Type: text/html; charset=UTF-8',
+        "Reply-To: {$name} <{$email}>",
+    ];
+
+    // Handle file attachments
+    $attachments  = [];
+    $temp_files   = [];
+    if (!empty($_FILES)) {
+        $upload_dir = wp_upload_dir();
+        $temp_dir   = trailingslashit($upload_dir['basedir']) . 'contact-form-temp/';
+        if (!file_exists($temp_dir)) wp_mkdir_p($temp_dir);
+
+        foreach ($_FILES as $file) {
+            $names     = is_array($file['name'])     ? $file['name']     : [$file['name']];
+            $tmp_names = is_array($file['tmp_name']) ? $file['tmp_name'] : [$file['tmp_name']];
+            $errors    = is_array($file['error'])    ? $file['error']    : [$file['error']];
+
+            foreach ($names as $i => $original_name) {
+                if ($errors[$i] !== UPLOAD_ERR_OK) continue;
+                $safe_name  = sanitize_file_name($original_name);
+                $temp_path  = $temp_dir . time() . '_' . $i . '_' . $safe_name;
+                if (move_uploaded_file($tmp_names[$i], $temp_path)) {
+                    $attachments[] = $temp_path;
+                    $temp_files[]  = $temp_path;
+                }
+            }
+        }
+    }
+
+    $sent = wp_mail($to, $subject, $body, $headers, $attachments);
+
+    // Clean up temp files
+    foreach ($temp_files as $f) {
+        if (file_exists($f)) @unlink($f);
+    }
+
+    if (!$sent) {
+        return new WP_Error('mail_error', 'Failed to send email. Please try again or contact us directly.', ['status' => 500]);
+    }
+
+    return rest_ensure_response(['success' => true, 'message' => 'Message sent successfully.']);
+}
+
+/* ======================================================
    ACF OPTIONS PAGE REGISTRATION (was in functions.php)
    ====================================================== */
 
