@@ -66,7 +66,8 @@ export default defineNuxtConfig({
                 { name: "twitter:description", content: "Professional photo editing services with AI-powered background removal, retouching, and image enhancement." },
             ],
             link: [
-                { rel: "icon", type: "image/png", href: "/assets/images/favicon-white.png" },
+                { rel: "icon", type: "image/png", href: "/assets/images/favicon.png" },
+                { rel: "apple-touch-icon", href: "/assets/images/favicon.png" },
                 // Preconnect for critical origins
                 { rel: "preconnect", href: "https://cutoutpartner-api.com" },
                 { rel: "preconnect", href: "https://fonts.googleapis.com" },
