@@ -30,7 +30,7 @@ export default defineCachedEventHandler(
         }
     },
     {
-        maxAge: 60 * 60, // Cache for 1 hour
+        maxAge: 5 * 60, // Cache for 5 minutes (so WP Admin changes reflect quickly)
         name: "site-settings",
         swr: true,
     }
