@@ -143,6 +143,8 @@ export default defineNuxtConfig({
         "/real-estate-photo-editing/": { redirect: { to: "/real-estate-photo-editing-services/", statusCode: 301 } },
         "/upload/": { redirect: { to: "/order/", statusCode: 301 } },
         "/contact-us/": { redirect: { to: "/contact/", statusCode: 301 } },
+        "/sitemap_index.xml": { redirect: { to: "/sitemap.xml", statusCode: 301 } },
+        "/sitemap.xml": { headers: { "Cache-Control": "public, max-age=3600" } },
         "/**": { isr: 300 },
     },
 
