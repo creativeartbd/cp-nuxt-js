@@ -39,24 +39,22 @@ function cutout_register_rest_routes() {
     ]);
 }
 
-function cutout_get_all_services() {
-    $posts = get_posts([
-        'post_type'      => ['services', 'service'],
-        'post_status'    => 'publish',
-        'posts_per_page' => -1,
-        'orderby'        => 'menu_order title',
-        'order'          => 'ASC',
-    ]);
-    return array_map(function($post) {
-        return ['value' => (string)$post->ID, 'label' => $post->post_title];
-    }, $posts);
+function cutout_fix_select_services($services) {
+    if (!is_array($services)) return [];
+    return array_map(function($item) {
+        // Always resolve label from post title for numeric values (ACF choices can be stale)
+        if (is_array($item) && isset($item['value']) && is_numeric($item['value'])) {
+            $post = get_post((int)$item['value']);
+            if ($post) $item['label'] = $post->post_title;
+        }
+        return $item;
+    }, $services);
 }
 
 function cutout_get_settings() {
     $fields = function_exists('get_fields') ? (get_fields('option') ?: []) : [];
-    // Always populate select_services from published service posts — not the ACF field
-    // (ACF field data was lost when theme was updated; CPT posts are the source of truth)
-    $fields['select_services'] = cutout_get_all_services();
+    // Use the ACF select_services field (Theme Options → Service list for form)
+    $fields['select_services'] = cutout_fix_select_services($fields['select_services'] ?? []);
     return rest_ensure_response([
         'site_name'        => get_bloginfo('name'),
         'site_description' => get_bloginfo('description'),
